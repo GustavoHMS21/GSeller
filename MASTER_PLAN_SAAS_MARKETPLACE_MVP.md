@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.4 — Análise de mercado + Bloco Infra executado  
+> **Versão:** 0.5 — Bloco A: discovery kit, threat model, Data Map LGPD, Design System v0.1 e protótipo  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
 
@@ -998,6 +998,22 @@ comparar:
 ```
 
 Não concluir automaticamente que uma plataforma é “melhor” usando apenas faturamento.
+
+### R006 — Sem custo cadastrado (qualidade de dados)
+
+```text
+SE
+produto teve vendas no período
+E
+não possui custo vigente
+
+ENTÃO
+severity = warning
+não exibir resultado nem margem do produto
+orientar cadastro do custo
+```
+
+Adicionada na v0.5: sem custo, qualquer "lucro" exibido seria fictício.
 
 ### R004 — Produto vende, mas quase não contribui
 
@@ -3422,6 +3438,9 @@ Dentro deste mesmo documento mestre, manter a tabela abaixo atualizada:
 | Financial Engine | EXPERIMENTAL | 0.1 | — | Sim |
 | Analytics Engine | EXPERIMENTAL | 0.1 | — | Sim |
 | Infra base (repo, CI, banco local, logging) | VALIDATING | 0.1 | 2026-10-08 | Sim |
+| Design System | EXPERIMENTAL | 0.1 | 2026-10-08 | Sim |
+| Health Score | EXPERIMENTAL | hs-0.1 | 2026-10-08 | Sim |
+| Protótipo de discovery (dados demo) | VALIDATING | 0.1 | 2026-10-08 | Sim |
 
 Não criar um `STABLE_COMPONENTS.md` separado. A governança permanece neste arquivo.
 
@@ -3839,6 +3858,256 @@ Dependabot semanal (uv, npm) e mensal (actions, docker). Template de PR com a De
 - [ ] Registrar domínio e e-mail de privacidade (Bloco 19.6).
 - [ ] Apps e credenciais em nome da entidade do SaaS, não de conta pessoal (Bloco 14.2).
 
+---
+
+# BLOCO 49 — KIT DE DISCOVERY (EXECUTAR ANTES DA INTEGRAÇÃO)
+
+## 49.1 Objetivo
+
+Em **1 semana**, conversar com **5 a 8 sellers do ICP** e responder:
+
+| Hipótese | Pergunta que a entrevista precisa responder |
+|---|---|
+| H2 Margem | Ele sabe a margem **por produto** sem abrir planilha? |
+| H7 Financial Truth | Ele confia no número de lucro que usa hoje? Por quê? |
+| H9 Prioridade | A fila "Precisa da sua atenção" faz sentido sem explicação? |
+| H8 Cross-channel | Comparar o mesmo produto entre canais é uma dor real? |
+| H6 Disposição a pagar | Ele aceita um preço concreto ou um piloto pago? |
+| R14 Concorrência | O que ele usa hoje (ERP, SaaS, planilha) e o que isso não responde? |
+
+## 49.2 Recrutamento
+
+**Filtro (todas obrigatórias):**
+
+- vende no Mercado Livre há mais de 6 meses;
+- entre 100 e 2.000 pedidos/mês;
+- entre 20 e 500 SKUs;
+- investe em Ads **ou** faz promoções com frequência;
+- é dono ou decide sobre preço/Ads.
+
+**Desqualifica:** menos de 100 pedidos/mês; tem analista/BI dedicado.
+
+**Onde encontrar:** grupos de sellers (WhatsApp, Telegram, Facebook), mentores e agências de marketplace (serve também como teste de canal, R15), LinkedIn e indicação de quem já foi entrevistado.
+
+**Contrapartida sugerida:** diagnóstico gratuito da margem de 5 produtos do entrevistado, feito à mão (Bloco 30). Gera confiança e ensina quais dados o seller realmente tem.
+
+## 49.3 Roteiro (45 minutos)
+
+| Tempo | Etapa | Como |
+|---|---|---|
+| 0–5 | Abertura | Pedir consentimento para gravar. Avisar que não precisamos de dados de compradores. |
+| 5–20 | Contexto | Perguntas 1–17 do Bloco 27.1, priorizando 3, 6, 7, 10, 16 e 17. Pedir para **mostrar** a planilha ou ferramenta. Perguntar sobre a **última vez** que algo aconteceu, nunca "você usaria". |
+| 20–35 | Protótipo | Avisar que é uma loja fictícia. Três tarefas, sem ajudar (ver 49.4). |
+| 35–42 | Preço | Mostrar **um** preço por entrevistado, em rodízio: R$ 97 / R$ 197 / R$ 297. Ver 49.5. |
+| 42–45 | Confiança e fechamento | Pergunta 15 (conectar via API). Pedir indicação de outro seller. |
+
+## 49.4 Tarefas do protótipo
+
+1. **"Descubra qual produto precisa de atenção primeiro."** Sucesso: chega ao Kit 3 Cuecas ou à Garrafa Térmica e explica o motivo.
+2. **"Quanto sobrou da Garrafa Térmica no período e para onde foi o dinheiro?"** Sucesso: encontra a decomposição e cita o desconto como principal pressão.
+3. **"A Camiseta rende mais no Mercado Livre ou na Shopee?"** Sucesso: usa resultado por unidade ou margem, não apenas receita.
+
+Registrar em cada tarefa: concluiu? em quanto tempo? onde travou? o que perguntou?
+
+Cenários embutidos nos dados de demonstração:
+
+| Produto | Regra exercitada | O que o seller deveria perceber |
+|---|---|---|
+| Kit 3 Cuecas | R004 (crítico) | Vende muito e quase não contribui |
+| Garrafa Térmica | R002 | Cresceu em receita, perdeu margem por desconto |
+| Fone Bluetooth X1 | R001 | Conversão caiu com visitas estáveis e preço maior |
+| Luminária LED | R005 | Ads subiu sem retorno proporcional |
+| Capa Notebook | R006 | Sem custo não há resultado |
+| Camiseta / Kit | R003 | Mesmo produto rende diferente entre canais |
+| Organizador / Mochila | — | Produtos saudáveis (controle) |
+
+## 49.5 Teste de preço
+
+Perguntas, nesta ordem, registrando a resposta **literal**:
+
+1. "Por R$ X por mês, você assinaria isso hoje para a sua loja?"
+2. Se não: "O que precisaria ter para valer R$ X?"
+3. Se sim: "Você toparia um piloto pago de 30 dias assim que a integração estiver pronta?"
+4. "Qual resultado no seu negócio justificaria essa mensalidade?"
+
+"Eu usaria" **não** conta como validação (princípio 17).
+
+## 49.6 Registro (um por entrevista)
+
+```text
+Seller: A, B, C… (nunca nome real neste documento)
+Perfil: pedidos/mês · SKUs · canais · ferramenta atual · gasto mensal com ferramentas
+Dores citadas espontaneamente (antes do protótipo):
+H1…H9: + / − / 0, com uma citação curta cada
+Tarefas 1–3: concluiu? tempo · onde travou
+Preço apresentado · reação · principal objeção · aceita piloto pago? · faixa máxima
+Pediu para continuar usando? Indicou alguém?
+```
+
+Gravações e notas brutas ficam **fora do repositório**, em pasta privada, e são apagadas em 90 dias. Neste documento entra apenas o resumo anonimizado (ver Data Map, Bloco 50).
+
+## 49.7 Critérios de leitura definidos antes das entrevistas
+
+Definidos agora para evitar ler os resultados com viés depois.
+
+**Sinal forte para continuar:**
+
+- 3 de 5 ou mais não sabem a margem por produto sem planilha (H2);
+- 3 de 5 ou mais concluem a tarefa 1 em menos de 2 minutos e chamam a fila de útil (H9);
+- 2 ou mais aceitam piloto pago em alguma faixa testada (H6).
+
+**Sinal de pivô ou parada:**
+
+- a maioria diz que o ERP/ferramenta atual já responde as tarefas 1–3;
+- ninguém aceita pagar R$ 97 ou mais;
+- a dor mais repetida é outra (registrar qual).
+
+## 49.8 Como mostrar o protótipo
+
+- **Local:** `cd frontend && npm run dev` → http://localhost:3000
+- **Remoto (recomendado para entrevistas por vídeo):** publicar o frontend na Vercel. É seguro porque o protótipo é estático, não tem segredos e usa apenas dados fictícios.
+
+---
+
+# BLOCO 50 — THREAT MODEL INICIAL E DATA MAP LGPD
+
+## 50.1 Ativos
+
+| Ativo | Por que importa |
+|---|---|
+| Tokens OAuth de marketplace | Dão acesso à loja do seller. Ativo mais crítico. |
+| Dados financeiros dos sellers | Sigilo comercial: custos, margens, volumes. |
+| Dados pessoais de compradores | Risco LGPD. Minimizar ao máximo (50.4). |
+| Chaves (`ENCRYPTION_KEY`, client secrets) | Permitem abrir todos os tokens. |
+| Contas administrativas | Acesso transversal a todos os tenants. |
+
+## 50.2 Fronteiras de confiança
+
+```text
+Navegador ──► Frontend (Vercel) ──► API ──► PostgreSQL
+                                     │
+                                     ├──► APIs Mercado Livre / Shopee  (saída)
+                                     └──◄ Webhooks dos marketplaces     (entrada)
+Admin ──► API (fluxo separado, MFA)
+GitHub ──► CI ──► Deploy           (cadeia de suprimentos)
+```
+
+## 50.3 STRIDE
+
+✅ = já implementado · 🔜 = bloco em que entra
+
+| Categoria | Ameaça | Mitigação | Status |
+|---|---|---|---|
+| Spoofing | CSRF no callback do OAuth (ligar a conta de outra pessoa) | `state` aleatório vinculado à sessão + PKCE + redirect URI exato | 🔜 OAuth ML |
+| Spoofing | Webhook forjado | Validar origem conforme o marketplace. Tratar o webhook só como aviso e **buscar o recurso na API autenticada**, nunca confiar no payload | 🔜 Sync |
+| Spoofing | Sequestro de sessão | Cookie `httpOnly` + `Secure` + `SameSite`, JWT curto, validação de issuer/audience | 🔜 Auth |
+| Tampering | Alterar custo histórico e "maquiar" margem | Custo versionado + `audit_logs` | 🔜 Custos |
+| Tampering | Mass assignment (enviar `tenant_id` ou campos extras) | Schemas Pydantic explícitos; `tenant_id` sempre derivado da sessão | 🔜 Auth |
+| Repudiation | "Não fui eu que mudei o custo/permissão" | `audit_logs` com ator, ação, recurso e request_id | 🔜 Auth |
+| Info disclosure | Vazamento entre tenants (R05) | Tenant da sessão, queries escopadas, RLS, testes automatizados | 🔜 Auth |
+| Info disclosure | Token ou segredo em log | Mascaramento nos logs; log de acesso sem query string | ✅ |
+| Info disclosure | Segredo no bundle do navegador | Build falha com `NEXT_PUBLIC_*` de nome sensível | ✅ |
+| Info disclosure | Stack trace para o cliente | Erro 500 devolve só `request_id`; `/docs` desligado fora de dev | ✅ |
+| Info disclosure | Excesso de dados nas respostas | Schemas de resposta explícitos; nada de devolver modelo do banco direto | 🔜 API |
+| DoS | Tempestade de syncs / vizinho barulhento | Rate limit por tenant, fila, lock por conexão (Bloco 42) | 🔜 Sync |
+| DoS | Consulta pesada derrubando o banco | Pool limitado + `statement_timeout` | ✅ |
+| DoS | 429 dos marketplaces | Backoff com jitter centralizado no connector | 🔜 Sync |
+| Elevation | API conseguir ignorar RLS ou alterar schema | Role `app_runtime` sem DDL/BYPASSRLS, protegida por teste | ✅ |
+| Elevation | MEMBER virar OWNER | RBAC deny-by-default, testes de permissão | 🔜 Auth |
+| Elevation | Dependência comprometida | Lockfiles, Dependabot, `pip-audit`, `npm audit`, gitleaks | ✅ |
+
+## 50.4 Regra de minimização no normalizador
+
+O connector usa uma **allowlist de campos**: só o que está mapeado no modelo interno é persistido. Consequências:
+
+- **Não persistir** nome, CPF/CNPJ, telefone, e-mail ou endereço de comprador. Não chamar endpoints de dados de faturamento do comprador.
+- **Pedidos nunca são guardados como JSON bruto.**
+- As colunas `raw_metadata_json` (listings) e `raw_json` (ads, ajustes) do Bloco 7 só podem receber payload **filtrado**, sem campos de comprador. Revisar no bloco de modelo de dados.
+- O ID do comprador não é necessário no MVP. Se uma análise de recompra entrar no futuro, guardar apenas um hash com sal por tenant.
+
+## 50.5 Data Map (versão inicial — bases legais a validar com jurídico)
+
+| Dado | Origem | Finalidade | Base legal proposta | Onde fica | Quem acessa | Retenção proposta | Exclusão |
+|---|---|---|---|---|---|---|---|
+| Nome e e-mail do usuário | Cadastro | Autenticação, comunicação do serviço | Execução de contrato | Auth + banco | Usuário; admin com MFA | Enquanto a conta existir | Exclusão da conta |
+| Identificação da loja (ID do seller, apelido) | API do marketplace | Vincular a conexão | Execução de contrato | Banco | Backend | Enquanto a conexão existir | Desconexão / exclusão |
+| Tokens OAuth | Marketplace | Ler dados em nome do seller | Execução de contrato | Banco, criptografado | Somente backend | Enquanto a integração estiver ativa | Apagar ao desconectar ou revogar |
+| Pedidos (IDs, itens, valores, status, datas) | API do marketplace | Cálculo financeiro | Execução de contrato | Banco | Usuários do tenant | Proposta: 24 meses (comparação anual) | Exclusão da conta |
+| Custos informados | Seller | Cálculo financeiro | Execução de contrato | Banco | Usuários do tenant | Enquanto a conta existir | Exclusão da conta |
+| Dados pessoais do comprador | API do marketplace | **Nenhuma no MVP** | — | **Não coletar** | — | — | — |
+| CEP/UF de entrega | API do marketplace | Futuro: análise regional de frete | — | Não persistir no MVP (futuro: só UF) | — | — | — |
+| Logs de acesso (IP, ação, data) | Sistema | Segurança e auditoria | Cumprimento de obrigação legal (Marco Civil, art. 15) e legítimo interesse | Logs | Admin | Mínimo 6 meses; máximo a definir | Rotação automática |
+| Gravações de entrevistas | Entrevistado | Pesquisa de produto | Consentimento | Pasta privada, fora do repositório | Equipe do projeto | 90 dias; depois só resumo anônimo | Apagar arquivo |
+| Dados de cobrança do SaaS (futuro) | Gateway de pagamento | Cobrança | Execução de contrato / obrigação legal | Gateway (suboperador) | Financeiro | Prazo fiscal | Conforme gateway |
+
+## 50.6 Papéis (a confirmar com jurídico e com os termos de cada marketplace)
+
+- **Dados das contas do SaaS** (usuários, logs, cobrança): somos **controladores**.
+- **Dados que vêm do marketplace em nome do seller:** o seller é o controlador da própria operação; nós atuamos como **operador**, processando sob instrução dele para gerar as análises. Os termos de desenvolvedor de cada marketplace podem impor obrigações próprias — mapear no DPA.
+- **Suboperadores previstos:** hospedagem do banco, hospedagem da API, Vercel, provedor de autenticação, gateway de pagamento (futuro).
+
+---
+
+# BLOCO 51 — DESIGN SYSTEM v0.1 E PROTÓTIPO (EXECUTADO EM 2026-10-08)
+
+## 51.1 Tokens
+
+Os tokens semânticos do Bloco 16.4 foram renomeados para gerar utilitários legíveis no Tailwind 4:
+
+| Bloco 16.4 | Implementado | Exemplo de uso |
+|---|---|---|
+| `--color-bg` | `canvas` | `bg-canvas` |
+| `--color-surface` | `surface` | `bg-surface` |
+| `--color-surface-muted` | `surface-muted` | `bg-surface-muted` |
+| `--color-text` | `fg` | `text-fg` |
+| `--color-text-muted` | `fg-muted` | `text-fg-muted` |
+| `--color-border` | `line` | `border-line` |
+| `--color-primary` / `-hover` | `primary` / `primary-hover` | `bg-primary` |
+| `--color-success/warning/danger/info` | iguais + variação `-soft` para fundos | `bg-danger-soft text-danger` |
+
+- Valores em `frontend/src/app/globals.css`, com tema claro e escuro automáticos (`prefers-color-scheme`).
+- Raios conforme o Bloco 16.3 (6/10/14/20 px). Escala de texto com `text-highlight` (32px) e `text-hero` (40px).
+- Fonte: Geist. Números sempre com `tabular-nums`.
+
+## 51.2 Componentes entregues
+
+`Button`, `ButtonLink`, `Badge`, `HealthBadge`, `MarketplaceBadge`, `ConnectionStatusBadge`, `Card`, `KpiCard`, `Delta`, `Formula` ("Como calculamos?"), `EmptyState`, `ErrorState`, `Skeleton`, `InsightCard`, `EconomicsBreakdown`, `ProductsTable` (com filtros), `CostsEditor` (com vigência).
+
+**Decisão:** componentes de exibição feitos à mão, sem biblioteca. Componentes interativos complexos (Dialog, Select acessível, DateRangePicker, Tooltip, Toast) entram com shadcn/ui (Radix) quando a primeira tela real precisar deles.
+
+Vitrine: rota `/design`.
+
+## 51.3 Protótipo
+
+Rotas: `/dashboard`, `/produtos`, `/produtos/[id]`, `/custos`, `/conexoes` (inclui o onboarding), `/design`. Tem estados de loading, erro e vazio.
+
+- Os dados vêm de `frontend/src/lib/demo/`. O cálculo ali é **só do protótipo** — o oficial será a Financial Truth Engine no backend.
+- `frontend/src/lib/types.ts` é a **proposta de contrato** entre API e frontend (economics, lineage, insights, health).
+- `frontend/src/lib/demo/rules.ts` serve de especificação executável das regras R001–R006 para o Analytics Engine.
+
+## 51.4 Health Score hs-0.1 (calibrado nos dados de demonstração)
+
+Começa em 100 e desconta pontos:
+
+| Critério | Pontos |
+|---|---|
+| Margem estimada abaixo de 5% / 10% / 15% | −60 / −45 / −15 |
+| Margem caiu mais de 5 p.p. / mais de 2 p.p. | −25 / −10 |
+| Receita caiu mais de 15% / mais de 5% | −15 / −5 |
+| Conversão caiu mais de 20% | −15 |
+| Ads cresceu mais de 2 p.p. como % da receita | −15 |
+
+Sem custo cadastrado, o score fica "Sem dados".
+
+A calibração garante que **nenhum produto com alerta apareça como "Saudável"** e que margem abaixo de 10% caia na faixa "Crítico".
+
+## 51.5 Limitações conhecidas
+
+- Tela de login (Tela 1) fica para o bloco de Auth, porque depende da escolha do provedor.
+- Um ID de produto inexistente mostra a página "não encontrado", mas com HTTP 200: o Next.js já enviou o cabeçalho quando o streaming começa. Aceitável no protótipo; na versão real o 404 virá da API.
+- Filtros da lista de produtos não ficam na URL.
+- CSP com nonce ainda pendente (Bloco 48.5).
+
 # PRÓXIMO PASSO
 
 O próximo bloco de trabalho não deve ser código de integração.
@@ -3855,9 +4124,21 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 
 > **Atualização v0.4:** a parte de infraestrutura do Bloco B (Bloco 48) foi adiantada em paralelo porque não depende do resultado do discovery. Código de integração e domínio continua **depois** do Bloco A.
 
+> **Atualização v0.5:** o material do Bloco A está pronto (Blocos 49–51). Falta a parte que só o time pode fazer: **as entrevistas**. Enquanto elas acontecem, o bloco técnico seguinte é **Auth + Tenant isolation**, que é necessário em qualquer cenário.
+
 ---
 
 # CHANGELOG
+
+## v0.5
+
+- adicionado Bloco 49 — kit de discovery: recrutamento, roteiro de 45 min, tarefas no protótipo, teste de preço, registro e critérios de leitura definidos antes das entrevistas;
+- adicionado Bloco 50 — threat model STRIDE, regra de minimização por allowlist no normalizador e Data Map LGPD inicial;
+- adicionado Bloco 51 — Design System v0.1 (tokens, 17 componentes, vitrine `/design`) e protótipo navegável com dados de demonstração;
+- adicionada regra R006 (sem custo cadastrado) ao Bloco 10;
+- Health Score hs-0.1 definido e calibrado;
+- decidido: componentes de exibição sem biblioteca; shadcn/ui (Radix) só para componentes interativos complexos;
+- registrado risco: colunas `raw_*_json` do Bloco 7 só podem receber payload filtrado.
 
 ## v0.4
 
