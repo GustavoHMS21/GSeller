@@ -1,0 +1,60 @@
+# ---------------------------------------------------------------
+# Secrets — nunca versionar. Apenas os arquivos *.example sobem.
+# ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+*.p12
+secrets/
+
+# ---------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ---------------------------------------------------------------
+# Node / Next.js
+# ---------------------------------------------------------------
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.vercel/
+
+# ---------------------------------------------------------------
+# Dados locais, dumps e exports (podem conter dados de clientes)
+# ---------------------------------------------------------------
+*.dump
+*.sql.gz
+exports/
+tmp/
+
+# ---------------------------------------------------------------
+# Sistema operacional / editores
+# ---------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp

@@ -1,0 +1,3920 @@
+# MASTER PLAN — SaaS de Inteligência para Sellers
+## Mercado Livre + Shopee | MVP em 14 dias
+
+> **Status:** Documento mestre vivo  
+> **Versão:** 0.4 — Análise de mercado + Bloco Infra executado  
+> **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
+> **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
+
+---
+
+# 0. COMO USAR ESTE DOCUMENTO
+
+Este arquivo é a referência principal do projeto. Toda nova ideia deve ser classificada antes de virar desenvolvimento:
+
+1. É necessária para o MVP de 14 dias?
+2. Resolve diretamente uma dor validada?
+3. É necessária para segurança, LGPD ou integridade financeira?
+4. Temos dados confiáveis para entregar essa funcionalidade?
+5. Conseguimos testar com usuário real dentro do prazo?
+
+Se a resposta for **não**, a funcionalidade vai para o backlog pós-MVP.
+
+## Regra de ouro
+
+> **Dados → Diagnóstico → Prioridade → Ação.**
+
+O produto não deve existir apenas para mostrar números. Ele deve ajudar o micro e pequeno seller a entender:
+
+- o que está acontecendo;
+- onde ele está ganhando dinheiro;
+- onde está perdendo;
+- qual produto precisa de atenção;
+- qual marketplace está funcionando melhor;
+- qual ação deve investigar primeiro.
+
+---
+
+# BLOCO 1 — VISÃO DO PRODUTO
+
+## 1.1 Problema central
+
+Micro e pequenos vendedores de marketplaces frequentemente operam com informações espalhadas entre:
+
+- painel do Mercado Livre;
+- painel da Shopee;
+- central de publicidade;
+- planilhas;
+- sistema de estoque;
+- calculadoras;
+- informações de custo;
+- vídeos e conteúdos sobre SEO;
+- ferramentas de IA;
+- conhecimento informal.
+
+O problema não é apenas “falta de dados”.
+
+O problema é:
+
+> **existem dados demais, em lugares diferentes, e pouca capacidade de transformá-los em uma decisão simples.**
+
+### Pergunta que nosso produto deve responder
+
+> **“O que eu preciso olhar ou corrigir hoje para vender melhor e proteger minha margem?”**
+
+---
+
+## 1.2 Posicionamento inicial
+
+### Não somos
+
+- ERP completo;
+- emissor fiscal;
+- sistema contábil;
+- ferramenta de gestão empresarial genérica;
+- agência de marketing;
+- “IA que descobriu o algoritmo do marketplace”;
+- robô que altera anúncios automaticamente;
+- substituto do Mercado Livre ou Shopee.
+
+### Somos
+
+> **Uma plataforma de Financial Intelligence para sellers de marketplaces.**
+
+Proposta simples:
+
+> **Conecte sua operação, descubra onde cada produto realmente contribui para o resultado e saiba o que merece atenção primeiro.**
+
+Possível evolução de posicionamento:
+
+> **Seu analista de marketplace.**
+
+---
+
+## 1.3 North Star do produto
+
+O usuário deve conseguir abrir o sistema e, em poucos segundos, responder:
+
+1. Quanto vendi?
+2. Quanto aproximadamente sobrou?
+3. Qual marketplace está melhor?
+4. Qual produto está melhor?
+5. Qual produto está pior?
+6. O que precisa da minha atenção?
+7. Por quê?
+
+---
+
+# BLOCO 2 — ICP E HIPÓTESES
+
+## 2.1 ICP inicial — seller pequeno profissionalizado
+
+Não mirar “qualquer microempreendedor”. O ICP inicial deve ter **dor, volume de dados e consequência financeira suficiente para pagar**.
+
+Focar em seller que, idealmente:
+
+- vende em Mercado Livre e já considera ou utiliza outro marketplace;
+- possui aproximadamente **20 a 500 SKUs**;
+- processa algo na ordem de **100 a 2.000 pedidos/mês**;
+- já possui histórico de vendas;
+- investe em Ads ou toma decisões frequentes de preço/promoção;
+- conhece ao menos parte do custo dos produtos;
+- usa planilha, ERP e/ou múltiplos painéis para fechar a visão do negócio;
+- não possui analista de dados dedicado;
+- o owner/gestor ainda participa diretamente das decisões.
+
+### ICP prioritário para o piloto
+
+Seller que:
+
+- tenha Mercado Livre ativo;
+- possua pelo menos 20 produtos ou variações relevantes;
+- consiga informar custo unitário de parte do catálogo;
+- já tenha vivenciado dúvida sobre margem, Ads, preço ou rentabilidade;
+- aceite conectar a conta via API oficial em modo **read-only / menor privilégio**;
+- esteja disposto a testar e discutir preço real da solução.
+
+### Anti-ICP inicial
+
+Evitar priorizar no primeiro ciclo:
+
+- seller com pouquíssimos pedidos e baixa recorrência;
+- empresa com time próprio de BI/FP&A e stack analítica madura;
+- operação que exige fiscal/contábil completo para considerar qualquer ferramenta útil;
+- cliente que só valoriza automação de publicação/alteração de anúncios.
+
+---
+
+## 2.2 Hipóteses a validar
+
+### H1 — Fragmentação
+O seller perde tempo alternando entre plataformas e planilhas.
+
+### H2 — Margem
+O seller conhece faturamento melhor do que conhece sua margem real.
+
+### H3 — Priorização
+O seller sabe que alguns produtos estão ruins, mas não sabe onde investigar primeiro.
+
+### H4 — Comparação
+O seller tem dificuldade para comparar o mesmo SKU no Mercado Livre e na Shopee.
+
+### H5 — Marketing
+O seller consome conteúdo sobre título, SEO, Ads e “algoritmo”, mas tem dificuldade de relacionar esse conhecimento aos próprios dados.
+
+### H6 — Disposição a pagar
+O seller pagaria por uma ferramenta que reduza perda de margem, revele diferença econômica entre canais e economize tempo de análise. A validação exige **preço concreto**, não apenas “eu usaria”.
+
+### H7 — Financial Truth
+O seller valoriza mais uma visão confiável de contribuição/margem do que mais um dashboard de métricas nativas.
+
+### H8 — Cross-channel
+Cruzar economics entre marketplaces gera valor que os painéis isolados não entregam de forma suficiente.
+
+### H9 — Prioridade de ação
+O seller prefere uma fila curta de problemas econômicos priorizados a dezenas de gráficos sem recomendação de investigação.
+
+---
+
+# BLOCO 3 — PROPOSTA DE VALOR
+
+## 3.1 Job to be Done
+
+> Quando eu estiver administrando meus produtos em diferentes marketplaces, quero saber rapidamente quais produtos estão performando bem ou mal e qual é o impacto financeiro, para conseguir decidir onde devo agir primeiro.
+
+## 3.2 Diferencial pretendido
+
+Não competir inicialmente por quantidade de recursos.
+
+Competir por:
+
+- simplicidade;
+- clareza;
+- comparação;
+- diagnóstico;
+- contexto financeiro;
+- priorização;
+- confiança.
+
+### Não mostrar apenas
+
+> “Produto A vendeu R$ 15.000.”
+
+### Mostrar
+
+> “Produto A vendeu R$ 15.000, mas sua margem estimada caiu de 22% para 13%. O principal sinal observado foi o aumento do gasto com publicidade.”
+
+---
+
+# BLOCO 4 — ESCOPO DO MVP
+
+## 4.1 O que entra no MVP
+
+### Conta e organização
+
+- [ ] Cadastro/login.
+- [ ] Uma organização/empresa por usuário inicialmente.
+- [ ] Tenant ID desde a primeira versão.
+- [ ] Onboarding simples.
+
+### Integrações
+
+- [ ] Conectar Mercado Livre em **modo read-only / menor privilégio possível**.
+- [ ] Shopee fica **P1 e fora do caminho crítico dos 14 dias**; entra no piloto apenas se acesso/permissões estiverem prontos sem comprometer o núcleo.
+- [ ] Sincronização inicial.
+- [ ] Sincronização incremental.
+- [ ] Status da integração.
+- [ ] Reconectar conta quando necessário.
+
+### Produtos
+
+- [ ] Importar anúncios/produtos.
+- [ ] Criar conceito de **Produto Mestre**.
+- [ ] Prever **Produto → Variante → Listing → Variante do marketplace** no schema.
+- [ ] Vincular anúncio/variação do Mercado Livre.
+- [ ] Vincular Shopee quando P1 estiver disponível.
+- [ ] Permitir correção manual do vínculo.
+- [ ] Armazenar SKU quando disponível.
+
+### Vendas
+
+- [ ] Importar pedidos.
+- [ ] Venda operacional/pedido pago, separada de receita atribuída a Ads.
+- [ ] Status de cancelamento, devolução e reembolso quando disponível.
+- [ ] Receita bruta.
+- [ ] Quantidade vendida.
+- [ ] Ticket médio.
+- [ ] Receita por marketplace.
+- [ ] Receita por produto.
+- [ ] Comparação de períodos.
+
+### Custos e margem
+
+- [ ] Custo unitário informado pelo seller.
+- [ ] Comissão/taxas disponíveis na origem.
+- [ ] Frete quando disponível.
+- [ ] Descontos relevantes quando identificáveis.
+- [ ] Ads quando a API/permissão permitir.
+- [ ] Imposto como configuração opcional/estimada.
+- [ ] Margem de contribuição estimada.
+- [ ] Resultado estimado por produto/variação.
+- [ ] Ajustes por cancelamentos, devoluções e reembolsos quando disponíveis.
+- [ ] **Data lineage**: origem de cada componente financeiro e data da última atualização.
+- [ ] Transparência da fórmula.
+
+### Dashboard
+
+- [ ] Faturamento.
+- [ ] Resultado estimado.
+- [ ] Margem estimada.
+- [ ] Pedidos.
+- [ ] Ticket médio.
+- [ ] Visão Mercado Livre no piloto; comparação Mercado Livre x Shopee somente quando a integração Shopee estiver confiável.
+- [ ] Top produtos.
+- [ ] Piores produtos.
+- [ ] Produtos que precisam de atenção.
+
+### Insights
+
+- [ ] Regras determinísticas iniciais.
+- [ ] Health Score simples.
+- [ ] Alertas.
+- [ ] Explicação do motivo do alerta.
+- [ ] Próxima ação sugerida como **investigação**, não como verdade absoluta.
+
+---
+
+## 4.2 O que NÃO entra nas primeiras duas semanas
+
+- [ ] NF-e.
+- [ ] Contabilidade.
+- [ ] Conciliação financeira completa.
+- [ ] Compras e fornecedores.
+- [ ] WMS.
+- [ ] Gestão logística completa.
+- [ ] CRM.
+- [ ] Atendimento.
+- [ ] Chatbot.
+- [ ] Agentes autônomos.
+- [ ] Alteração automática de anúncios.
+- [ ] Alteração automática de preço.
+- [ ] Criação automática de campanhas.
+- [ ] Gestão completa de estoque.
+- [ ] Forecast avançado.
+- [ ] Recomendação gerada exclusivamente por LLM.
+- [ ] BI customizado.
+- [ ] Aplicativo mobile nativo.
+- [ ] Integração com dezenas de marketplaces.
+- [ ] n8n.
+
+### Regra
+
+Qualquer item dessa lista só entra antes do lançamento se bloquear diretamente:
+
+- segurança;
+- LGPD;
+- conexão das plataformas;
+- cálculo correto;
+- experiência principal.
+
+---
+
+# BLOCO 5 — FLUXO PRINCIPAL DO USUÁRIO
+
+```text
+Cadastro
+   ↓
+Criar empresa
+   ↓
+Conectar marketplace
+   ↓
+Autorizar acesso
+   ↓
+Sincronizar produtos
+   ↓
+Sincronizar pedidos
+   ↓
+Relacionar produtos equivalentes
+   ↓
+Informar custos
+   ↓
+Calcular indicadores
+   ↓
+Dashboard
+   ↓
+Produtos que precisam de atenção
+   ↓
+Abrir produto
+   ↓
+Entender o motivo
+   ↓
+Tomar uma decisão
+```
+
+---
+
+# BLOCO 6 — TELAS DO MVP
+
+## Tela 1 — Login / Cadastro
+
+Objetivo:
+
+- entrada simples;
+- recuperação de conta;
+- nenhuma informação técnica desnecessária.
+
+## Tela 2 — Onboarding
+
+Passos:
+
+1. Nome da operação.
+2. Marketplaces utilizados.
+3. Conectar Mercado Livre.
+4. Conectar Shopee.
+5. Sincronizar.
+6. Cadastrar/importar custos.
+7. Acessar dashboard.
+
+### Estado da integração
+
+Cada conexão deve ter:
+
+- Conectado;
+- Sincronizando;
+- Requer atenção;
+- Token expirado/revogado;
+- Erro;
+- Desconectado.
+
+## Tela 3 — Dashboard
+
+### Header
+
+- período;
+- última sincronização;
+- status das integrações.
+
+### KPIs
+
+- Receita;
+- Resultado estimado;
+- Margem estimada;
+- Pedidos;
+- Ticket médio.
+
+### Comparação de marketplace
+
+- Mercado Livre;
+- Shopee.
+
+### Produtos
+
+- Top receita;
+- Top margem;
+- Maior queda;
+- Maior crescimento;
+- Produtos críticos.
+
+### “Precisa da sua atenção”
+
+Card principal do produto.
+
+Exemplo:
+
+> 🔴 Produto X  
+> Conversão caiu 28% nos últimos 14 dias.  
+> Visitas permaneceram praticamente estáveis.  
+> O preço aumentou 9% no mesmo período.  
+> **Investigue competitividade de preço e oferta.**
+
+## Tela 4 — Produtos
+
+Tabela:
+
+| Produto | SKU | ML | Shopee | Receita | Margem | Pedidos | Saúde |
+|---|---|---:|---:|---:|---:|---:|---|
+
+Filtros:
+
+- marketplace;
+- período;
+- saúde;
+- margem;
+- crescimento/queda;
+- categoria.
+
+## Tela 5 — Detalhe do Produto
+
+### Produto Mestre
+
+- nome;
+- SKU;
+- custo;
+- estoque opcional;
+- anúncios relacionados.
+
+### Por marketplace
+
+- preço;
+- receita;
+- unidades;
+- visitas quando disponível;
+- CTR quando aplicável;
+- conversão;
+- Ads;
+- margem.
+
+### Comparação
+
+> “Este produto performa melhor em X.”
+
+Sempre mostrar:
+
+- dado utilizado;
+- período;
+- fórmula;
+- nível de confiança quando houver inferência.
+
+## Tela 6 — Custos
+
+Essencial para evitar “lucro fictício”.
+
+Campos:
+
+- SKU;
+- custo unitário;
+- imposto estimado;
+- custo adicional opcional;
+- vigência do custo.
+
+### Importante
+
+O custo deve ser versionado por período.
+
+Nunca sobrescrever silenciosamente custo histórico.
+
+---
+
+# BLOCO 7 — MODELO DE DADOS
+
+## 7.1 Conceito principal
+
+### Produto não é anúncio — e produto também não é necessariamente SKU final.
+
+O schema deve nascer preparado para variações e kits, mesmo que o MVP não implemente toda a complexidade de bundles.
+
+```text
+Produto Mestre
+CAMISETA OVERSIZED
+       │
+       ├── Variante P / PRETA
+       │      ├── Mercado Livre listing/variation
+       │      └── Shopee item/model
+       │
+       ├── Variante M / PRETA
+       │      ├── Mercado Livre listing/variation
+       │      └── Shopee item/model
+       │
+       └── Variante G / PRETA
+```
+
+### Regra
+
+A unidade econômica deve ser o nível mais baixo em que custo, preço, quantidade ou margem possam divergir.
+
+## 7.2 Entidades principais
+
+### tenants
+
+```text
+id
+name
+created_at
+updated_at
+```
+
+### users
+
+```text
+id
+email
+name
+created_at
+```
+
+### tenant_users
+
+```text
+tenant_id
+user_id
+role
+created_at
+```
+
+### marketplace_connections
+
+```text
+id
+tenant_id
+provider
+external_shop_id
+status
+access_token_encrypted
+refresh_token_encrypted
+token_expires_at
+scopes
+last_sync_at
+created_at
+updated_at
+```
+
+> Tokens nunca são retornados para o frontend.
+
+### master_products
+
+```text
+id
+tenant_id
+internal_sku
+name
+status
+created_at
+updated_at
+```
+
+### master_product_variants
+
+```text
+id
+tenant_id
+master_product_id
+internal_sku
+name
+attributes_json
+status
+created_at
+updated_at
+```
+
+### marketplace_listings
+
+```text
+id
+tenant_id
+master_product_id
+connection_id
+provider
+external_listing_id
+title
+status
+currency
+raw_metadata_json
+created_at
+updated_at
+```
+
+### marketplace_listing_variants
+
+```text
+id
+tenant_id
+marketplace_listing_id
+master_product_variant_id
+external_variant_id
+external_sku
+price
+attributes_json
+status
+created_at
+updated_at
+```
+
+### orders
+
+```text
+id
+tenant_id
+connection_id
+provider
+external_order_id
+status
+created_at_marketplace
+gross_amount
+discount_amount
+shipping_amount
+fee_amount
+currency
+synced_at
+```
+
+### order_items
+
+```text
+id
+tenant_id
+order_id
+marketplace_listing_id
+marketplace_listing_variant_id
+master_product_id
+master_product_variant_id
+quantity
+unit_price
+gross_amount
+fee_amount
+discount_amount
+shipping_amount
+```
+
+### product_cost_history
+
+```text
+id
+tenant_id
+master_product_id
+master_product_variant_id
+unit_cost
+tax_percent
+additional_unit_cost
+valid_from
+valid_to
+created_at
+```
+
+### financial_adjustments
+
+Representa eventos financeiros posteriores ao pedido.
+
+```text
+id
+tenant_id
+order_id
+order_item_id
+provider
+external_adjustment_id
+type              # refund | return | cancellation | fee_adjustment | shipping_adjustment | other
+amount
+currency
+effective_at
+raw_json
+created_at
+```
+
+### Regra de modelagem
+
+Nunca sobrescrever silenciosamente o passado financeiro. Eventos posteriores devem ser registrados como ajustes ou versões, preservando trilha de auditoria.
+
+### ad_metrics_daily
+
+```text
+id
+tenant_id
+connection_id
+marketplace_listing_id
+date
+impressions
+clicks
+ctr
+cpc
+cost
+conversion_rate
+ad_revenue
+roas
+raw_json
+```
+
+### product_metrics_daily
+
+```text
+id
+tenant_id
+master_product_id
+provider
+date
+revenue
+orders
+units
+visits
+conversion_rate
+estimated_margin
+estimated_result
+```
+
+### insights
+
+```text
+id
+tenant_id
+master_product_id
+type
+severity
+rule_id
+title
+description
+evidence_json
+recommended_investigation
+status
+generated_at
+```
+
+### audit_logs
+
+```text
+id
+tenant_id
+actor_user_id
+action
+resource_type
+resource_id
+metadata
+security_metadata
+created_at
+```
+
+---
+
+# BLOCO 8 — NORMALIZAÇÃO
+
+Cada marketplace possui terminologia e estruturas diferentes.
+
+Criar uma camada interna comum.
+
+### Nunca acoplar o dashboard diretamente ao JSON do marketplace.
+
+```text
+Mercado Livre API ──┐
+                    ├─> Connector
+Shopee API ─────────┘
+                         ↓
+                    Normalizer
+                         ↓
+                 Internal Domain Model
+                         ↓
+                     Database
+                         ↓
+                Analytics / Dashboard
+```
+
+### Benefício
+
+Se amanhã adicionarmos Amazon:
+
+```text
+Amazon Connector
+      ↓
+Mesmo modelo interno
+```
+
+Sem reconstruir todo o produto.
+
+---
+
+# BLOCO 9 — FINANCIAL TRUTH ENGINE
+
+A Financial Engine é o núcleo do produto. O objetivo não é produzir “lucro contábil”, e sim uma visão econômica rastreável e honesta do que aconteceu com cada produto/variação.
+
+## 9.1 Quatro conceitos que nunca podem ser misturados
+
+### 1. Venda operacional
+
+Pedido realizado/pago conforme a definição do marketplace.
+
+### 2. Receita atribuída
+
+Receita que uma plataforma atribui a Ads/campanha. Pode seguir janela e definição própria da plataforma e **não é automaticamente receita realizada**.
+
+### 3. Resultado estimado
+
+```text
+Receita elegível do pedido
+- desconto financiado pelo seller
+- comissão/taxa do marketplace
+- tarifa aplicável
+- frete assumido pelo seller
+- gasto de Ads atribuível conforme regra documentada
+- custo do produto/variante
+- imposto estimado configurado
+- outros custos variáveis
+± ajustes conhecidos
+= resultado de contribuição estimado
+```
+
+### 4. Resultado conciliado
+
+Estado futuro, somente quando tivermos dados suficientes para reconciliar pagamentos, ajustes, devoluções e eventos financeiros posteriores com confiança.
+
+No MVP, não prometer conciliação completa.
+
+## 9.2 Cancelamento, devolução e reembolso
+
+O motor deve ser orientado a eventos. Um pedido pode mudar economicamente depois da venda.
+
+```text
+Pedido
+  ↓
+Pagamento
+  ↓
+Taxas / frete / descontos
+  ↓
+Possível cancelamento
+  ↓
+Possível devolução
+  ↓
+Possível reembolso
+  ↓
+Ajustes posteriores
+```
+
+Regras:
+
+- não tratar métrica publicitária como receita realizada;
+- não apagar o valor original do pedido;
+- registrar ajustes posteriores;
+- recalcular o resultado de forma idempotente;
+- exibir a data da última atualização financeira.
+
+## 9.3 Data lineage obrigatório
+
+Para cada componente relevante, guardar ou conseguir explicar:
+
+- origem do dado;
+- endpoint/fonte;
+- timestamp de captura;
+- status do pedido;
+- regra/fórmula aplicada;
+- se o valor é real, informado pelo usuário ou estimado.
+
+A interface deve permitir “Como calculamos?”.
+
+## 9.4 Linguagem do produto
+
+Usar:
+
+- **Resultado estimado**;
+- **Margem estimada**;
+- **Custos considerados**;
+- **Receita atribuída a Ads** quando for o caso.
+
+Evitar:
+
+- lucro líquido contábil;
+- lucro fiscal;
+- resultado contábil definitivo;
+- ROI genérico sem definição.
+
+## 9.5 ROI ≠ ROAS ≠ margem
+
+### ROAS
+
+```text
+Receita atribuída à publicidade / gasto publicitário
+```
+
+### Margem
+
+```text
+Resultado estimado / Receita elegível
+```
+
+### ROI
+
+Depende da definição de investimento. No MVP, não exibir “ROI” sem definição explícita.
+
+## 9.6 Golden tests financeiros
+
+Manter cenários conhecidos com:
+
+- pedido normal;
+- desconto;
+- frete;
+- Ads;
+- cancelamento;
+- devolução parcial;
+- reembolso total;
+- mudança de custo por vigência;
+- múltiplas variações do mesmo produto.
+
+Qualquer mudança que altere resultado esperado deve falhar no CI até ser revisada.
+
+---
+
+# BLOCO 10 — ANALYTICS ENGINE
+
+## 10.1 Princípio
+
+Antes de usar LLM:
+
+> **Criar regras explicáveis.**
+
+## 10.2 Exemplos de regras
+
+### R001 — Conversão caiu
+
+```text
+SE
+conversão_14d < conversão_14d_anterior * 0.80
+E
+visitas mantiveram variação entre -10% e +10%
+
+ENTÃO
+severity = warning
+diagnóstico = "Queda relevante de conversão com tráfego relativamente estável."
+investigar = [
+  "preço",
+  "frete",
+  "prazo",
+  "avaliações",
+  "qualidade do anúncio",
+  "concorrência"
+]
+```
+
+### R002 — Cresceu faturamento, perdeu margem
+
+```text
+SE
+receita cresceu > 15%
+E
+margem caiu > 5 pontos percentuais
+
+ENTÃO
+"Suas vendas cresceram, mas o ganho por venda caiu."
+```
+
+### R003 — Marketplace A performa melhor
+
+```text
+SE
+mesmo Produto Mestre existe em ML e Shopee
+E
+volume mínimo de dados foi atingido
+
+ENTÃO
+comparar:
+- receita
+- unidades
+- conversão
+- margem
+- investimento publicitário
+```
+
+Não concluir automaticamente que uma plataforma é “melhor” usando apenas faturamento.
+
+### R004 — Produto vende, mas quase não contribui
+
+```text
+SE
+unidades > percentil operacional
+E
+margem < limite_minimo_configurado
+
+ENTÃO
+severity = critical
+```
+
+### R005 — Ads pressionando resultado
+
+```text
+SE
+gasto_ads aumentou significativamente
+E
+receita atribuída não acompanhou
+E
+margem deteriorou
+
+ENTÃO
+alertar sobre eficiência de Ads
+```
+
+---
+
+# BLOCO 11 — HEALTH SCORE
+
+Escala:
+
+```text
+80–100  🟢 Saudável
+60–79   🟡 Atenção
+0–59    🔴 Crítico
+```
+
+### Componentes iniciais
+
+- tendência de receita;
+- margem;
+- conversão quando disponível;
+- eficiência de Ads;
+- estabilidade operacional.
+
+### Importante
+
+O Health Score deve ser:
+
+- reproduzível;
+- explicável;
+- versionado;
+- acompanhado da fórmula.
+
+Nunca criar um “score mágico de IA”.
+
+---
+
+# BLOCO 12 — CAMADA DE IA
+
+## MVP
+
+**Não é requisito.**
+
+O sistema deve funcionar bem sem IA generativa.
+
+## Futuro
+
+A IA pode transformar dados estruturados em comunicação natural.
+
+Exemplo:
+
+> “Seu faturamento aumentou 18% nesta semana, porém o resultado estimado cresceu apenas 3%. O principal produto associado à queda de margem foi o SKU X.”
+
+### IA nunca deve
+
+- inventar métrica;
+- alterar cálculo;
+- acessar token;
+- modificar anúncio sem autorização;
+- tomar ação financeira sozinha.
+
+### Arquitetura futura
+
+```text
+Dados calculados
+     ↓
+Regras
+     ↓
+Evidence Package
+     ↓
+LLM
+     ↓
+Explicação
+```
+
+O LLM explica.
+
+O banco e o analytics engine calculam.
+
+---
+
+# BLOCO 13 — ARQUITETURA TÉCNICA DO MVP
+
+## 13.1 Stack sugerida
+
+### Frontend
+
+- Next.js;
+- TypeScript;
+- Tailwind CSS;
+- shadcn/ui ou biblioteca headless equivalente;
+- Recharts apenas se necessário.
+
+### Backend
+
+- Python;
+- FastAPI;
+- Pydantic;
+- SQLAlchemy ou SQLModel;
+- Alembic.
+
+### Banco
+
+- PostgreSQL;
+- Supabase pode hospedar PostgreSQL/Auth, desde que as regras de segurança sejam respeitadas.
+
+### Autenticação
+
+Opção MVP:
+
+- Supabase Auth;
+- ou implementação consolidada equivalente.
+
+### Deploy
+
+- Frontend: Vercel;
+- Backend: serviço isolado compatível com FastAPI;
+- Banco: PostgreSQL gerenciado.
+
+### NÃO usar
+
+- n8n;
+- secrets no frontend;
+- banco diretamente exposto sem política;
+- service role no navegador;
+- arquivos `.env` commitados.
+
+## 13.2 Arquitetura
+
+```text
+                  Browser
+                     │
+                 HTTPS only
+                     │
+                     ▼
+               Next.js Front
+                     │
+                     │ authenticated request
+                     ▼
+                FastAPI API
+                     │
+        ┌────────────┼─────────────┐
+        │            │             │
+        ▼            ▼             ▼
+   PostgreSQL    ML Connector  Shopee Connector
+        │            │             │
+        │            └─────┬───────┘
+        │                  ▼
+        │           Normalization Layer
+        │                  │
+        └───────────┬──────┘
+                    ▼
+            Financial Engine
+                    │
+                    ▼
+             Analytics Engine
+                    │
+                    ▼
+              Insight Engine
+```
+
+---
+
+# BLOCO 14 — INTEGRAÇÕES
+
+## 14.1 Mercado Livre
+
+Usar API oficial.
+
+### MVP precisa investigar/implementar
+
+- OAuth 2.0;
+- usuário/seller;
+- anúncios;
+- pedidos;
+- itens do pedido;
+- taxas/custos disponíveis;
+- visitas quando aplicável;
+- métricas de Ads se a conta tiver acesso;
+- notificações/webhooks.
+
+### OAuth
+
+O usuário deve autorizar nosso aplicativo no Mercado Livre.
+
+Nós nunca solicitamos a senha do seller.
+
+Fluxo:
+
+```text
+Nosso sistema
+    ↓
+Redireciona para Mercado Livre
+    ↓
+Seller autoriza
+    ↓
+Callback do backend
+    ↓
+Authorization Code
+    ↓
+Backend troca por tokens
+    ↓
+Tokens são criptografados
+```
+
+### Requisito de segurança e menor privilégio
+
+- solicitar apenas os escopos indispensáveis;
+- **não solicitar permissão de escrita no MVP** se o produto não altera anúncios, preços ou campanhas;
+- access token somente no backend;
+- refresh token somente no backend;
+- tokens criptografados em repouso;
+- nunca registrar token completo em log.
+
+## 14.2 Shopee
+
+Usar exclusivamente Shopee Open Platform/documentação oficial.
+
+### MVP
+
+Validar formalmente:
+
+- criação do aplicativo;
+- aprovação;
+- permissões;
+- autenticação;
+- pedidos;
+- produtos;
+- performance disponível;
+- webhooks/push;
+- limites;
+- requisitos específicos do Brasil.
+
+### Risco
+
+O acesso a determinados grupos de APIs pode depender de:
+
+- categoria do aplicativo;
+- aprovação;
+- permissões;
+- políticas da Shopee.
+
+### Plano de contingência
+
+Se a aprovação da Shopee impedir integração dentro dos 14 dias:
+
+> **não bloquear o MVP.**
+
+Executar piloto com Mercado Livre real + dataset controlado/demonstração da Shopee até o acesso ser liberado.
+
+Nunca usar scraping ou contorno de mecanismos de proteção como substituto da API oficial.
+
+### Regra de caminho crítico
+
+Shopee é P1. A ausência de aprovação/permissão **não pode adiar o piloto Mercado Livre-first**.
+
+### Propriedade da aplicação
+
+Antes de produção pública, registrar as aplicações e credenciais sob a entidade proprietária do SaaS, evitando dependência permanente de conta pessoal de desenvolvedor.
+
+---
+
+# BLOCO 15 — SINCRONIZAÇÃO
+
+## 15.1 Primeiro sync
+
+```text
+Conexão criada
+    ↓
+Buscar perfil da loja
+    ↓
+Buscar anúncios
+    ↓
+Salvar listings
+    ↓
+Buscar pedidos do período suportado
+    ↓
+Salvar orders
+    ↓
+Normalizar
+    ↓
+Calcular métricas
+    ↓
+Gerar insights
+```
+
+## 15.2 Sync incremental
+
+Preferência:
+
+1. notificações/webhooks;
+2. job de reconciliação periódica;
+3. polling apenas quando necessário.
+
+### Por quê
+
+Webhooks reduzem:
+
+- requisições desnecessárias;
+- latência;
+- risco de rate limit.
+
+## 15.3 Idempotência
+
+Todas as ingestões devem aceitar eventos repetidos.
+
+Chave sugerida:
+
+```text
+tenant_id + provider + external_resource_id
+```
+
+Nunca duplicar pedido por receber o mesmo evento duas vezes.
+
+---
+
+# BLOCO 16 — DESIGN SYSTEM
+
+## 16.1 Personalidade visual
+
+Direção:
+
+> **Clareza financeira + simplicidade operacional + confiança.**
+
+Evitar aparência:
+
+- gamer;
+- “IA neon”;
+- excesso de gradientes;
+- dashboards com dezenas de widgets;
+- visual de ERP antigo;
+- muitas cores simultâneas.
+
+Referência conceitual:
+
+- SaaS B2B moderno;
+- fintech;
+- dados fáceis de ler;
+- alta densidade apenas onde necessária.
+
+## 16.2 Princípios
+
+1. **Uma tela, uma pergunta principal.**
+2. **Cor comunica significado.**
+3. **Dinheiro sempre possui contexto.**
+4. **Gráfico nunca substitui número essencial.**
+5. **Alertas precisam explicar causa/evidência.**
+6. **Estados vazios devem ensinar.**
+7. **Mobile deve permitir consulta, mesmo que operação completa seja desktop-first.**
+8. **Acessibilidade é requisito.**
+
+## 16.3 Tokens
+
+### Spacing
+
+```text
+4px
+8px
+12px
+16px
+24px
+32px
+48px
+64px
+```
+
+### Border radius
+
+```text
+sm  = 6px
+md  = 10px
+lg  = 14px
+xl  = 20px
+```
+
+### Tipografia
+
+Sugestão:
+
+- Inter;
+- Geist;
+- ou fonte equivalente altamente legível.
+
+Escala:
+
+```text
+12 — caption
+14 — body small
+16 — body
+18 — strong body
+20 — section
+24 — page title
+32 — dashboard highlight
+40 — hero metric
+```
+
+## 16.4 Cores sem travar identidade de marca
+
+Criar semantic tokens:
+
+```text
+--color-bg
+--color-surface
+--color-surface-muted
+--color-text
+--color-text-muted
+--color-border
+
+--color-primary
+--color-primary-hover
+
+--color-success
+--color-warning
+--color-danger
+--color-info
+```
+
+### Uso
+
+- 🟢 Success = saudável / melhora.
+- 🟡 Warning = atenção.
+- 🔴 Danger = problema real.
+- Primary = ação/interação.
+
+### Regra
+
+Nunca depender somente da cor.
+
+Sempre combinar:
+
+- cor;
+- ícone;
+- texto/status.
+
+## 16.5 Componentes obrigatórios
+
+- Button;
+- Input;
+- Select;
+- DateRangePicker;
+- Checkbox;
+- Dialog;
+- Sheet;
+- Tooltip;
+- Toast;
+- Skeleton;
+- EmptyState;
+- ErrorState;
+- KPI Card;
+- Marketplace Badge;
+- Health Badge;
+- Product Status;
+- Insight Card;
+- Data Table;
+- Chart Container;
+- Filter Bar;
+- Connection Card;
+- Sync Status;
+- Confirmation Dialog.
+
+## 16.6 KPI Card
+
+Estrutura:
+
+```text
+Título
+Valor principal
+Variação
+Período comparado
+Tooltip da fórmula
+```
+
+Exemplo:
+
+```text
+Margem estimada
+22,4%
+▲ 2,1 p.p.
+vs. período anterior
+ⓘ Como calculamos
+```
+
+## 16.7 Gráficos
+
+Para MVP:
+
+- linha para evolução temporal;
+- barras para comparação;
+- barras horizontais para ranking.
+
+Evitar inicialmente:
+
+- pizza excessiva;
+- gauge;
+- 3D;
+- radar;
+- visualizações decorativas.
+
+## 16.8 Acessibilidade
+
+Meta:
+
+- contraste compatível com WCAG AA sempre que viável;
+- navegação por teclado;
+- focus states;
+- labels;
+- aria attributes;
+- tabela acessível;
+- informação não dependente apenas de cor.
+
+---
+
+# BLOCO 17 — UX DE CONFIANÇA
+
+Cada insight deve responder:
+
+1. O que aconteceu?
+2. Em qual período?
+3. Com qual dado?
+4. Qual foi a comparação?
+5. O que recomendamos investigar?
+6. Qual é a limitação da análise?
+
+Exemplo:
+
+> **Conversão caiu 24%.**  
+> Comparação dos últimos 14 dias com os 14 dias anteriores.  
+> Visitas permaneceram estáveis (+2%).  
+> O preço aumentou 7%.  
+> **Recomendação:** investigar competitividade de preço antes de alterar o anúncio.
+
+Não dizer:
+
+> “A causa é o preço.”
+
+Dizer:
+
+> “O aumento de preço é um dos sinais associados à queda e deve ser investigado.”
+
+---
+
+# BLOCO 18 — SEGURANÇA BY DESIGN
+
+## 18.1 Regra zero
+
+> **Nenhuma credencial de marketplace, banco ou infraestrutura pode ser exposta no browser.**
+
+## 18.2 Segredos
+
+Guardar fora do código:
+
+```text
+ML_CLIENT_ID
+ML_CLIENT_SECRET
+SHOPEE_PARTNER_ID
+SHOPEE_PARTNER_KEY
+DATABASE_URL
+JWT_SECRET
+ENCRYPTION_KEY
+```
+
+### Proibido
+
+```text
+NEXT_PUBLIC_ML_CLIENT_SECRET
+```
+
+ou qualquer equivalente.
+
+## 18.3 Tokens de marketplace
+
+- criptografia em repouso;
+- descriptografar apenas em memória no backend quando necessário;
+- acesso restrito;
+- nunca aparecer em API response;
+- nunca aparecer em logs;
+- rotação/revogação suportada.
+
+## 18.4 Multi-tenancy
+
+Todas as tabelas de negócio devem conter `tenant_id`.
+
+Toda consulta deve verificar:
+
+```text
+authenticated_user
+       ↓
+tenant_membership
+       ↓
+requested_resource.tenant_id
+```
+
+### Teste crítico
+
+Usuário A nunca pode consultar:
+
+```text
+/api/products/{id_do_usuario_B}
+```
+
+Esse cenário deve possuir teste automatizado.
+
+## 18.5 RBAC
+
+MVP:
+
+```text
+OWNER
+MEMBER
+```
+
+### Contas administrativas internas
+
+- MFA obrigatório para administradores/operadores com acesso privilegiado;
+- acesso administrativo separado do fluxo comum do seller;
+- menor privilégio;
+- ações sensíveis auditadas;
+- evitar credenciais compartilhadas;
+- procedimento de revogação de acesso quando alguém deixa a operação.
+
+Futuro:
+
+```text
+ADMIN
+ANALYST
+VIEWER
+```
+
+Permissões deny-by-default.
+
+## 18.6 API
+
+Obrigatório:
+
+- HTTPS;
+- autenticação;
+- autorização;
+- validação Pydantic;
+- rate limiting onde necessário;
+- tamanho máximo de payload;
+- CORS restritivo;
+- não retornar stack trace;
+- timeouts;
+- retry com backoff para APIs externas;
+- idempotência;
+- paginação.
+
+## 18.7 Webhooks
+
+Endpoint:
+
+```text
+POST /webhooks/{provider}
+```
+
+Requisitos:
+
+- validar origem/assinatura conforme mecanismo oficial;
+- não confiar no payload sem validação;
+- persistir identificador do evento;
+- idempotência;
+- responder rápido;
+- processar de maneira segura;
+- não aceitar ação administrativa via webhook.
+
+## 18.8 Banco
+
+- backups;
+- migrations versionadas;
+- menor privilégio;
+- conexão TLS;
+- RLS se usarmos Supabase onde aplicável;
+- service role somente no backend;
+- não expor tabelas administrativas diretamente.
+
+## 18.9 Logs
+
+Logar:
+
+- login;
+- falha de login relevante;
+- conexão de marketplace;
+- desconexão;
+- sync;
+- erro de sync;
+- alteração de custo;
+- alteração de permissão;
+- exportação;
+- exclusão.
+
+Não logar:
+
+- senha;
+- token;
+- secret;
+- dados pessoais desnecessários;
+- payload integral de pedido sem justificativa.
+
+## 18.10 OWASP
+
+Checklist mínimo:
+
+- [ ] Broken Access Control.
+- [ ] Authentication failures.
+- [ ] Injection.
+- [ ] Security misconfiguration.
+- [ ] Cryptographic failures.
+- [ ] Vulnerable dependencies.
+- [ ] Logging/monitoring failures.
+- [ ] SSRF.
+- [ ] API object-level authorization.
+- [ ] API resource consumption.
+- [ ] Excessive data exposure.
+- [ ] Unsafe consumption of external APIs.
+
+---
+
+# BLOCO 19 — LGPD BY DESIGN
+
+> Este bloco é requisito de engenharia e produto. Não substitui revisão jurídica profissional.
+
+## 19.1 Princípios
+
+Aplicar desde o MVP:
+
+- finalidade;
+- adequação;
+- necessidade;
+- transparência;
+- segurança;
+- prevenção;
+- responsabilização;
+- livre acesso quando aplicável;
+- qualidade dos dados.
+
+## 19.2 Minimização
+
+Pergunta obrigatória para cada campo:
+
+> “Precisamos realmente armazenar este dado?”
+
+### Exemplo
+
+Para analytics de produto, provavelmente não precisamos guardar indefinidamente:
+
+- nome completo do comprador;
+- endereço completo;
+- telefone;
+- mensagem particular.
+
+Se o dado não é necessário:
+
+> não coletar, não persistir ou anonimizar/descartar.
+
+## 19.3 Mapa de dados
+
+Criar documento:
+
+```text
+dado
+origem
+finalidade
+base legal
+onde é armazenado
+quem acessa
+retenção
+forma de exclusão
+```
+
+## 19.4 Papéis
+
+Precisamos mapear por atividade de tratamento:
+
+- controlador;
+- operador;
+- suboperador.
+
+Para dados pessoais acessados por integrações de marketplace, documentar o papel definido nos termos contratuais vigentes da respectiva plataforma e refletir isso no Data Map/DPA. Para cadastros, billing, segurança e analytics próprios do SaaS, a classificação pode ser diferente.
+
+Não presumir um único papel para todo o produto.
+
+## 19.5 Consentimento não é resposta para tudo
+
+Toda atividade de tratamento precisa ter:
+
+- finalidade;
+- base legal adequada;
+- registro.
+
+Não usar “consentimento” genericamente sem avaliação.
+
+## 19.6 Direitos do titular
+
+Ter processo para:
+
+- confirmação;
+- acesso;
+- correção;
+- eliminação quando aplicável;
+- informação;
+- oposição quando aplicável;
+- revogação quando a base for consentimento.
+
+No MVP, pelo menos definir um canal dedicado de privacidade.
+
+## 19.7 Exclusão da conta
+
+```text
+Pedido de exclusão
+      ↓
+Verificar obrigação de retenção
+      ↓
+Revogar conexões
+      ↓
+Excluir ou anonimizar dados elegíveis
+      ↓
+Registrar operação
+      ↓
+Confirmar conclusão
+```
+
+## 19.8 Retenção
+
+Não utilizar:
+
+```text
+reter tudo para sempre
+```
+
+Criar políticas.
+
+Exemplo inicial a validar juridicamente:
+
+- logs de segurança: período definido;
+- dados analíticos agregados: conforme contrato/finalidade;
+- tokens: enquanto integração estiver ativa;
+- tokens revogados: remover;
+- dados de buyer não necessários: descartar rapidamente;
+- backups: retenção limitada e documentada.
+
+## 19.9 Incidente
+
+Criar `INCIDENT_RESPONSE.md`.
+
+```text
+Detectar
+ ↓
+Conter
+ ↓
+Classificar
+ ↓
+Preservar evidência
+ ↓
+Avaliar impacto
+ ↓
+Corrigir
+ ↓
+Avaliar obrigações de comunicação
+ ↓
+Registrar
+ ↓
+Post-mortem
+```
+
+---
+
+# BLOCO 20 — PRIVACIDADE NO DESIGN DO DASHBOARD
+
+Evitar exibir dados de compradores quando a finalidade é análise do negócio.
+
+Preferir:
+
+```text
+Pedido #1234
+Produto X
+Quantidade 2
+Valor R$...
+```
+
+em vez de:
+
+```text
+Nome
+CPF
+telefone
+endereço
+```
+
+Se não é necessário para a decisão:
+
+> não mostrar.
+
+---
+
+# BLOCO 21 — AMBIENTES
+
+## Development
+
+- dados mock;
+- contas de teste;
+- nenhum segredo de produção.
+
+## Staging
+
+- configuração semelhante à produção;
+- dados de teste;
+- integração sandbox/teste quando disponível.
+
+## Production
+
+- credenciais próprias;
+- logs próprios;
+- banco isolado;
+- backups;
+- secrets gerenciados.
+
+---
+
+# BLOCO 22 — ESTRUTURA DO REPOSITÓRIO
+
+```text
+seller-intelligence/
+│
+├── README.md
+├── MASTER_PLAN.md
+├── .gitignore
+├── .env.example
+│
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── API_CONTRACTS.md
+│   ├── DATA_MODEL.md
+│   ├── DESIGN_SYSTEM.md
+│   ├── SECURITY.md
+│   ├── LGPD.md
+│   ├── INCIDENT_RESPONSE.md
+│   ├── ADR/
+│   └── discovery/
+│
+├── frontend/
+│   ├── src/
+│   ├── components/
+│   ├── app/
+│   ├── lib/
+│   └── tests/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── auth/
+│   │   ├── core/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   ├── repositories/
+│   │   ├── integrations/
+│   │   │   ├── mercadolivre/
+│   │   │   └── shopee/
+│   │   ├── analytics/
+│   │   ├── finance/
+│   │   └── security/
+│   ├── migrations/
+│   └── tests/
+│
+└── scripts/
+    ├── seed_demo_data.py
+    └── sync_test_data.py
+```
+
+---
+
+# BLOCO 23 — CONVENÇÕES DE ENGENHARIA
+
+## Branches
+
+Equipe pequena:
+
+```text
+main
+feature/*
+fix/*
+security/*
+```
+
+Usar PR/testes antes de merge em `main`.
+
+## Commits
+
+```text
+feat:
+fix:
+security:
+refactor:
+docs:
+test:
+chore:
+```
+
+## ADR
+
+Decisões relevantes devem ser registradas.
+
+```text
+docs/ADR/001-master-product-model.md
+```
+
+Estrutura:
+
+```text
+Contexto
+Decisão
+Alternativas
+Consequências
+```
+
+---
+
+# BLOCO 24 — TESTES
+
+## Unitários
+
+Prioridade:
+
+- cálculos financeiros;
+- regras de analytics;
+- normalizadores;
+- permissões.
+
+## Integração
+
+- OAuth;
+- connector;
+- banco;
+- sync;
+- webhook.
+
+## Segurança
+
+- acesso cross-tenant;
+- endpoints sem token;
+- tenant inválido;
+- webhook duplicado;
+- payload malformado;
+- objeto de outro usuário.
+
+## E2E
+
+Fluxo crítico:
+
+```text
+cadastro
+→ conectar marketplace
+→ sincronizar
+→ cadastrar custo
+→ abrir dashboard
+→ abrir produto
+→ enxergar margem
+```
+
+---
+
+# BLOCO 25 — OBSERVABILIDADE
+
+MVP precisa saber:
+
+- API está online?
+- última sincronização por conexão;
+- quantos registros foram processados;
+- quantos falharam;
+- tempo de sync;
+- endpoint externo que falhou;
+- regra que gerou insight.
+
+### Métricas internas
+
+```text
+sync_success_total
+sync_failure_total
+sync_duration
+api_external_error
+insights_generated
+connections_active
+```
+
+Nunca incluir token nos labels/logs.
+
+---
+
+# BLOCO 26 — PLANO DE 14 DIAS — MERCADO LIVRE-FIRST
+
+## DIA 1 — Discovery, ICP e Financial Truth
+
+- [ ] entrevistar/confirmar ao menos 3 sellers ou contatos qualificados;
+- [ ] validar dor de margem e comparação;
+- [ ] testar faixa de preço concreta;
+- [ ] congelar ICP e anti-ICP;
+- [ ] fechar definições de venda operacional, receita atribuída e resultado estimado;
+- [ ] criar threat model inicial;
+- [ ] criar Data Map LGPD.
+
+## DIA 2 — Design System + protótipo
+
+- [ ] tokens;
+- [ ] componentes;
+- [ ] onboarding;
+- [ ] dashboard focado em economics;
+- [ ] products/variants;
+- [ ] detalhe com “Como calculamos?”;
+- [ ] fila “Precisa da sua atenção”;
+- [ ] loading/error/empty.
+
+### Done
+
+Fluxo navegável com dados fake e sem dashboard decorativo.
+
+## DIA 3 — Fundação backend
+
+- [ ] FastAPI;
+- [ ] PostgreSQL;
+- [ ] migrations;
+- [ ] auth;
+- [ ] tenants;
+- [ ] tenant_users;
+- [ ] auditoria;
+- [ ] idempotência;
+- [ ] tratamento de erro.
+
+### Teste crítico
+
+Cross-tenant bloqueado.
+
+## DIA 4 — Mercado Livre OAuth read-only
+
+- [ ] registrar app;
+- [ ] menor privilégio;
+- [ ] authorization URL;
+- [ ] callback;
+- [ ] token exchange;
+- [ ] refresh;
+- [ ] criptografia;
+- [ ] disconnect.
+
+## DIA 5 — Produtos e variações Mercado Livre
+
+- [ ] seller;
+- [ ] listings;
+- [ ] variations/SKUs;
+- [ ] normalização;
+- [ ] master product/variant;
+- [ ] sync status.
+
+## DIA 6 — Pedidos e eventos financeiros
+
+- [ ] pedidos;
+- [ ] itens;
+- [ ] status;
+- [ ] cancelamentos;
+- [ ] devoluções/reembolsos quando expostos;
+- [ ] paginação;
+- [ ] idempotência;
+- [ ] reconcile.
+
+## DIA 7 — Custos + ajustes
+
+- [ ] histórico de custo por variante;
+- [ ] taxas;
+- [ ] frete;
+- [ ] descontos;
+- [ ] financial_adjustments;
+- [ ] data lineage.
+
+### Marco
+
+Primeiro seller deve conseguir:
+
+> conectar → importar → informar custo → enxergar cálculo rastreável.
+
+## DIA 8 — Financial Truth Engine
+
+- [ ] resultado estimado;
+- [ ] margem;
+- [ ] tratamento de ajustes;
+- [ ] separação Ads x venda realizada;
+- [ ] golden tests;
+- [ ] tooltips/fórmulas.
+
+## DIA 9 — Dashboard econômico
+
+- [ ] receita elegível;
+- [ ] resultado estimado;
+- [ ] margem;
+- [ ] produtos/variantes que mais contribuem;
+- [ ] produtos com maior deterioração;
+- [ ] comparação de períodos.
+
+## DIA 10 — Analytics e priorização
+
+- [ ] regras determinísticas;
+- [ ] impacto em R$ quando possível;
+- [ ] Health Score somente se explicável;
+- [ ] evidence package;
+- [ ] fila de prioridade.
+
+## DIA 11 — FEATURE FREEZE
+
+Nenhuma feature nova. Shopee **não** entra neste dia como obrigação.
+
+Somente:
+
+- correção P0/P1;
+- revisão de Financial Truth;
+- validação de acesso Shopee em paralelo, se disponível;
+- preparação do piloto.
+
+## DIA 12 — Security + LGPD + operação
+
+- [ ] secrets;
+- [ ] RLS/tenant isolation;
+- [ ] MFA admin;
+- [ ] RBAC;
+- [ ] logs;
+- [ ] minimização de PII;
+- [ ] exclusão/retenção;
+- [ ] backup;
+- [ ] incident response;
+- [ ] dependency scan;
+- [ ] CORS/headers/rate limits;
+- [ ] tela/admin mínima de sync failures e reauth.
+
+## DIA 13 — Testes internos e regressão
+
+- [ ] E2E;
+- [ ] cross-tenant;
+- [ ] idempotência;
+- [ ] golden tests financeiros;
+- [ ] reconnect;
+- [ ] loading/empty/error;
+- [ ] acessibilidade básica;
+- [ ] corrigir P0/P1.
+
+## DIA 14 — PILOTO
+
+Convidar **5–10 sellers**.
+
+Objetivo:
+
+- observar uso real;
+- medir time-to-value;
+- testar disposição a pagar com preço concreto;
+- identificar decisões tomadas;
+- decidir GO/PIVOT/NO-GO.
+
+---
+
+# BLOCO 27 — TESTE COM USUÁRIO
+
+## 27.1 Perguntas de discovery
+
+1. Como você acompanha suas vendas hoje?
+2. Quantas plataformas você usa?
+3. Como sabe se determinado produto dá lucro?
+4. Como registra custo?
+5. Qual número você olha primeiro de manhã?
+6. Como decide qual produto precisa de atenção?
+7. Já descobriu tarde demais que um produto estava com margem ruim?
+8. Como decide aumentar/reduzir Ads?
+9. Como compara Shopee e Mercado Livre?
+10. Quanto tempo gasta por semana analisando isso?
+11. Qual planilha você mantém?
+12. O que é mais chato nela?
+13. Qual decisão você gostaria que um sistema ajudasse a tomar?
+14. Por qual informação você pagaria para ter pronta?
+15. Você permitiria conectar sua conta via API oficial? O que precisaria para confiar?
+16. Qual ferramenta você usa hoje para ver lucro/margem (ERP, Bling, UpSeller, Gestor Seller, planilha)? O que ela não responde?
+17. O que faria você trocar ou pagar por uma segunda ferramenta além do ERP?
+
+## 27.2 Teste de protótipo
+
+Dar uma tarefa:
+
+> “Descubra qual dos seus produtos precisa de atenção.”
+
+Não ensinar onde clicar.
+
+Observar:
+
+- onde olha;
+- onde trava;
+- o que espera;
+- qual informação pergunta.
+
+---
+
+# BLOCO 28 — MÉTRICAS DO PILOTO
+
+## Activation
+
+```text
+% conectou marketplace
+% completou sync
+% cadastrou ao menos um custo
+% abriu detalhe de produto
+```
+
+## Time to Value
+
+```text
+tempo entre conectar conta e obter primeiro insight útil
+```
+
+Meta futura:
+
+> menor que 10 minutos, descontado tempo de sincronização externa.
+
+## Insight usefulness
+
+Após insight:
+
+```text
+Útil
+Não útil
+Já sabia
+Incorreto
+```
+
+## Core
+
+- sellers ativos;
+- conexões ativas;
+- produtos/variantes com custo;
+- insights vistos;
+- insights marcados úteis;
+- decisões reais tomadas com apoio do produto.
+
+## Willingness to Pay
+
+Não aceitar “eu usaria” como validação. Registrar:
+
+- preço apresentado;
+- resposta do seller;
+- objeção principal;
+- aceitaria teste pago?;
+- aceitaria cadastrar pagamento para continuidade?;
+- faixa máxima percebida;
+- qual resultado justificaria a mensalidade.
+
+Meta de aprendizado: testar pelo menos uma faixa real de preço com cada tester qualificado.
+
+---
+
+# BLOCO 29 — GO / NO-GO APÓS 14 DIAS
+
+## GO
+
+Continuar se houver sinais como:
+
+- 5+ testers reais;
+- maioria completa onboarding;
+- usuários entendem dashboard sem explicação extensa;
+- pelo menos 3 usuários relatam decisão real suportada pelo produto;
+- margem/resultado é percebido como útil;
+- ao menos alguns usuários pedem para continuar usando;
+- existe uma dor repetida clara;
+- pelo menos 2 testers demonstram disposição concreta de pagar em uma faixa de preço testada;
+- idealmente obter 1 compromisso de piloto pago ou cobrança futura em até 30 dias.
+
+## PIVOTAR
+
+Se usuários querem a ideia, mas:
+
+- principal dor é outra;
+- margem não é suficiente;
+- integração não é percebida como valor;
+- outra função aparece repetidamente nas entrevistas.
+
+## NO-GO TEMPORÁRIO
+
+Se:
+
+- APIs impedem tecnicamente o produto;
+- qualidade dos dados não permite cálculo responsável;
+- custo de integração é incompatível;
+- risco legal/segurança é maior que nossa capacidade atual.
+
+---
+
+# BLOCO 30 — CONSULTORIA COMO MOTOR DE PRODUCT DISCOVERY
+
+No começo:
+
+```text
+SaaS + contato humano
+```
+
+Quando o sistema gerar:
+
+> “Produto X está crítico.”
+
+Conversamos com o cliente.
+
+Descobrimos:
+
+- o diagnóstico ajudou?
+- faltou algum dado?
+- qual foi a causa real?
+- qual ação ele tomou?
+- funcionou?
+
+Fluxo:
+
+```text
+Dado
+ ↓
+Insight
+ ↓
+Seller
+ ↓
+Consultoria
+ ↓
+Causa real
+ ↓
+Aprendizado
+ ↓
+Regra melhor
+ ↓
+Produto melhor
+```
+
+A consultoria não é apenas receita.
+
+É **feedback supervisionado do negócio**.
+
+---
+
+# BLOCO 31 — BACKLOG PÓS-MVP
+
+## V2 — Performance
+
+- visitas;
+- impressões;
+- CTR;
+- conversão;
+- qualidade do anúncio;
+- Ads;
+- ROAS;
+- benchmarks internos do próprio seller;
+- alertas melhores.
+
+## V3 — Recomendação
+
+```text
+Problema
+ ↓
+Evidence
+ ↓
+Diagnóstico
+ ↓
+Checklist de ação
+```
+
+## V4 — Marketing Intelligence
+
+Por produto:
+
+- título;
+- SEO;
+- atributos;
+- descrição;
+- imagem;
+- preço;
+- Ads;
+- campanhas;
+- concorrência quando permitido;
+- calendário promocional.
+
+## V5 — AI Advisor
+
+Usuário pergunta:
+
+> “Por que minhas vendas caíram?”
+
+Sistema consulta:
+
+- dados;
+- período;
+- regras;
+- evidências.
+
+E responde citando números do próprio negócio.
+
+## V6 — Autopilot opcional
+
+Somente depois de confiança suficiente.
+
+```text
+Sistema recomenda
+      ↓
+Usuário revisa
+      ↓
+Usuário aprova
+      ↓
+Sistema executa
+```
+
+Aprovação humana por padrão.
+
+---
+
+# BLOCO 32 — RISCOS
+
+## R01 — Virar ERP
+
+**Mitigação:** toda feature nova precisa provar relação com diagnóstico ou decisão.
+
+## R02 — Dados financeiros incorretos
+
+**Mitigação:**
+
+- fórmula visível;
+- dados considerados;
+- testes;
+- “estimado”;
+- histórico de custos.
+
+## R03 — API externa mudar
+
+**Mitigação:** connector isolado.
+
+## R04 — Shopee aprovação
+
+**Mitigação:** Mercado Livre-first sem abandonar arquitetura multi-marketplace.
+
+## R05 — Vazamento cross-tenant
+
+**Severidade:** crítica.
+
+**Mitigação:**
+
+- tenant_id;
+- RLS;
+- autorização backend;
+- testes automatizados.
+
+## R06 — Vazamento de tokens
+
+**Severidade:** crítica.
+
+**Mitigação:**
+
+- criptografia;
+- secrets manager;
+- backend only;
+- logs sanitizados.
+
+## R07 — “IA inventou recomendação”
+
+**Mitigação:** LLM não calcula.
+
+## R08 — Dashboard bonito sem valor
+
+**Mitigação:** cada componente deve responder uma pergunta do seller.
+
+## R09 — Competição com dashboards nativos
+
+**Mitigação:** não competir por “mais métricas”. Focar em Financial Intelligence, visão multicanal, impacto em R$ e priorização.
+
+## R10 — Financial Engine incorreta
+
+**Severidade:** crítica.
+
+**Mitigação:** separar venda, receita atribuída, resultado estimado e futuro resultado conciliado; tratar cancelamentos/devoluções/reembolsos; golden tests e data lineage.
+
+## R11 — ICP pequeno demais para pagar
+
+**Mitigação:** mirar seller pequeno profissionalizado com volume suficiente e testar preço concreto durante o piloto.
+
+## R12 — Consultoria não escala
+
+**Mitigação:** toda atividade manual recorrente deve gerar aprendizado, regra, onboarding ou automação de produto; medir horas de suporte por tenant.
+
+## R13 — Dependência de marketplace
+
+**Mitigação:** connectors isolados, contract tests, versionamento, fallbacks operacionais e nenhum acoplamento do frontend ao JSON externo.
+
+## R14 — Commoditização do "lucro por pedido"
+
+**Contexto:** ERPs (Bling, UpSeller) e vários SaaS já entregam margem por pedido (Bloco 47.3).
+
+**Mitigação:** comunicar e medir valor pela fila de prioridade, impacto em R$, lineage e comparação cross-channel — não pelo cálculo de margem em si.
+
+## R15 — Canal de aquisição / CAC
+
+**Mitigação:** testar no piloto ao menos um canal (mentor/agência parceira ou comunidade de sellers) e registrar custo por tester ativado.
+
+---
+
+# BLOCO 33 — DEFINITION OF DONE
+
+Uma feature só está pronta quando:
+
+- [ ] requisito definido;
+- [ ] UI completa;
+- [ ] loading;
+- [ ] empty;
+- [ ] error;
+- [ ] autorização;
+- [ ] tenant isolation;
+- [ ] testes;
+- [ ] logs adequados;
+- [ ] documentação;
+- [ ] LGPD avaliada;
+- [ ] nenhum secret exposto;
+- [ ] mobile razoável quando aplicável.
+
+---
+
+# BLOCO 34 — PRIORIDADES P0 / P1 / P2
+
+## P0 — obrigatório
+
+- discovery + disposição a pagar;
+- auth;
+- tenant isolation;
+- Mercado Livre read-only;
+- produtos + variantes;
+- pedidos + eventos/ajustes;
+- custos versionados;
+- Financial Truth Engine;
+- data lineage;
+- dashboard econômico;
+- segurança;
+- LGPD mínimo;
+- teste com usuários.
+
+## P1 — desejável
+
+- Shopee;
+- comparação cross-channel;
+- insights;
+- health score;
+- webhooks completos.
+
+## P2 — pós-teste
+
+- Ads avançado;
+- IA;
+- marketing;
+- automações.
+
+---
+
+# BLOCO 35 — PRIMEIRAS ISSUES DO GITHUB
+
+## Epic 01 — Foundation
+
+```text
+SET-001 Criar monorepo
+SET-002 Configurar frontend
+SET-003 Configurar backend
+SET-004 Configurar PostgreSQL
+SET-005 Configurar migrations
+```
+
+## Epic 02 — Security
+
+```text
+SEC-001 Tenant model
+SEC-002 RBAC
+SEC-003 Secret handling
+SEC-004 Token encryption
+SEC-005 Audit log
+SEC-006 Cross-tenant tests
+```
+
+## Epic 03 — Mercado Livre
+
+```text
+ML-001 OAuth
+ML-002 Token refresh
+ML-003 Seller info
+ML-004 Listings sync
+ML-005 Orders sync
+ML-006 Webhooks
+```
+
+## Epic 04 — Products
+
+```text
+PRD-001 Master Product
+PRD-002 Marketplace listing
+PRD-003 SKU matching
+PRD-004 Manual mapping
+PRD-005 Cost history
+```
+
+## Epic 05 — Finance
+
+```text
+FIN-001 Financial schema
+FIN-002 Fee normalization
+FIN-003 Margin engine
+FIN-004 Result estimation
+FIN-005 Financial tests
+```
+
+## Epic 06 — Analytics
+
+```text
+ANA-001 Daily metrics
+ANA-002 Period comparison
+ANA-003 Rule engine
+ANA-004 Health Score
+ANA-005 Insight cards
+```
+
+## Epic 07 — UX
+
+```text
+UX-001 Design tokens
+UX-002 Dashboard
+UX-003 Products
+UX-004 Product detail
+UX-005 Costs
+UX-006 Connections
+```
+
+---
+
+# BLOCO 36 — DOCUMENTO ÚNICO / SINGLE SOURCE OF TRUTH
+
+O projeto terá **um único documento mestre autoritativo**:
+
+```text
+MASTER_PLAN_SAAS_MARKETPLACE_MVP.md
+```
+
+Toda nova decisão deve ser incorporada neste arquivo, incluindo:
+
+- produto e discovery;
+- escopo e backlog;
+- arquitetura;
+- APIs e contratos;
+- modelo de dados;
+- Design System;
+- segurança;
+- LGPD;
+- incident response;
+- testes;
+- decisões de stack;
+- resultados de validação;
+- mudanças de roadmap;
+- features aceitas, rejeitadas ou adiadas;
+- componentes classificados como STABLE/FROZEN;
+- riscos e mitigação;
+- aprendizados dos usuários.
+
+### Regra de governança
+
+> Se uma decisão não estiver registrada neste arquivo, ela ainda não é uma decisão oficial do projeto.
+
+Arquivos auxiliares de código, migration, testes ou configuração podem existir no repositório, mas **não substituem o documento mestre como fonte de verdade do produto e da arquitetura**.
+
+Quando uma seção crescer, ela continua neste arquivo e recebe um novo bloco ou subseção. Não fragmentar a documentação principal em vários `.md` durante o MVP.
+
+---
+
+# BLOCO 37 — CHECKLIST DE LANÇAMENTO DO PILOTO
+
+## Produto
+
+- [ ] onboarding funciona;
+- [ ] ML conecta em menor privilégio/read-only;
+- [ ] sync funciona;
+- [ ] custos são editáveis;
+- [ ] venda operacional não é confundida com receita atribuída;
+- [ ] cancelamentos/devoluções/reembolsos conhecidos são tratados;
+- [ ] cálculo validado por golden tests;
+- [ ] data lineage disponível;
+- [ ] dashboard legível;
+- [ ] produto detalhado funciona;
+- [ ] alertas não são enganosos.
+
+## Segurança
+
+- [ ] `.env` não commitado;
+- [ ] tokens criptografados;
+- [ ] nenhum secret no frontend;
+- [ ] cross-tenant testado;
+- [ ] CORS;
+- [ ] HTTPS;
+- [ ] logs sanitizados;
+- [ ] dependencies verificadas;
+- [ ] backup;
+- [ ] MFA para acesso administrativo privilegiado.
+
+## LGPD
+
+- [ ] mapa de dados;
+- [ ] finalidade registrada;
+- [ ] minimização;
+- [ ] política inicial;
+- [ ] canal de privacidade;
+- [ ] fluxo de exclusão;
+- [ ] retenção definida;
+- [ ] contratos/suboperadores mapeados.
+
+## Operação
+
+- [ ] conta de demonstração;
+- [ ] fluxo de suporte;
+- [ ] formulário de feedback;
+- [ ] bugs P0 = zero;
+- [ ] lista de testers;
+- [ ] roteiro de entrevista;
+- [ ] visão administrativa mínima de sync failure/reauth;
+- [ ] faixa de preço do piloto definida.
+
+---
+
+# BLOCO 38 — O QUE SERÁ CONSIDERADO SUCESSO
+
+Em duas semanas não precisamos provar que construímos uma empresa gigante.
+
+Precisamos provar três coisas:
+
+### 1. O dado consegue chegar.
+
+```text
+Marketplace → nosso sistema
+```
+
+### 2. Conseguimos transformar o dado em uma leitura confiável.
+
+```text
+dados → indicador → diagnóstico
+```
+
+### 3. O seller considera isso útil o suficiente para voltar.
+
+```text
+insight → decisão → retorno
+```
+
+### 4. Existe valor econômico suficiente para pagar.
+
+```text
+problema → impacto em R$ → decisão → disposição concreta a pagar
+```
+
+Se provarmos os quatro:
+
+> construímos a base correta para continuar.
+
+---
+
+# BLOCO 39 — ORDEM OFICIAL DE CONSTRUÇÃO
+
+```text
+1. Discovery
+        ↓
+2. Escopo
+        ↓
+3. Threat Model + LGPD
+        ↓
+4. Design System
+        ↓
+5. Auth / Tenant
+        ↓
+6. Mercado Livre OAuth
+        ↓
+7. Produtos
+        ↓
+8. Pedidos
+        ↓
+9. Produto Mestre + Variantes
+        ↓
+10. Custos + Ajustes
+        ↓
+11. Financial Truth Engine
+        ↓
+12. Dashboard econômico
+        ↓
+13. Analytics
+        ↓
+14. Hardening
+        ↓
+15. Shopee (P1, sem bloquear piloto)
+        ↓
+16. Testers
+        ↓
+17. Feedback
+        ↓
+18. Próximo ciclo
+```
+
+---
+
+# BLOCO 40 — PRINCÍPIOS INEGOCIÁVEIS
+
+1. **Não construir tecnologia sem dor validada.**
+2. **Não vender “IA” como solução universal.**
+3. **Não chamar estimativa de lucro contábil.**
+4. **Não dizer que entendemos o algoritmo secreto dos marketplaces.**
+5. **Não guardar dado que não precisamos.**
+6. **Não expor token no frontend.**
+7. **Não permitir acesso entre tenants.**
+8. **Não criar uma recomendação que não conseguimos explicar.**
+9. **Não adicionar feature apenas porque concorrentes possuem.**
+10. **Não deixar LGPD e segurança para a versão 2.**
+11. **Não usar LLM para fazer cálculo determinístico.**
+12. **Não automatizar ação sensível sem consentimento e controle.**
+13. **Não tentar matar todas as dores nas primeiras duas semanas.**
+14. **Não competir com Mercado Livre/Shopee apenas por quantidade de métricas.**
+15. **Não misturar venda operacional, receita atribuída e resultado estimado.**
+16. **Não pedir permissão de escrita se o MVP só precisa ler.**
+17. **Não considerar interesse verbal como validação de preço.**
+
+---
+
+# BLOCO 41 — REFERÊNCIAS TÉCNICAS OFICIAIS
+
+## Mercado Livre
+
+Autenticação/autorização:  
+https://developers.mercadolivre.com.br/autenticacao-e-autorizacao
+
+Gestão de OAuth e tokens:  
+https://developers.mercadolivre.com.br/pt_br/publicacao-de-produtos/gestao-de-identidades-e-acessos-oauth-e-tokens
+
+Pedidos:  
+https://developers.mercadolivre.com.br/pt_br/pedidos-e-opinioes
+
+Notificações:  
+https://developers.mercadolivre.com.br/pt_br/produto-consulta-de-usuarios/produto-receba-notificacoes
+
+Product Ads:  
+https://developers.mercadolivre.com.br/pt_br/product-ads-para-catalogo-e-user-products-leitura
+
+## Shopee
+
+Open Platform:  
+https://open.shopee.com/
+
+API Reference:  
+https://open.shopee.com/documents/v2/api-reference
+
+Order API:  
+https://open.shopee.com/documents/v2/v2.order.get_order_detail?module=94&type=1
+
+Shop Performance:  
+https://open.shopee.com/documents/v2/v2.account_health.get_shop_performance?module=103&type=1
+
+## LGPD / ANPD
+
+Materiais oficiais:  
+https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes
+
+Guia de segurança para agentes de pequeno porte:  
+https://www.gov.br/anpd/pt-br/centrais-de-conteudo/materiais-educativos-e-publicacoes/guia-orientativo-sobre-seguranca-da-informacao-para-agentes-de-tratamento-de-pequeno-porte
+
+Resolução CD/ANPD nº 2/2022:  
+https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd/resolucao-cd-anpd-no-2-de-27-de-janeiro-de-2022
+
+## Segurança
+
+OWASP:  
+https://owasp.org/
+
+---
+
+
+# BLOCO 42 — HARDENING DE MULTI-TENANCY, CONCORRÊNCIA E IDEMPOTÊNCIA
+
+Este bloco complementa a segurança já definida e é **P0** para o SaaS.
+
+## 42.1 Regra de confiança zero para tenant
+
+O frontend nunca é a fonte de verdade para `tenant_id`.
+
+Fluxo correto:
+
+```text
+JWT / Session
+    ↓
+Authenticated User
+    ↓
+Tenant Membership
+    ↓
+Tenant autorizado
+    ↓
+Resource scoped query
+```
+
+Evitar APIs como:
+
+```text
+GET /api/orders?tenant_id=empresa_123
+```
+
+Preferir:
+
+```text
+GET /api/orders
+```
+
+O backend deriva o tenant do contexto autenticado.
+
+---
+
+## 42.2 Queries sempre tenant-scoped
+
+Nunca:
+
+```sql
+SELECT *
+FROM products
+WHERE id = :product_id;
+```
+
+Sempre algo equivalente a:
+
+```sql
+SELECT *
+FROM products
+WHERE id = :product_id
+  AND tenant_id = :authenticated_tenant_id;
+```
+
+Índices mínimos recomendados:
+
+```sql
+CREATE INDEX idx_orders_tenant_created_at
+ON orders (tenant_id, created_at_marketplace);
+```
+
+```sql
+CREATE INDEX idx_product_metrics_tenant_product_date
+ON product_metrics_daily (tenant_id, master_product_id, date);
+```
+
+---
+
+## 42.3 Constraints de idempotência
+
+Pedidos:
+
+```text
+UNIQUE(tenant_id, provider, external_order_id)
+```
+
+Listings:
+
+```text
+UNIQUE(tenant_id, provider, external_listing_id)
+```
+
+Eventos/webhooks, quando houver identificador externo confiável:
+
+```text
+UNIQUE(provider, external_event_id)
+```
+
+Caso o provider não forneça um ID adequado, gerar uma chave determinística segura a partir dos campos imutáveis relevantes.
+
+---
+
+## 42.4 Idempotency-Key em operações críticas
+
+Para endpoints que iniciam operações potencialmente duplicáveis:
+
+```http
+POST /api/sync
+Idempotency-Key: <uuid>
+```
+
+Fluxo:
+
+```text
+Request
+  ↓
+Idempotency-Key existe?
+  ├─ SIM → retornar resultado/estado existente
+  └─ NÃO → registrar chave → executar → persistir resultado
+```
+
+Aplicável inicialmente a:
+
+- início de sincronização;
+- importação manual;
+- operações financeiras internas futuras;
+- comandos que possam ser reenviados por timeout/retry.
+
+---
+
+## 42.5 Distributed Lock por integração
+
+Impedir dois workers de sincronizar simultaneamente a mesma conta.
+
+Chave conceitual:
+
+```text
+sync:{tenant_id}:{provider}:{connection_id}
+```
+
+Fluxo:
+
+```text
+Sync solicitado
+    ↓
+Tenta adquirir lock
+    ├─ lock ocupado → não iniciar duplicado / colocar em fila
+    └─ lock livre   → adquirir → executar → liberar
+```
+
+Lock deve possuir TTL para evitar bloqueio permanente após crash.
+
+---
+
+## 42.6 Queue e limite de concorrência
+
+Jobs pesados não devem disputar recursos diretamente via request HTTP.
+
+```text
+API
+ ↓
+Job Queue
+ ↓
+Worker Pool
+ ↓
+Marketplace API / Database
+```
+
+MVP:
+
+- máximo de syncs concorrentes por tenant;
+- máximo por conexão;
+- máximo global por provider;
+- backpressure quando a fila estiver cheia;
+- retry com exponential backoff + jitter;
+- dead-letter/retry state para jobs que falharem repetidamente.
+
+---
+
+## 42.7 Proteção contra Noisy Neighbor
+
+Um tenant não pode degradar a experiência dos demais.
+
+Controles:
+
+```text
+Rate Limit global
+      ↓
+Rate Limit por tenant
+      ↓
+Rate Limit por endpoint
+      ↓
+Quota de jobs
+      ↓
+Concurrency limit
+      ↓
+Connection pool / DB protection
+```
+
+Exemplo conceitual inicial, a calibrar com testes:
+
+```text
+Tenant API: 120 req/min
+Endpoint pesado: 10 req/min
+Sync concorrente: 2 por tenant
+Sync por conexão: 1
+```
+
+Os números finais devem ser definidos por carga real; não hardcodar prematuramente sem observabilidade.
+
+---
+
+## 42.8 Connection Pool
+
+O backend deve usar pool limitado de conexões ao PostgreSQL.
+
+Objetivos:
+
+- impedir tempestade de conexões;
+- proteger banco sob picos;
+- limitar workers de acordo com capacidade real;
+- possuir timeout para aquisição de conexão;
+- monitorar pool exhaustion.
+
+---
+
+## 42.9 Controle de recursos externos
+
+Cada marketplace possui limites próprios.
+
+Connector deve centralizar:
+
+- throttling;
+- retry;
+- backoff;
+- tratamento de `429`;
+- timeout;
+- circuit breaker futuro se necessário;
+- métricas de erro por provider.
+
+Nenhuma tela deve chamar API do marketplace diretamente.
+
+---
+
+## 42.10 Testes obrigatórios de concorrência e isolamento
+
+Criar testes para:
+
+```text
+test_cross_tenant_product_access_denied
+test_cross_tenant_order_access_denied
+test_duplicate_order_does_not_duplicate
+test_duplicate_webhook_is_idempotent
+test_duplicate_sync_request_returns_existing_job
+test_same_connection_cannot_sync_twice_concurrently
+test_tenant_rate_limit_isolated
+test_failed_lock_expires_safely
+```
+
+Esses testes passam a fazer parte da regressão automática.
+
+---
+
+# BLOCO 43 — GOVERNANÇA DE FEATURES E STABLE CORE
+
+## 43.1 Objetivo
+
+Evitar:
+
+- feature creep;
+- código sem utilidade validada;
+- reescrita desnecessária;
+- refatoração estética durante o MVP;
+- repetição manual de testes já automatizados;
+- quebra de módulos seguros e validados.
+
+Regra operacional:
+
+> **Construir → testar → validar → estabilizar → proteger → seguir.**
+
+---
+
+## 43.2 Filtro contra feature inútil
+
+Toda nova feature deve responder:
+
+1. Qual dor específica do seller resolve?
+2. Essa dor foi observada ou validada?
+3. É necessária para o MVP?
+4. Melhora segurança, LGPD ou confiabilidade?
+5. Move uma métrica relevante?
+6. Precisa existir antes dos testers?
+
+Sem justificativa clara:
+
+```text
+BACKLOG
+```
+
+Não entra no sprint atual.
+
+---
+
+## 43.3 Estados de maturidade
+
+### EXPERIMENTAL
+
+Em construção. Pode mudar.
+
+### VALIDATING
+
+Funciona tecnicamente, mas ainda está em validação.
+
+### STABLE
+
+Atende ao requisito, está testado, documentado e não possui problema crítico conhecido.
+
+### FROZEN
+
+Componente central e consolidado. Alteração somente com justificativa objetiva.
+
+Possíveis componentes futuros FROZEN:
+
+```text
+Auth
+Tenant Isolation
+Token Encryption
+OAuth
+Order Normalization
+Financial Calculation
+```
+
+---
+
+## 43.4 Stable Core
+
+```text
+Authentication
+      ↓
+Tenant Isolation
+      ↓
+OAuth
+      ↓
+Token Vault
+      ↓
+Marketplace Connectors
+      ↓
+Normalization
+      ↓
+Financial Engine
+      ↓
+Analytics Engine
+```
+
+Quando um módulo entra no Stable Core, não deve ser refeito apenas por preferência técnica ou estética.
+
+Reabrir somente por:
+
+- bug;
+- vulnerabilidade;
+- mudança de API externa;
+- requisito validado;
+- problema de performance mensurado;
+- dívida técnica que bloqueie evolução real.
+
+---
+
+## 43.5 Código validado não significa código sem regressão
+
+Um módulo STABLE não precisa de repetição manual constante.
+
+Ele continua sendo verificado automaticamente:
+
+```text
+Nova mudança
+    ↓
+CI
+    ↓
+Unit Tests
+    ↓
+Integration Tests
+    ↓
+Security Tests
+    ↓
+Regression Tests
+    ↓
+Merge permitido
+```
+
+Se um teste crítico falhar, o merge deve ser bloqueado.
+
+---
+
+## 43.6 Golden Tests para cálculos críticos
+
+Exemplo conhecido:
+
+```text
+Venda: R$ 100
+Custo do produto: R$ 40
+Taxas: R$ 15
+Frete seller: R$ 8
+Ads: R$ 7
+
+Resultado esperado: R$ 30
+```
+
+Esse caso vira fixture/teste de referência.
+
+Mudança futura que retornar valor diferente precisa explicar conscientemente a alteração da regra de negócio.
+
+---
+
+## 43.7 Contract Tests
+
+Criar contract tests para connectors e normalizadores.
+
+Objetivo:
+
+- identificar mudanças nas APIs externas;
+- impedir quebra silenciosa de campos;
+- garantir compatibilidade do domínio interno.
+
+---
+
+## 43.8 Registro de componentes estáveis
+
+Dentro deste mesmo documento mestre, manter a tabela abaixo atualizada:
+
+| Componente | Status | Versão | Última validação | Pode alterar? |
+|---|---|---|---|---|
+| Auth | EXPERIMENTAL | 0.1 | — | Sim |
+| Tenant Isolation | EXPERIMENTAL | 0.1 | — | Sim |
+| OAuth Mercado Livre | EXPERIMENTAL | 0.1 | — | Sim |
+| Financial Engine | EXPERIMENTAL | 0.1 | — | Sim |
+| Analytics Engine | EXPERIMENTAL | 0.1 | — | Sim |
+| Infra base (repo, CI, banco local, logging) | VALIDATING | 0.1 | 2026-10-08 | Sim |
+
+Não criar um `STABLE_COMPONENTS.md` separado. A governança permanece neste arquivo.
+
+---
+
+## 43.9 Reabertura de componente STABLE/FROZEN
+
+Registrar no changelog ou decisão correspondente:
+
+```text
+Motivo
+Impacto
+Risco
+Testes afetados
+Plano de rollback
+```
+
+Sem motivo claro, não alterar.
+
+---
+
+## 43.10 Feature Budget
+
+### P0
+
+Bloqueia lançamento ou protege segurança/correção.
+
+### P1
+
+Importante, entra somente depois dos P0.
+
+### P2
+
+Backlog próximo ciclo.
+
+### P3
+
+Ideia futura.
+
+Regra:
+
+> Nenhuma feature P2/P3 deve atrasar o piloto.
+
+---
+
+## 43.11 Feature Freeze
+
+Cronograma oficial do MVP:
+
+```text
+Dias 1–10  → construção
+Dia 11     → Feature Freeze
+Dias 12–13 → hardening, regressão, segurança, bugs e UX
+Dia 14     → piloto
+```
+
+Após Feature Freeze, somente entram:
+
+- correção P0/P1;
+- segurança;
+- LGPD;
+- cálculo incorreto;
+- quebra de integração;
+- problema impeditivo de UX.
+
+---
+
+# BLOCO 44 — PRAZO E MARCOS DO MVP
+
+## 44.1 Meta oficial
+
+> **14 dias para colocar um MVP pequeno, seguro e utilizável nas mãos de 5–10 sellers reais.**
+
+Não significa produto final.
+
+---
+
+## 44.2 Estratégia Mercado Livre-first
+
+O prazo de 14 dias depende de não deixar a aprovação/permissão da Shopee bloquear o núcleo.
+
+MVP mínimo aceitável:
+
+- Mercado Livre conectado;
+- produtos;
+- pedidos;
+- custos;
+- Produto Mestre;
+- engine financeira;
+- dashboard;
+- insights básicos;
+- segurança/LGPD P0;
+- usuários reais testando.
+
+Shopee entra no mesmo piloto se o acesso necessário estiver liberado e estável.
+
+---
+
+## 44.3 Marcos
+
+| Período | Resultado esperado |
+|---|---|
+| Dias 1–2 | Discovery, Design System, arquitetura, LGPD e threat model |
+| Dias 3–4 | Auth, banco, multi-tenancy e segurança |
+| Dias 4–6 | Mercado Livre OAuth, produtos e pedidos |
+| Dias 7–8 | Produto Mestre, custos e engine financeira |
+| Dias 9–10 | Dashboard, comparação e métricas |
+| Dia 11 | Insights + Health Score + Feature Freeze |
+| Dias 12–13 | Hardening, regressão, bugs e UX |
+| Dia 14 | 5–10 sellers no piloto |
+
+---
+
+## 44.4 Horizonte pós-MVP
+
+Estimativa de planejamento, sujeita ao feedback real:
+
+```text
+14 dias
+└── MVP piloto
+
+Semanas 3–4
+├── feedback dos sellers
+├── correções
+├── Shopee, se pendente
+├── UX
+└── métricas adicionais
+
+30–45 dias
+├── beta comercial
+├── onboarding maduro
+├── billing
+├── analytics melhor
+└── primeiros usuários pagantes
+
+60–90 dias
+├── Marketing Intelligence
+├── Ads
+├── SEO
+├── recomendações avançadas
+└── AI Advisor
+```
+
+Priorizar aprendizado real sobre calendário fixo.
+
+---
+
+# BLOCO 45 — GUARDRAIL ECONÔMICO E TESE DE DIFERENCIAÇÃO
+
+## 45.1 Tese atual
+
+O produto não vence por ser um dashboard mais bonito. A tese é:
+
+> **Financial Intelligence + visão multicanal + impacto em R$ + priorização de ação para sellers pequenos profissionalizados.**
+
+Os marketplaces podem melhorar seus próprios dashboards. Nosso valor precisa continuar existindo mesmo assim.
+
+## 45.2 Pergunta defensável
+
+O sistema deve responder algo que um painel isolado não responde bem:
+
+> “Considerando custos, taxas, frete, Ads e ajustes, onde este produto realmente contribui mais para o meu negócio e o que merece minha atenção primeiro?”
+
+## 45.3 Custo inicial
+
+Objetivo: manter o piloto com infraestrutura simples e gerenciada.
+
+Guardrail inicial:
+
+- evitar Kubernetes, data warehouse, GPU, vector DB e observabilidade enterprise;
+- usar serviços gerenciados pequenos;
+- não pagar por ferramenta que substitua validação de produto;
+- registrar custo mensal de infraestrutura e custo variável por tenant.
+
+### Budget operacional de validação
+
+Meta: manter infraestrutura do piloto **na ordem de dezenas a pouco mais de uma centena de dólares/mês**, enquanto o volume for baixo. Qualquer salto relevante de custo deve ter causa medida e decisão registrada.
+
+## 45.4 Unit economics que devemos medir cedo
+
+Mesmo antes de billing completo:
+
+```text
+MRR potencial por tenant
+- custo infra marginal
+- custo API/serviços
+- custo médio de suporte/onboarding
+= contribuição aproximada por tenant
+```
+
+Principal alerta:
+
+> Se cada cliente exigir horas recorrentes de consultoria para extrair valor, ainda não temos SaaS escalável.
+
+## 45.5 Regra de produto
+
+Toda atividade manual repetida em 3 ou mais clientes deve ser avaliada para virar:
+
+- onboarding;
+- regra;
+- feature;
+- automação segura;
+- documentação;
+- ou ser removida da oferta.
+
+---
+
+# BLOCO 46 — REGRA PERMANENTE DE ATUALIZAÇÃO DO MASTER PLAN
+
+A partir desta versão:
+
+> **Toda informação nova do projeto deve ser incorporada neste mesmo arquivo.**
+
+Inclui novas:
+
+- ideias;
+- decisões;
+- regras;
+- features;
+- APIs;
+- riscos;
+- aprendizados;
+- testes;
+- controles de segurança;
+- requisitos LGPD;
+- mudanças de design;
+- mudanças de prazo;
+- mudanças de stack;
+- resultados de entrevistas;
+- itens rejeitados.
+
+### Processo
+
+```text
+Nova informação
+      ↓
+Classificar domínio/bloco
+      ↓
+Verificar conflito com decisão anterior
+      ↓
+Atualizar bloco existente OU criar novo bloco
+      ↓
+Atualizar CHANGELOG
+      ↓
+Arquivo mestre permanece como fonte única
+```
+
+Não substituir uma decisão antiga silenciosamente. Quando houver mudança relevante, registrar o motivo no changelog.
+
+---
+
+# BLOCO 47 — ANÁLISE DE MERCADO (OUTUBRO/2026)
+
+> Pesquisa de mesa (fontes públicas). **Não substitui entrevistas com sellers** — é insumo para o Dia 1 de discovery.
+
+## 47.1 Tamanho do mercado
+
+| Dado | Valor | Observação |
+|---|---|---|
+| PMEs/empreendedores vendendo ativamente no Mercado Livre Brasil (2025) | ~627 mil | 40% MEI; para 60% o ML é o principal canal |
+| Vendedores brasileiros cadastrados na Shopee | ~3,3 milhões | cadastrados ≠ ativos; 9 em 10 vendas vêm de CNPJ |
+| Comissão típica Mercado Livre | ~14% a 20% | varia por categoria e tipo de anúncio |
+| Comissão combinada Shopee (2026) | pode passar de 27% | fim do teto de R$ 100 na comissão; taxa fixa por item subiu para até R$ 7 |
+
+### Hipótese de ICP endereçável (a validar)
+
+Se 5–10% dos sellers ativos do ML estiverem na faixa de 100–2.000 pedidos/mês (ICP do Bloco 2), o mercado inicial seria da ordem de **30–60 mil sellers**. Ilustração: 1% de 40 mil = 400 clientes × R$ 150 = **~R$ 60 mil de MRR**. Esse percentual é premissa, não dado medido.
+
+## 47.2 A dor existe?
+
+**Sim, com evidência indireta forte:**
+
+- dezenas de ferramentas surgiram para "lucro real por pedido" — o mercado já paga por isso;
+- 2026 trouxe aumento de taxas (Shopee principalmente), o que força recálculo de margem por SKU;
+- pesquisas de fornecedores do setor apontam que a maioria dos lojistas tem dificuldade de precificar ou vende com margem abaixo do esperado (fonte com viés comercial).
+
+**Evidência direta ainda inexistente:** nenhuma entrevista com seller foi feita. O Dia 1 continua sendo o maior risco do plano.
+
+## 47.3 Concorrência — achado mais importante
+
+O mercado é **mais concorrido do que o Bloco 32/R09 assumia**. A competição não é só o painel nativo do marketplace:
+
+| Categoria | Exemplos | Preço público observado |
+|---|---|---|
+| SaaS de lucro por pedido/SKU | Gestor Seller, OQS (Oquesobra), SellerHub Analytics, Emori, Jodda.ia, Claryfin | R$ 29,90 a R$ 697/mês, por faixa de pedidos |
+| ERPs com relatório de lucro embutido | Bling (Dashboard Margem por Pedido), UpSeller (300 mil+ sellers) | incluído no ERP |
+| Suítes operacionais | Mercado Turbo (140+ funcionalidades) | assinatura |
+| Planilha automatizada | Jaguar Sheet (sincroniza ML → Google Sheets) | assinatura |
+| Inteligência de mercado (concorrência, não margem própria) | Nubimetrics, Real Trends | assinatura |
+
+### Conclusão
+
+> **"Ver o lucro real por pedido" virou commodity.** Não sustenta um SaaS novo sozinho.
+
+O espaço defensável que ainda parece pouco ocupado é exatamente a tese do Bloco 45, desde que levada a sério:
+
+1. **Priorização com impacto em R$** — "o que olhar hoje e quanto isso custa", não "veja seu lucro" (H9);
+2. **Confiança/lineage** — "Como calculamos?" com fonte de cada centavo (H7);
+3. **Produto Mestre cross-channel** — o mesmo produto comparado entre ML e Shopee com economics completos (H8);
+4. **Diagnóstico explicado** — regras com evidência (Blocos 10 e 17).
+
+## 47.4 Dá para escalar?
+
+Tecnicamente sim (connectors isolados, infra barata). O gargalo provável **não é tecnologia, é distribuição**:
+
+- CAC: o seller pequeno é alcançado por mentores, consultorias, influenciadores e comunidades de marketplace;
+- o Bloco 30 (consultoria como discovery) pode virar também canal: parceria com mentores/agências que atendem vários sellers;
+- preço precisa caber na régua já existente (entrada ~R$ 100, intermediário ~R$ 200–300).
+
+## 47.5 Ajustes decorrentes
+
+- Novo risco **R14 — Commoditização do lucro por pedido.** Mitigação: comunicar e medir valor pela fila de prioridade e pelo impacto em R$, não pelo cálculo de margem.
+- Novo risco **R15 — Canal de aquisição.** Mitigação: testar no piloto ao menos um canal (mentor/agência parceira ou comunidade) e registrar custo por tester ativado.
+- R09 reforçado: concorrência inclui ERPs e SaaS especializados, não apenas os marketplaces.
+- Faixas de preço para o teste de WTP no piloto: **R$ 97 / R$ 197 / R$ 297**.
+- Perguntas 16 e 17 adicionadas ao roteiro de discovery (Bloco 27.1).
+
+### Fontes
+
+- Mercado & Consumo — Mercado Livre movimenta R$ 731 bi na economia brasileira em 2025
+- Blog da Shopee — 3 milhões de vendedores brasileiros; perfil dos vendedores
+- Economic News Brasil / Money Times — reajuste de taxas da Shopee em 2026
+- ecomcalctools.com — taxas Mercado Livre 2026
+- Sites oficiais: gestorseller.com.br, oquesobra.com.br, sellerhubanalytics.com.br, emori.com.br, joddaia.com.br, jaguarsheet.com, upseller.com, ajuda.bling.com.br, trustmrr.com (Claryfin)
+- Mercado Livre Developers — `listing_prices` (sale_fee_details) e Billing Reports
+
+---
+
+# BLOCO 48 — INFRA (EXECUTADO EM 2026-10-08)
+
+Primeiro bloco técnico. Escolhido por ser de **baixo arrependimento**: serve a qualquer resultado do discovery e pode rodar em paralelo ao Bloco A.
+
+## 48.1 Estrutura do repositório (decisão)
+
+```text
+.
+├── MASTER_PLAN_SAAS_MARKETPLACE_MVP.md
+├── README.md
+├── docker-compose.yml
+├── infra/postgres/init/01-roles-and-databases.sql
+├── .github/ (ci.yml, dependabot.yml, pull_request_template.md)
+├── .pre-commit-config.yaml
+├── backend/
+│   ├── app/{api,core,models}/
+│   ├── migrations/
+│   ├── tests/
+│   ├── Dockerfile
+│   └── pyproject.toml + uv.lock
+└── frontend/ (Next.js App Router, src/)
+```
+
+Conflito resolvido: o Bloco 22 previa vários arquivos em `docs/`, mas o Bloco 36 proíbe fragmentar a documentação no MVP. **Prevalece o Bloco 36** — `docs/` não foi criado.
+
+## 48.2 Ferramentas e versões
+
+| Item | Escolha | Motivo |
+|---|---|---|
+| Python | 3.13, gerenciado por `uv` | lockfile reproduzível, instalação rápida, mesmo fluxo local e CI |
+| Driver Postgres | `asyncpg` | `psycopg` async não funciona com o event loop padrão do Windows (ambiente de dev atual) |
+| Banco | PostgreSQL 17 | porta local **5440** (5432/5433 já usadas por outros projetos na máquina) |
+| Frontend | Next.js 16.4 + React 19 + Tailwind 4 | versão com mudanças incompatíveis; consultar `node_modules/next/dist/docs/` antes de usar APIs |
+| Node | 24 + npm | já instalado; sem ferramenta extra |
+
+## 48.3 Banco — menor privilégio desde o primeiro dia
+
+- `app_migrator`: dono do schema, usado **somente** por migrations.
+- `app_runtime`: usado pela API; só DML; `NOSUPERUSER NOBYPASSRLS`.
+- Motivo: dono de tabela e superusuário ignoram RLS. Sem separar roles, o RLS do Bloco 18.8 não teria efeito.
+- Testes `test_runtime_role_is_not_privileged` e `test_runtime_role_cannot_run_ddl` protegem isso no CI.
+- Ao migrar para banco gerenciado (ex.: Supabase), a API **não** pode usar `postgres` nem service role — criar a mesma role de runtime.
+
+## 48.4 Backend — fundação
+
+- Configuração por env com **fail-fast**: fora de development, a API não sobe sem `ENCRYPTION_KEY`, `AUTH_JWKS_URL`, `AUTH_ISSUER`, e recusa CORS `*` ou origem HTTP.
+- Segredos tipados como `SecretStr` (não aparecem em repr/log).
+- Logs JSON com mascaramento de `access_token`, `refresh_token`, `client_secret`, `Bearer`, tokens `APP_USR-`/`TG-`, JWT e senha em URL de conexão.
+- Log de acesso registra só o path — a query string do callback OAuth contém `code`.
+- `X-Request-ID` em toda resposta; erro 500 devolve apenas `request_id`, sem stack trace.
+- Headers de segurança na API; `/docs` e `/openapi.json` desligados fora de development.
+- Pool de conexões limitado + `statement_timeout` (Bloco 42.8).
+- `/health` (liveness) e `/health/ready` (readiness com banco).
+- Dockerfile multi-stage, usuário sem privilégio.
+
+## 48.5 Frontend — fundação
+
+- Build **falha** se existir variável `NEXT_PUBLIC_*` com nome de segredo (SECRET, TOKEN, PASSWORD, PARTNER_KEY, SERVICE_ROLE, DATABASE, ENCRYPTION).
+- Headers de segurança e `poweredByHeader: false`.
+- Pendente para o bloco de UX: CSP com nonce.
+
+## 48.6 CI (GitHub Actions)
+
+```text
+backend : ruff → roles/bancos → alembic upgrade → alembic check → pytest → pip-audit
+frontend: npm ci → lint → typecheck → build → npm audit
+secrets : gitleaks no histórico completo
+```
+
+Dependabot semanal (uv, npm) e mensal (actions, docker). Template de PR com a Definition of Done do Bloco 33.
+
+**Ação manual no GitHub:** proteger `main` exigindo os 3 jobs verdes e PR antes do merge.
+
+## 48.7 Propostas pendentes de decisão
+
+| Tema | Proposta | Motivo |
+|---|---|---|
+| Fila e locks (Bloco 42) | **Postgres-first**: advisory locks para "1 sync por conexão" + fila com `SKIP LOCKED` (ex.: Procrastinate). Sem Redis no MVP | um serviço a menos; lock é liberado sozinho se o worker cair |
+| Banco + Auth gerenciados | Supabase na região São Paulo | Postgres + Auth no mesmo lugar; dados no Brasil ajudam no Data Map LGPD |
+| Hospedagem da API | Fly.io (região `gru`) ou Railway | container simples, perto do banco |
+| Frontend | Vercel | já previsto no Bloco 13 |
+
+## 48.8 Dependências externas com prazo longo — iniciar já
+
+- [ ] Criar app no Mercado Livre Developers (escopos mínimos: leitura + `offline_access` para refresh token). Confirmar se o redirect URI exige HTTPS — se sim, usar túnel local ou staging.
+- [ ] Pedir acesso à Shopee Open Platform **no Dia 1** — a aprovação é o item mais lento do plano.
+- [ ] Registrar domínio e e-mail de privacidade (Bloco 19.6).
+- [ ] Apps e credenciais em nome da entidade do SaaS, não de conta pessoal (Bloco 14.2).
+
+# PRÓXIMO PASSO
+
+O próximo bloco de trabalho não deve ser código de integração.
+
+Deve ser:
+
+> **BLOCO A — Product Discovery + desenho das 5 telas principais + Design System v0.1 + Threat Model/LGPD Data Map.**
+
+Depois:
+
+> **BLOCO B — Fundação técnica e Mercado Livre OAuth.**
+
+Essa sequência evita começarmos pela API e descobrirmos depois que construímos o produto errado.
+
+> **Atualização v0.4:** a parte de infraestrutura do Bloco B (Bloco 48) foi adiantada em paralelo porque não depende do resultado do discovery. Código de integração e domínio continua **depois** do Bloco A.
+
+---
+
+# CHANGELOG
+
+## v0.4
+
+- adicionado Bloco 47 — análise de mercado: tamanho, evidências de dor, mapa de concorrentes e preços;
+- registrado que "lucro por pedido" é commodity; diferenciação passa a depender de priorização em R$, lineage e cross-channel;
+- adicionados riscos R14 (commoditização) e R15 (canal de aquisição); faixas de WTP R$ 97/197/297;
+- adicionadas perguntas 16 e 17 ao roteiro de discovery;
+- adicionado Bloco 48 — infraestrutura executada: monorepo, Postgres com roles separadas, fundação do backend, frontend com trava de segredos, CI;
+- decidido: `docs/` não será criado (Bloco 36 prevalece sobre o Bloco 22);
+- decidido: driver `asyncpg`; Python 3.13 via uv; Postgres local na porta 5440;
+- propostas abertas: fila/locks Postgres-first, Supabase São Paulo, Fly.io/Railway.
+
+## v0.3
+
+- reposicionado o produto para Financial Intelligence + visão multicanal + priorização;
+- ICP estreitado para seller pequeno profissionalizado;
+- Mercado Livre definido como caminho crítico do MVP e Shopee movida para P1;
+- Mercado Livre MVP definido como read-only/menor privilégio;
+- Financial Engine substituída por Financial Truth Engine;
+- separados venda operacional, receita atribuída, resultado estimado e futuro resultado conciliado;
+- adicionados cancelamentos, devoluções, reembolsos, ajustes e data lineage;
+- schema ampliado para master product + variants + listing variants;
+- adicionado MFA para acesso administrativo privilegiado;
+- adicionado critério de willingness-to-pay com preço concreto;
+- plano de 14 dias revisado com Feature Freeze no dia 11;
+- adicionado guardrail econômico de infraestrutura e unit economics;
+- adicionados riscos de competição nativa, erro financeiro, ICP sem poder de compra e consultoria não escalável.
+
+## v0.2
+
+- consolidado o princípio de documento único / Single Source of Truth;
+- adicionada regra permanente para incorporar toda nova decisão no mesmo MD;
+- fortalecido multi-tenancy com tenant derivado da sessão, queries scoped e índices compostos;
+- adicionadas constraints explícitas de idempotência;
+- adicionado suporte conceitual a `Idempotency-Key`;
+- adicionados distributed locks para sincronização;
+- adicionadas filas, limites de concorrência e proteção contra noisy neighbor;
+- adicionados rate limits por tenant/endpoint e controle de connection pool;
+- adicionados testes específicos de concorrência, duplicidade e isolamento;
+- adicionada governança de features EXPERIMENTAL/VALIDATING/STABLE/FROZEN;
+- adicionado Stable Core e regras para evitar reescrita desnecessária;
+- adicionados Golden Tests e Contract Tests;
+- definido Feature Freeze no dia 11;
+- formalizado prazo de 14 dias para piloto e horizonte de 30–45/60–90 dias.
+
+## v0.1
+
+- visão inicial;
+- posicionamento;
+- MVP;
+- arquitetura;
+- modelo de dados;
+- engine financeira;
+- analytics;
+- Design System;
+- segurança;
+- LGPD;
+- plano de 14 dias;
+- validação;
+- backlog.

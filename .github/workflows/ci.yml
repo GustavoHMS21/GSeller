@@ -1,0 +1,114 @@
+# Pipeline de integração contínua.
+# Todo PR para main precisa passar por estes jobs antes do merge (Bloco 43.5).
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (lint, migrations, testes, auditoria)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5440:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      CI: "true"
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://app_runtime:runtime_dev@localhost:5440/seller_test
+      MIGRATIONS_DATABASE_URL: postgresql+asyncpg://app_migrator:migrator_dev@localhost:5440/seller_test
+      CORS_ORIGINS: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Instalar dependências (lockfile congelado)
+        run: uv sync --frozen
+
+      - name: Lint e formatação
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Criar roles e bancos (mesmo script do ambiente local)
+        env:
+          PGPASSWORD: postgres
+        run: psql -v ON_ERROR_STOP=1 -h localhost -p 5440 -U postgres -f ../infra/postgres/init/01-roles-and-databases.sql
+
+      - name: Aplicar migrations
+        run: uv run alembic upgrade head
+
+      - name: Verificar se os modelos estão sincronizados com as migrations
+        run: uv run alembic check
+
+      - name: Testes
+        run: uv run pytest -q
+
+      - name: Auditoria de dependências (CVE)
+        run: |
+          uv export --frozen --no-dev --format requirements-txt -o /tmp/requirements.txt
+          uvx pip-audit -r /tmp/requirements.txt --disable-pip --strict
+
+  frontend:
+    name: Frontend (lint, tipos, build, auditoria)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000
+
+      - name: Auditoria de dependências de produção
+        run: npm audit --omit=dev --audit-level=high
+
+  secrets:
+    name: Varredura de segredos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
