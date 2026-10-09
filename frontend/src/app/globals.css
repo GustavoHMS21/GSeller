@@ -1,26 +1,120 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+ * Design System v0.1 — tokens semânticos (Master Plan, Bloco 16).
+ *
+ * Os valores ficam em variáveis --ds-* (trocam entre claro/escuro) e são
+ * expostos ao Tailwind via @theme. Componentes usam só os nomes semânticos
+ * (bg-surface, text-fg-muted, text-danger...), nunca cores literais.
+ */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --ds-canvas: #f6f7f9;
+  --ds-surface: #ffffff;
+  --ds-surface-muted: #f0f2f5;
+  --ds-fg: #111827;
+  --ds-fg-muted: #555f6d;
+  --ds-line: #e2e5ea;
+
+  --ds-primary: #1f4fd1;
+  --ds-primary-hover: #1a43b3;
+  --ds-primary-fg: #ffffff;
+
+  --ds-success: #12734f;
+  --ds-success-soft: #e6f4ee;
+  --ds-warning: #8f5200;
+  --ds-warning-soft: #fdf1dc;
+  --ds-danger: #b42323;
+  --ds-danger-soft: #fcebeb;
+  --ds-info: #1d5fc4;
+  --ds-info-soft: #e8f0fd;
+
+  --ds-brand-ml: #ffe600;
+  --ds-brand-shopee: #ee4d2d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --ds-canvas: #0d1117;
+    --ds-surface: #151a22;
+    --ds-surface-muted: #1c232d;
+    --ds-fg: #e6e9ee;
+    --ds-fg-muted: #9aa4b2;
+    --ds-line: #2a323d;
+
+    --ds-primary: #7398ff;
+    --ds-primary-hover: #8eabff;
+    --ds-primary-fg: #0d1117;
+
+    --ds-success: #4cc79a;
+    --ds-success-soft: #12291f;
+    --ds-warning: #f0a83f;
+    --ds-warning-soft: #2e2210;
+    --ds-danger: #f27a77;
+    --ds-danger-soft: #331717;
+    --ds-info: #79abff;
+    --ds-info-soft: #14233b;
   }
 }
 
+@theme inline {
+  --color-canvas: var(--ds-canvas);
+  --color-surface: var(--ds-surface);
+  --color-surface-muted: var(--ds-surface-muted);
+  --color-fg: var(--ds-fg);
+  --color-fg-muted: var(--ds-fg-muted);
+  --color-line: var(--ds-line);
+
+  --color-primary: var(--ds-primary);
+  --color-primary-hover: var(--ds-primary-hover);
+  --color-primary-fg: var(--ds-primary-fg);
+
+  --color-success: var(--ds-success);
+  --color-success-soft: var(--ds-success-soft);
+  --color-warning: var(--ds-warning);
+  --color-warning-soft: var(--ds-warning-soft);
+  --color-danger: var(--ds-danger);
+  --color-danger-soft: var(--ds-danger-soft);
+  --color-info: var(--ds-info);
+  --color-info-soft: var(--ds-info-soft);
+
+  --color-brand-ml: var(--ds-brand-ml);
+  --color-brand-shopee: var(--ds-brand-shopee);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --text-highlight: 2rem;
+  --text-highlight--line-height: 2.5rem;
+  --text-hero: 2.5rem;
+  --text-hero--line-height: 3rem;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: light dark;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ds-canvas);
+  color: var(--ds-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ds-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
