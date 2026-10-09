@@ -3,7 +3,8 @@ from pydantic import ValidationError
 
 from app.core.config import Settings
 
-BASE = {"database_url": "postgresql+asyncpg://u:p@localhost/db"}
+# _env_file=None: os testes não podem depender do .env local de quem os executa.
+BASE = {"_env_file": None, "database_url": "postgresql+asyncpg://u:p@localhost/db"}
 
 
 def test_cors_wildcard_rejected() -> None:

@@ -3,15 +3,14 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
-from app.api import health
+from app.api import health, tenancy
 from app.core.config import Settings, get_settings
 from app.core.db import get_engine
-from app.core.logging import configure_logging, request_id_ctx
+from app.core.errors import install_error_handlers
+from app.core.logging import configure_logging
 from app.core.middleware import RequestContextMiddleware
 
 
@@ -49,20 +48,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         max_age=600,
     )
 
-    @app.exception_handler(RequestValidationError)
-    async def _validation_error(_: Request, exc: RequestValidationError) -> JSONResponse:
-        # Devolve apenas onde e por que falhou, sem ecoar o valor enviado.
-        details = [{"loc": err["loc"], "msg": err["msg"]} for err in exc.errors()]
-        return JSONResponse(
-            status_code=422,
-            content={
-                "error": "validation_error",
-                "details": details,
-                "request_id": request_id_ctx.get(),
-            },
-        )
-
+    install_error_handlers(app)
     app.include_router(health.router)
+    app.include_router(tenancy.router)
     return app
 
 
