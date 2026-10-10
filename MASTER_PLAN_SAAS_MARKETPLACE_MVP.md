@@ -2,7 +2,8 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.6 — Auth + Tenant isolation (backend) com Supabase Auth  
+> **Versão:** 0.7 — Foco em sellers; fluxo Issue→PR; SOLID; padrões de motion, observabilidade e qualidade  
+> **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
 
@@ -2012,27 +2013,34 @@ seller-intelligence/
 
 ## Branches
 
-Equipe pequena:
+> Atualizado na v0.7: toda branch nasce de uma issue. Regras completas no **Bloco 53**.
 
 ```text
 main
-feature/*
-fix/*
-security/*
+feature/<nº-issue>-<slug>    ex.: feature/12-login-supabase
+fix/<nº-issue>-<slug>
+chore/<nº-issue>-<slug>
+docs/<nº-issue>-<slug>
+test/<nº-issue>-<slug>
+security/<nº-issue>-<slug>
 ```
 
 Usar PR/testes antes de merge em `main`.
 
 ## Commits
 
+Conventional Commits, validados no CI (Bloco 56):
+
 ```text
 feat:
 fix:
 security:
 refactor:
+perf:
 docs:
 test:
 chore:
+ci:
 ```
 
 ## ADR
@@ -2543,6 +2551,17 @@ Sistema executa
 
 Aprovação humana por padrão.
 
+## V7 — Afiliados (fora do escopo atual)
+
+Decidido em 2026-10-10: **o produto foca somente em quem vende** no Mercado Livre e na Shopee. Afiliados viram um produto separado ou um módulo futuro.
+
+Insumos da análise de 2026-10-10, para quando o tema voltar:
+
+- A Shopee tem **Affiliate Open API oficial**: conversões, comissões validadas, ofertas e links curtos com sub-ID por canal.
+- O Mercado Livre **não tem API pública de relatórios de afiliado**. Caminho viável: importar o relatório do painel + links de redirecionamento próprios. Nunca scraping (princípio 4 e Bloco 14.2).
+- Automação de postagem em grupos já é um mercado concorrido (R$ 49,90–149,90/mês). O diferencial estaria na análise ("o que postar amanhã"), não no disparo.
+- Comissão de afiliado (pendente → validada → cancelada) reaproveita o modelo de eventos financeiros do Bloco 9.
+
 ---
 
 # BLOCO 32 — RISCOS
@@ -2649,7 +2668,12 @@ Uma feature só está pronta quando:
 - [ ] documentação;
 - [ ] LGPD avaliada;
 - [ ] nenhum secret exposto;
-- [ ] mobile razoável quando aplicável.
+- [ ] mobile razoável quando aplicável;
+- [ ] issue vinculada e PR com `Closes #N` (Bloco 53);
+- [ ] princípios SOLID respeitados (Bloco 53.4);
+- [ ] estados de motion: skeleton, entrada, saída e progresso, com `prefers-reduced-motion` (Bloco 54);
+- [ ] erros capturados e operações relevantes instrumentadas (Bloco 55);
+- [ ] todos os quality gates verdes no CI (Bloco 56).
 
 ---
 
@@ -2800,6 +2824,11 @@ Toda nova decisão deve ser incorporada neste arquivo, incluindo:
 Arquivos auxiliares de código, migration, testes ou configuração podem existir no repositório, mas **não substituem o documento mestre como fonte de verdade do produto e da arquitetura**.
 
 Quando uma seção crescer, ela continua neste arquivo e recebe um novo bloco ou subseção. Não fragmentar a documentação principal em vários `.md` durante o MVP.
+
+Exceções permitidas (v0.7), porque não são documentação e sim pontos de entrada exigidos por ferramentas:
+
+- `AGENTS.md` na raiz: apenas aponta para este documento, para que agentes de qualquer ferramenta o encontrem;
+- `.github/ISSUE_TEMPLATE/*` e `.github/pull_request_template.md`: formulários do fluxo do Bloco 53.
 
 ---
 
@@ -4176,6 +4205,262 @@ Erros seguem um formato único: `{"error": código, "message": texto, "request_i
 
 No Windows, `localhost` tenta IPv6 primeiro; como o Postgres do Docker escuta só em `127.0.0.1`, cada conexão esperava cerca de 2 s. Usar `127.0.0.1` nas URLs locais derrubou a suíte de 90 s para 3 s.
 
+---
+
+# BLOCO 53 — REGRAS DE TRABALHO PARA PESSOAS E AGENTES (OBRIGATÓRIO)
+
+> **Este bloco vale para qualquer pessoa e para qualquer agente de IA, de qualquer modelo ou ferramenta.** O arquivo `AGENTS.md` na raiz aponta para cá. Antes de qualquer tarefa, leia este bloco e os Blocos 40 (princípios), 54, 55 e 56.
+
+## 53.1 Fluxo obrigatório: Issue → Branch → PR → CI → Merge → Deploy
+
+```text
+1. Issue        toda tarefa nasce de uma issue no GitHub (Correção, Melhoria ou Nova função)
+      ↓
+2. Branch       <tipo>/<nº-issue>-<slug>, criada a partir de main atualizada
+      ↓
+3. Commits      Conventional Commits, pequenos e coerentes
+      ↓
+4. Pull Request título em Conventional Commits + "Closes #<nº>" na descrição
+      ↓
+5. CI verde     todos os gates do Bloco 56
+      ↓
+6. Merge        em main
+      ↓
+7. Deploy       main é o que vai para produção; PRs geram ambiente de preview
+                (quando o pipeline de deploy existir)
+```
+
+## 53.2 Issues
+
+| Tipo | Label | Quando usar |
+|---|---|---|
+| Correção | `bug` | Algo funciona diferente do especificado |
+| Melhoria | `enhancement` | Evolução de algo que já existe (qualidade, performance, UX, ferramental) |
+| Nova função | `feature` | Capacidade nova para o usuário ou para o sistema |
+
+Labels complementares: área (`backend`, `frontend`, `infra`, `documentation`) e prioridade (`P0`, `P1`, `P2`, Bloco 43.10).
+
+Toda issue tem: **contexto**, **escopo**, **critérios de aceite** verificáveis, **fora de escopo** e o **bloco do Master Plan** relacionado. Use os formulários em `.github/ISSUE_TEMPLATE/`.
+
+## 53.3 Pull Requests
+
+- **Um PR por issue.** Exceção: issues triviais e diretamente relacionadas, todas citadas.
+- A descrição **sempre** contém `Closes #<nº>` (ou `Refs #<nº>` quando não fecha a issue).
+- O título segue Conventional Commits, por exemplo `feat(auth): tela de login com Supabase`.
+- Preencha o template: o que muda, por que, Definition of Done (Bloco 33) e impacto financeiro.
+- Nada entra em `main` sem CI verde.
+
+## 53.4 SOLID aplicado a este projeto
+
+| Princípio | Regra prática aqui | Exemplo existente |
+|---|---|---|
+| **S** — Responsabilidade única | Rotas finas (HTTP ↔ schema); regra de negócio em `services/`; persistência nos modelos/repositórios; cálculo financeiro em funções puras | `api/tenancy.py` só traduz HTTP; a regra está em `services/tenancy.py` |
+| **O** — Aberto/fechado | Novo marketplace = **novo connector** que implementa o mesmo contrato; nada muda no domínio nem no dashboard (Bloco 8). Nova regra de insight = nova função registrada, sem editar as outras | Regras R001–R006 independentes em `lib/demo/rules.ts` |
+| **L** — Substituição de Liskov | Toda implementação de um contrato passa pela **mesma suíte de contract tests** e pode substituir outra sem quebrar o chamador | `StaticKeyProvider` (testes) substitui `JwksKeyProvider` (produção) |
+| **I** — Segregação de interfaces | Protocolos pequenos e específicos (`KeyProvider`, `OrderSource`, `ListingSource`) em vez de um "MarketplaceClient" gigante | `KeyProvider` tem um único método |
+| **D** — Inversão de dependência | Camadas de alto nível dependem de abstrações injetadas (`Depends` no FastAPI, props/hooks no frontend), nunca instanciam infraestrutura | `TokenVerifier` recebe um `KeyProvider`; testes trocam via `dependency_overrides` |
+
+Os contratos de arquitetura do Bloco 56 verificam automaticamente as fronteiras entre camadas.
+
+## 53.5 Outras regras de código
+
+- Tipagem estrita: TypeScript `strict`; Python com type hints em tudo que é público.
+- Cálculos financeiros são funções puras, determinísticas e cobertas por golden tests (Bloco 9.6).
+- `tenant_id` sempre derivado da sessão (Bloco 42.1). Nenhum segredo no frontend (Bloco 18).
+- Comentários, commits, PRs e issues em **tom neutro e profissional**. **Não mencionar ferramentas de IA, assistentes ou modelos** em código, commits, PRs ou issues.
+- Toda decisão nova vai para este documento, com entrada no CHANGELOG (Bloco 46).
+
+## 53.6 Quem executa o quê
+
+- **Git e merges:** o mantenedor executa `git add`, `commit`, `push` e merge. Agentes **não** fazem commit, push nem merge. Eles preparam o código e entregam a **sequência exata de comandos**, numerada, com pontos de parada para conferir o CI.
+- **Issues e consultas:** agentes podem criar e editar issues e consultar status (PRs, CI) via `gh`/API quando o mantenedor pedir ou o fluxo exigir.
+- **Antes de entregar,** o agente roda localmente os gates do Bloco 56 que se aplicam e relata o resultado com fidelidade, inclusive falhas.
+
+## 53.7 Checklist do agente ao finalizar uma tarefa
+
+- [ ] Issue existe e está referenciada.
+- [ ] Gates locais rodados (lint, tipos, testes, contratos de arquitetura) e resultados reportados.
+- [ ] Interfaces novas seguem o Bloco 54 (motion e estados de carregamento).
+- [ ] Erros e operações relevantes instrumentados (Bloco 55).
+- [ ] Master Plan e CHANGELOG atualizados, se houve decisão.
+- [ ] Nada sensível no diff (`.env`, tokens, dados pessoais).
+- [ ] Comandos de branch, commit, push e `gh pr create` (com `Closes #N`) entregues ao mantenedor.
+
+---
+
+# BLOCO 54 — PADRÃO DE MOTION E ESTADOS DE CARREGAMENTO
+
+> Base: skill **design-motion-principles** (github.com/kylezantos/design-motion-principles, MIT). Para **dashboard SaaS** ela define **Emil Kowalski como lente principal** (contenção e velocidade), **Jakub Krehel como secundária** (acabamento sutil) e **Jhey Tompkins só em estados vazios**. As regras abaixo são essa síntese aplicada ao projeto, escritas para que qualquer agente as siga mesmo sem a skill instalada.
+
+## 54.1 Regra de ouro
+
+> "A melhor animação é a que não é notada."
+
+Motion existe para **comunicar estado**: algo carregando, entrando, saindo, progredindo ou respondendo a uma ação. Nunca para enfeitar.
+
+## 54.2 Cobertura obrigatória: todo elemento tem estados definidos
+
+| Situação | Tratamento obrigatório |
+|---|---|
+| Dado assíncrono (KPI, tabela, gráfico, card) | **Skeleton com a mesma geometria do conteúdo final** (sem layout shift), carregado sob demanda via `Suspense`/streaming. Blocos pesados (gráficos) com `import()` dinâmico |
+| Skeleton → conteúdo | Crossfade curto da região (opacidade, 180 ms). Exibir o skeleton só após ~150 ms de espera, para não piscar em respostas rápidas |
+| Overlays (modal, sheet, popover, dropdown, toast, tooltip) | Entrada **e** saída animadas; origem no gatilho (`transform-origin`) |
+| Itens que entram/saem de listas por ação do usuário | Entrada e saída animadas do item afetado (não da lista inteira) |
+| Ação que leva mais de 300 ms | Estado *pending* no próprio botão (rótulo + indicador) e desabilitado contra duplo clique |
+| Processo longo com etapas conhecidas (sync, importação) | **Barra de progresso determinada** (easing `linear`), com etapa atual em texto |
+| Processo de duração desconhecida | Indicador indeterminado discreto + texto do que está acontecendo |
+| Troca de estado de ícone (copiar → copiado, carregando → pronto) | Crossfade com opacidade + escala 0,9 → 1 |
+| Hover e foco | Transição de cor/sombra de 120–150 ms |
+| Clique em botão primário | `scale(0.97)` no `:active` |
+
+**Conteúdo estático** (títulos, parágrafos, navegação, rótulos) aparece **instantaneamente**. O estado dele é "presente", sem animação de montagem: a skill classifica animar texto estático no mount como antipadrão, porque atrasa a leitura.
+
+## 54.3 Tokens de motion
+
+```css
+--motion-duration-instant: 0ms;     /* ações por teclado, alta frequência */
+--motion-duration-fast:    120ms;   /* hover, press, troca de ícone */
+--motion-duration-base:    180ms;   /* popover, dropdown, toast, crossfade */
+--motion-duration-slow:    260ms;   /* modal, sheet, troca de região inteira */
+--motion-ease-out:    cubic-bezier(0.23, 1, 0.32, 1);    /* entrada */
+--motion-ease-in:     cubic-bezier(0.55, 0, 1, 0.45);    /* saída */
+--motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);   /* mudança de estado visível */
+--motion-ease-linear: linear;                             /* progresso, loops */
+```
+
+- **Entrada:** opacidade 0 → 1 + `translateY(4–8px)` → 0, com `ease-out`.
+- **Saída:** mais sutil e mais curta (cerca de 70% da duração, `translateY(-4px)`, `ease-in`).
+- **Teto:** 300 ms para qualquer animação de interface.
+- **Springs:** somente com `bounce: 0`.
+
+## 54.4 Proibido (antipadrões da skill)
+
+- Indicadores pulsando (`animate-pulse` em pontos, badges ou status).
+- Blur na entrada de vários componentes da mesma tela (≥ 3). Blur só em modal ou destaque único.
+- `hover:scale` em grades de cards ou em todos os botões.
+- Stagger em listas utilitárias (tabelas, filtros, resultados). No máximo um momento intencional por tela.
+- Fade-in idêntico em 4 ou mais componentes da mesma tela.
+- Bounce em ações utilitárias (dropdown, toggle, modal).
+- Animar a partir de `scale(0)` (usar ≥ 0,9).
+- Animar ações iniciadas por teclado.
+- Easing padrão do CSS (`ease`, `ease-in-out`) no lugar dos tokens.
+- Animar `width`, `height`, `top`/`left`. Animar apenas `transform`, `opacity` e `clip-path`.
+
+## 54.5 Acessibilidade (inegociável)
+
+- `prefers-reduced-motion: reduce` desliga animações e preserva o estado final (já implementado em `globals.css`).
+- Motion funcional precisa ter alternativa sem movimento (texto, ícone, mudança de cor).
+- Loops (indeterminados) param quando o processo termina e respeitam o reduced motion.
+
+## 54.6 Implementação e auditoria
+
+- **CSS transitions por padrão** (interrompíveis). A biblioteca Motion (`motion/react`) entra somente para animações de saída (`AnimatePresence`) e layout compartilhado.
+- Componentes base do Design System recebem os estados prontos: `Skeleton`, `Fade`/`Presence`, `ProgressBar`, `Button` com `pending`, `Toast`.
+- Todo PR com interface passa por **auditoria de motion** usando os itens 54.2 e 54.4 como checklist. Com a skill disponível, rodar o modo *Audit*.
+
+---
+
+# BLOCO 55 — OBSERVABILIDADE
+
+## 55.1 Arquitetura
+
+```text
+Backend (FastAPI)  ─┐                      ┌─► Datadog   ─┐
+Frontend (Next.js) ─┼─ OpenTelemetry (OTLP)┼─► New Relic ─┼─ escolher UM por ambiente
+Workers (sync)     ─┘                      └─► outro OTLP ─┘
+
+Backend + Frontend ── Sentry ── erros, stack traces sanitizados, releases
+```
+
+| Ferramenta | Papel | Decisão |
+|---|---|---|
+| **OpenTelemetry** | Padrão de instrumentação neutro: traces, métricas e logs | **Obrigatório.** Toda instrumentação usa OTel, nunca SDK proprietário |
+| **Sentry** | Rastreamento de erros (backend e frontend) e performance do frontend | **Obrigatório** desde o piloto (plano gratuito atende) |
+| **Datadog** | Backend de observabilidade (recebe OTLP) | Suportado por configuração |
+| **New Relic** | Backend de observabilidade (recebe OTLP) | Suportado por configuração |
+
+**Por que não ligar Datadog e New Relic juntos:** os dois cobram por volume e fazem a mesma função. Com OTel, trocar de um para o outro é mudar duas variáveis de ambiente (`OTEL_EXPORTER_OTLP_ENDPOINT` e o header de chave). O guardrail de custo do Bloco 45.3 manda escolher **um** por ambiente.
+
+## 55.2 O que instrumentar
+
+- **Traces:** requisições HTTP, queries SQL (SQLAlchemy), chamadas externas (httpx para Mercado Livre e Shopee), jobs de sync.
+- **Métricas** (Bloco 25): `sync_success_total`, `sync_failure_total`, `sync_duration`, `api_external_error`, `insights_generated`, `connections_active`, latência e erros por rota.
+- **Correlação:** `request_id` e `trace_id` em todos os logs JSON.
+- **Atributos de span:** `tenant_id` como atributo de baixa sensibilidade, para investigar *noisy neighbor*. Nunca e-mail, nome ou token.
+
+## 55.3 Privacidade e segurança (LGPD)
+
+- Sentry com `send_default_pii=False` e `before_send` aplicando o mesmo mascaramento dos logs (`app.core.logging.redact`).
+- Nenhum token, segredo, dado de comprador ou corpo de requisição em spans, breadcrumbs ou eventos.
+- Sentry, Datadog e New Relic são **suboperadores**: entram no Data Map (Bloco 50.5).
+
+## 55.4 Amostragem e ambientes
+
+- **Erros:** 100%. **Traces em produção:** 10–20%, ajustável por env. Development: exportação desligada por padrão.
+- `release` = SHA do commit, `environment` = `APP_ENV`.
+
+---
+
+# BLOCO 56 — QUALIDADE DE CÓDIGO E TESTES (QUALITY GATES)
+
+## 56.1 Ferramentas
+
+| Categoria | Frontend (TypeScript) | Backend (Python) | Quando roda |
+|---|---|---|---|
+| Lint + formatação | **Biome** (substitui ESLint e Prettier) | Ruff | CI em todo PR + pre-commit |
+| Tipos | `tsc --noEmit` (strict) | type hints (checagem estática em issue futura) | CI |
+| Contratos de arquitetura | **dependency-cruiser** | **import-linter** | CI |
+| Código e dependências mortas | **Knip** | — | CI |
+| Mensagens de commit | **commitlint** (Conventional Commits) | idem | CI (commits do PR + título) e hook local |
+| Testes unitários | **Vitest** + Testing Library | pytest | CI |
+| Integração | Vitest | pytest + Postgres real (já existe) | CI |
+| End-to-end | **Playwright** (fluxos críticos do Bloco 24) | — | CI |
+| Cobertura | **Codecov** (relatório no PR) | **Codecov** | CI |
+| Testes de mutação | **Stryker** (StrykerJS) | **mutmut** | Agendado (semanal) e manual — lentos demais para cada PR |
+| Segurança | npm audit, gitleaks | pip-audit, gitleaks | CI (já existe) |
+
+"Arch-contract" foi implementado como contratos de dependência entre camadas: **dependency-cruiser** no TypeScript e **import-linter** no Python, as ferramentas maduras de cada ecossistema.
+
+## 56.2 Contratos de arquitetura (iniciais)
+
+**Backend:**
+
+```text
+api        → pode usar: services, schemas, auth, core
+services   → pode usar: models, auth.db_context, core     (nunca api)
+models     → pode usar: core                              (nunca services/api)
+core       → não depende de api, services, auth, models
+integrations/<marketplace> → nunca importa outro marketplace
+```
+
+**Frontend:**
+
+```text
+components/ui   → não importa components/app, app/, lib/demo
+components/app  → não importa app/
+lib/            → não importa components/ nem app/
+lib/demo        → nunca importado por código de produção fora do protótipo
+sem dependências circulares
+```
+
+## 56.3 Metas
+
+| Métrica | Meta |
+|---|---|
+| Cobertura de patch (código novo do PR) | ≥ 80% |
+| Cobertura do projeto | Nunca cair em relação ao `main` |
+| Cobertura em finanças e regras de insight | ≥ 95% |
+| Mutation score em finanças e regras | ≥ 80% |
+| Fluxo E2E crítico | 100% verde para merge |
+
+## 56.4 Pré-requisitos do mantenedor
+
+| Ferramenta | O que é preciso |
+|---|---|
+| Codecov | Conectar o repositório e salvar `CODECOV_TOKEN` nos secrets do GitHub |
+| Sentry | Projeto criado; `SENTRY_DSN` como secret |
+| Datadog ou New Relic | Somente quando houver deploy; chave como secret |
+
 # PRÓXIMO PASSO
 
 O próximo bloco de trabalho não deve ser código de integração.
@@ -4197,6 +4482,15 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.7
+
+- decidido: foco exclusivo em quem vende no Mercado Livre e na Shopee; afiliados viram produto separado ou módulo futuro (Bloco 31, V7);
+- adicionado Bloco 53 — regras de trabalho para pessoas e agentes: fluxo Issue → Branch → PR (`Closes #N`) → CI → Merge → Deploy, tipos de issue, SOLID aplicado, quem executa o quê;
+- adicionado Bloco 54 — padrão de motion e estados de carregamento, baseado na skill design-motion-principles (lente principal: contenção para SaaS);
+- adicionado Bloco 55 — observabilidade: OpenTelemetry obrigatório, Sentry obrigatório, Datadog ou New Relic como backend OTLP (um por ambiente);
+- adicionado Bloco 56 — quality gates: Biome, dependency-cruiser, import-linter, Knip, commitlint, Vitest, Playwright, Codecov, Stryker e mutmut;
+- Blocos 23, 33 e 36 atualizados (branch por issue, Definition of Done ampliada, exceções de arquivos de entrada).
 
 ## v0.6
 
