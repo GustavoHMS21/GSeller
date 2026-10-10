@@ -80,7 +80,11 @@ function growthWithMarginLoss(product: Product): Insight[] {
     .sort((a, b) => b.delta - a.delta)[0];
 
   const investigateByDriver: Record<string, string[]> = {
-    discount: ["profundidade e duração das promoções", "preço mínimo viável", "efeito da promoção no volume"],
+    discount: [
+      "profundidade e duração das promoções",
+      "preço mínimo viável",
+      "efeito da promoção no volume",
+    ],
     ads: ["eficiência das campanhas", "lances e orçamento", "anúncios com baixo retorno"],
     shipping: ["tabela de frete", "faixa de preço vs. frete grátis"],
   };
@@ -142,7 +146,9 @@ function adsPressure(product: Product): Insight[] {
   if (cur.margin === null || prev.margin === null || prev.adsSpend === 0) return [];
   const spendChange = relativeChange(cur.adsSpend, prev.adsSpend) ?? 0;
   const attributedChange = relativeChange(cur.adsAttributedRevenue, prev.adsAttributedRevenue) ?? 0;
-  if (!(spendChange > 0.3 && attributedChange < spendChange / 2 && prev.margin - cur.margin > 0.02)) {
+  if (
+    !(spendChange > 0.3 && attributedChange < spendChange / 2 && prev.margin - cur.margin > 0.02)
+  ) {
     return [];
   }
   return [

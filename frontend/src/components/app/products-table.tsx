@@ -36,14 +36,15 @@ export function ProductsTable({ products }: { products: Product[] }) {
       .filter((p) => health === "all" || p.health.level === health)
       .sort((a, b) => {
         if (sort === "revenue") return b.totals.current.revenue - a.totals.current.revenue;
-        if (sort === "margin") return (a.totals.current.margin ?? -1) - (b.totals.current.margin ?? -1);
+        if (sort === "margin")
+          return (a.totals.current.margin ?? -1) - (b.totals.current.margin ?? -1);
         return (a.health.score ?? -1) - (b.health.score ?? -1);
       });
   }, [products, query, marketplace, health, sort]);
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-end gap-3" role="search">
+      <search className="mb-4 flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1 text-xs text-fg-muted">
           Buscar
           <input
@@ -56,7 +57,11 @@ export function ProductsTable({ products }: { products: Product[] }) {
         </label>
         <label className="flex flex-col gap-1 text-xs text-fg-muted">
           Marketplace
-          <select value={marketplace} onChange={(e) => setMarketplace(e.target.value as Marketplace | "all")} className={SELECT}>
+          <select
+            value={marketplace}
+            onChange={(e) => setMarketplace(e.target.value as Marketplace | "all")}
+            className={SELECT}
+          >
             <option value="all">Todos</option>
             <option value="mercadolivre">Mercado Livre</option>
             <option value="shopee">Shopee</option>
@@ -64,7 +69,11 @@ export function ProductsTable({ products }: { products: Product[] }) {
         </label>
         <label className="flex flex-col gap-1 text-xs text-fg-muted">
           Saúde
-          <select value={health} onChange={(e) => setHealth(e.target.value as HealthLevel | "all")} className={SELECT}>
+          <select
+            value={health}
+            onChange={(e) => setHealth(e.target.value as HealthLevel | "all")}
+            className={SELECT}
+          >
             {HEALTH_FILTERS.map((f) => (
               <option key={f.value} value={f.value}>
                 {f.label}
@@ -74,7 +83,11 @@ export function ProductsTable({ products }: { products: Product[] }) {
         </label>
         <label className="flex flex-col gap-1 text-xs text-fg-muted">
           Ordenar por
-          <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className={SELECT}>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            className={SELECT}
+          >
             <option value="health">Pior saúde primeiro</option>
             <option value="margin">Menor margem primeiro</option>
             <option value="revenue">Maior receita primeiro</option>
@@ -83,7 +96,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
         <p className="ml-auto text-sm text-fg-muted" aria-live="polite">
           {rows.length} de {products.length} produtos
         </p>
-      </div>
+      </search>
 
       {rows.length === 0 ? (
         <EmptyState
@@ -93,16 +106,32 @@ export function ProductsTable({ products }: { products: Product[] }) {
       ) : (
         <div className="overflow-x-auto rounded-lg border border-line bg-surface">
           <table className="w-full min-w-[820px] text-sm">
-            <caption className="sr-only">Produtos com receita, resultado e saúde no período</caption>
+            <caption className="sr-only">
+              Produtos com receita, resultado e saúde no período
+            </caption>
             <thead>
               <tr className="border-b border-line text-left text-xs text-fg-muted">
-                <th scope="col" className="px-4 py-3 font-medium">Produto</th>
-                <th scope="col" className="px-4 py-3 font-medium">Canais</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Receita</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Resultado est.</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Margem est.</th>
-                <th scope="col" className="px-4 py-3 text-right font-medium">Pedidos</th>
-                <th scope="col" className="px-4 py-3 font-medium">Saúde</th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Produto
+                </th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Canais
+                </th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">
+                  Receita
+                </th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">
+                  Resultado est.
+                </th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">
+                  Margem est.
+                </th>
+                <th scope="col" className="px-4 py-3 text-right font-medium">
+                  Pedidos
+                </th>
+                <th scope="col" className="px-4 py-3 font-medium">
+                  Saúde
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -110,9 +139,15 @@ export function ProductsTable({ products }: { products: Product[] }) {
                 const cur = p.totals.current;
                 const prev = p.totals.previous;
                 return (
-                  <tr key={p.id} className="border-b border-line last:border-0 hover:bg-surface-muted">
+                  <tr
+                    key={p.id}
+                    className="border-b border-line last:border-0 hover:bg-surface-muted"
+                  >
                     <th scope="row" className="px-4 py-3 text-left font-normal">
-                      <Link href={`/produtos/${p.id}`} className="font-medium text-primary hover:underline">
+                      <Link
+                        href={`/produtos/${p.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
                         {p.name}
                       </Link>
                       <span className="block text-xs text-fg-muted">{p.sku}</span>
@@ -131,7 +166,11 @@ export function ProductsTable({ products }: { products: Product[] }) {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
-                      {cur.result === null ? <span className="text-fg-muted">sem custo</span> : formatBRL(cur.result)}
+                      {cur.result === null ? (
+                        <span className="text-fg-muted">sem custo</span>
+                      ) : (
+                        formatBRL(cur.result)
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {cur.margin === null ? "—" : formatPct(cur.margin)}

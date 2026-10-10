@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.7 — Foco em sellers; fluxo Issue→PR; SOLID; padrões de motion, observabilidade e qualidade  
+> **Versão:** 0.8 — Biome no frontend (issue #11)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4453,7 +4453,28 @@ sem dependências circulares
 | Mutation score em finanças e regras | ≥ 80% |
 | Fluxo E2E crítico | 100% verde para merge |
 
-## 56.4 Pré-requisitos do mantenedor
+## 56.4 Estado de implementação
+
+| Ferramenta | Issue | Estado |
+|---|---|---|
+| Biome | #11 | ✅ Implementado (v0.8) |
+| Vitest | #12 | Pendente |
+| commitlint | #13 | Pendente |
+| Codecov | #14 | Pendente |
+| dependency-cruiser / import-linter | #15 | Pendente |
+| Playwright | #17 | Pendente |
+| Stryker / mutmut | #20 | Pendente |
+| Knip | #21 | Pendente |
+
+### Biome: o que substitui o ESLint
+
+- **Configuração:** `frontend/biome.json`, com preset `recommended` + domínios `react`, `next`, `project`, `test` e `playwright`. Acessibilidade (`a11y`) em nível de erro; imports e variáveis não usados, `console.log` e non-null assertion proibidos.
+- **Comandos:** `npm run check` (CI usa `biome ci`) e `npm run check:fix`.
+- **Pre-commit:** hook local que roda o Biome dentro de `frontend/`.
+- **Diferença em relação ao ESLint:** algumas regras específicas do `eslint-config-next` não têm equivalente exato. O domínio `next` cobre as principais (imagens, `<head>`, scripts) e o build do Next.js continua validando o resto.
+- **Exceção documentada:** `!important` no bloco de reduced motion de `globals.css`, com comentário de justificativa.
+
+## 56.5 Pré-requisitos do mantenedor
 
 | Ferramenta | O que é preciso |
 |---|---|
@@ -4482,6 +4503,12 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.8
+
+- Biome substitui ESLint no frontend (lint, formatação e imports), no CI e no pre-commit (issue #11);
+- corrigidos os apontamentos do Biome: componente de erro sombreando o `Error` global, chaves por índice em listas e `role="search"` trocado pelo elemento `<search>`;
+- adicionada a tabela de estado de implementação dos quality gates (Bloco 56.4).
 
 ## v0.7
 

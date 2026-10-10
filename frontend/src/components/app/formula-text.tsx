@@ -5,7 +5,8 @@ export function ResultFormula() {
     <>
       <p>
         <strong>Resultado estimado</strong> = receita elegível − desconto financiado por você −
-        comissão e tarifas − frete assumido − Ads − devoluções − custo do produto − imposto estimado.
+        comissão e tarifas − frete assumido − Ads − devoluções − custo do produto − imposto
+        estimado.
       </p>
       <p>Não é lucro contábil. Considera apenas produtos com custo cadastrado.</p>
     </>

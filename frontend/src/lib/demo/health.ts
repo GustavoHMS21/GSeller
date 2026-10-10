@@ -46,7 +46,8 @@ export function computeHealth({ current, previous }: ListingPeriod): Health {
   const revenueChange = relativeChange(current.revenue, previous.revenue);
   if (revenueChange !== null) {
     if (revenueChange < -0.15) components.push({ label: "Receita caiu mais de 15%", points: -15 });
-    else if (revenueChange < -0.05) components.push({ label: "Receita caiu mais de 5%", points: -5 });
+    else if (revenueChange < -0.05)
+      components.push({ label: "Receita caiu mais de 5%", points: -5 });
   }
 
   if (current.conversion !== null && previous.conversion !== null) {

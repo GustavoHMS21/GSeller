@@ -47,7 +47,9 @@ export default function DashboardPage() {
       </div>
 
       <section aria-labelledby="kpis">
-        <h2 id="kpis" className="sr-only">Indicadores do período</h2>
+        <h2 id="kpis" className="sr-only">
+          Indicadores do período
+        </h2>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
           <KpiCard
             title="Receita"
@@ -94,7 +96,9 @@ export default function DashboardPage() {
             value={formatInt(cur.orders)}
             delta={relativeChange(cur.orders, prev.orders)}
             comparison={DEMO.comparisonLabel}
-            formula={<p>Pedidos pagos e não cancelados no período, em todos os canais conectados.</p>}
+            formula={
+              <p>Pedidos pagos e não cancelados no período, em todos os canais conectados.</p>
+            }
           />
           <KpiCard
             title="Ticket médio"
@@ -109,9 +113,12 @@ export default function DashboardPage() {
       <section aria-labelledby="atencao">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <h2 id="atencao" className="text-lg font-semibold">Precisa da sua atenção</h2>
+            <h2 id="atencao" className="text-lg font-semibold">
+              Precisa da sua atenção
+            </h2>
             <p className="text-sm text-fg-muted">
-              Ordenado por gravidade e impacto estimado em R$. Cada item mostra a evidência e o que investigar.
+              Ordenado por gravidade e impacto estimado em R$. Cada item mostra a evidência e o que
+              investigar.
             </p>
           </div>
           <span className="text-sm text-fg-muted">{insights.length} itens</span>
@@ -145,20 +152,29 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader title="Quem mais contribui" description="Maior resultado estimado no período" />
+          <CardHeader
+            title="Quem mais contribui"
+            description="Maior resultado estimado no período"
+          />
           <ol className="space-y-3">
             {topContributors.map((p) => {
               const result = p.totals.current.result ?? 0;
               return (
                 <li key={p.id}>
                   <div className="flex items-baseline justify-between gap-2 text-sm">
-                    <Link href={`/produtos/${p.id}`} className="font-medium text-primary hover:underline">
+                    <Link
+                      href={`/produtos/${p.id}`}
+                      className="font-medium text-primary hover:underline"
+                    >
                       {p.name}
                     </Link>
                     <span className="tabular-nums">{formatBRL(result)}</span>
                   </div>
                   <div className="mt-1 h-2 rounded-full bg-surface-muted" aria-hidden="true">
-                    <div className="h-2 rounded-full bg-success" style={{ width: `${(result / maxContribution) * 100}%` }} />
+                    <div
+                      className="h-2 rounded-full bg-success"
+                      style={{ width: `${(result / maxContribution) * 100}%` }}
+                    />
                   </div>
                 </li>
               );
@@ -166,19 +182,26 @@ export default function DashboardPage() {
           </ol>
         </Card>
         <Card>
-          <CardHeader title="Maior perda de margem" description="Queda em pontos percentuais vs. período anterior" />
+          <CardHeader
+            title="Maior perda de margem"
+            description="Queda em pontos percentuais vs. período anterior"
+          />
           {deteriorating.length === 0 ? (
             <p className="text-sm text-fg-muted">Nenhum produto perdeu margem no período.</p>
           ) : (
             <ol className="space-y-3">
               {deteriorating.map(({ p, drop }) => (
                 <li key={p.id} className="flex items-baseline justify-between gap-2 text-sm">
-                  <Link href={`/produtos/${p.id}`} className="font-medium text-primary hover:underline">
+                  <Link
+                    href={`/produtos/${p.id}`}
+                    className="font-medium text-primary hover:underline"
+                  >
                     {p.name}
                   </Link>
                   <span className="flex items-baseline gap-2">
                     <span className="tabular-nums text-fg-muted">
-                      {formatPct(p.totals.previous.margin ?? 0)} → {formatPct(p.totals.current.margin ?? 0)}
+                      {formatPct(p.totals.previous.margin ?? 0)} →{" "}
+                      {formatPct(p.totals.current.margin ?? 0)}
                     </span>
                     <Delta value={-drop} kind="pp" />
                   </span>
@@ -203,13 +226,27 @@ function MarketplaceComparison() {
         <caption className="sr-only">Indicadores por marketplace no período</caption>
         <thead>
           <tr className="border-b border-line text-left text-xs text-fg-muted">
-            <th scope="col" className="py-2 pr-4 font-medium">Canal</th>
-            <th scope="col" className="py-2 pr-4 text-right font-medium">Receita</th>
-            <th scope="col" className="py-2 pr-4 text-right font-medium">% do total</th>
-            <th scope="col" className="py-2 pr-4 text-right font-medium">Resultado est.</th>
-            <th scope="col" className="py-2 pr-4 text-right font-medium">Margem est.</th>
-            <th scope="col" className="py-2 pr-4 text-right font-medium">Pedidos</th>
-            <th scope="col" className="py-2 text-right font-medium">Ads / receita</th>
+            <th scope="col" className="py-2 pr-4 font-medium">
+              Canal
+            </th>
+            <th scope="col" className="py-2 pr-4 text-right font-medium">
+              Receita
+            </th>
+            <th scope="col" className="py-2 pr-4 text-right font-medium">
+              % do total
+            </th>
+            <th scope="col" className="py-2 pr-4 text-right font-medium">
+              Resultado est.
+            </th>
+            <th scope="col" className="py-2 pr-4 text-right font-medium">
+              Margem est.
+            </th>
+            <th scope="col" className="py-2 pr-4 text-right font-medium">
+              Pedidos
+            </th>
+            <th scope="col" className="py-2 text-right font-medium">
+              Ads / receita
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -221,7 +258,9 @@ function MarketplaceComparison() {
                   <MarketplaceBadge marketplace={m} />
                 </th>
                 <td className="py-3 pr-4 text-right tabular-nums">{formatBRL(cur.revenue)}</td>
-                <td className="py-3 pr-4 text-right tabular-nums">{formatPct(total ? cur.revenue / total : 0)}</td>
+                <td className="py-3 pr-4 text-right tabular-nums">
+                  {formatPct(total ? cur.revenue / total : 0)}
+                </td>
                 <td className="py-3 pr-4 text-right tabular-nums">
                   {s.result.current.result === null ? "—" : formatBRL(s.result.current.result)}
                 </td>
@@ -229,7 +268,9 @@ function MarketplaceComparison() {
                   {s.result.current.margin === null ? "—" : formatPct(s.result.current.margin)}
                 </td>
                 <td className="py-3 pr-4 text-right tabular-nums">{formatInt(cur.orders)}</td>
-                <td className="py-3 text-right tabular-nums">{formatPct(cur.revenue ? cur.adsSpend / cur.revenue : 0)}</td>
+                <td className="py-3 text-right tabular-nums">
+                  {formatPct(cur.revenue ? cur.adsSpend / cur.revenue : 0)}
+                </td>
               </tr>
             );
           })}

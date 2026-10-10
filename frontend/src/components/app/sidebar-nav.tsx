@@ -25,7 +25,9 @@ export function SidebarNav() {
                 aria-current={active ? "page" : undefined}
                 className={cx(
                   "block whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium",
-                  active ? "bg-surface-muted text-fg" : "text-fg-muted hover:bg-surface-muted hover:text-fg",
+                  active
+                    ? "bg-surface-muted text-fg"
+                    : "text-fg-muted hover:bg-surface-muted hover:text-fg",
                 )}
               >
                 {item.label}
