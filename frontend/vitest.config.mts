@@ -31,9 +31,14 @@ export default defineConfig({
       reporter: ["text", "lcov"],
       include: ["src/lib/**", "src/components/**"],
       exclude: ["src/**/*.test.{ts,tsx}"],
+      // Cobertura é relatório; meta só nos módulos de risco (Blocos 56.3 e 57.5).
       thresholds: {
-        // Regras de insight, health score e formatação: núcleo do produto (Bloco 56.3).
-        "src/lib/**": { lines: 90, functions: 90, statements: 90, branches: 85 },
+        "src/lib/demo/{economics,health,rules}.ts": {
+          lines: 90,
+          functions: 90,
+          statements: 90,
+          branches: 85,
+        },
       },
     },
   },

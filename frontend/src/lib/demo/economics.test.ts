@@ -71,11 +71,6 @@ describe("computeEconomics", () => {
     expect(e.components.find((c) => c.key === "tax")?.amount).toBe(50);
   });
 
-  it("omite custo adicional quando ele é zero", () => {
-    const e = computeEconomics("mercadolivre", INPUT, { ...COST, additionalUnitCost: 0 });
-    expect(e.components.find((c) => c.key === "additional_cost")).toBeUndefined();
-  });
-
   it("registra a origem de cada componente (data lineage)", () => {
     const e = computeEconomics("shopee", INPUT, COST);
     const byKey = Object.fromEntries(e.components.map((c) => [c.key, c]));

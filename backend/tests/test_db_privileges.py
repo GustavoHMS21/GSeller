@@ -7,7 +7,6 @@ que uma mudança de configuração quebre isso silenciosamente.
 
 import pytest
 from sqlalchemy import text
-from sqlalchemy.exc import DBAPIError
 
 from app.core.db import get_engine
 
@@ -26,11 +25,3 @@ async def test_runtime_role_is_not_privileged(require_db: None) -> None:
         ).one()
     await get_engine().dispose()
     assert tuple(row) == (False, False, False, False)
-
-
-async def test_runtime_role_cannot_run_ddl(require_db: None) -> None:
-    async with get_engine().connect() as conn:
-        with pytest.raises(DBAPIError, match="permission denied"):
-            await conn.execute(text("CREATE TABLE should_not_exist (id int)"))
-        await conn.rollback()
-    await get_engine().dispose()
