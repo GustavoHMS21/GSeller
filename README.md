@@ -37,7 +37,7 @@ uv run uvicorn app.main:app --reload
 
 # 3. Frontend — http://localhost:3000
 cd frontend
-cp .env.example .env.local
+cp .env.example .env.local     # preencha a publishable key do Supabase
 npm install
 npm run dev
 ```

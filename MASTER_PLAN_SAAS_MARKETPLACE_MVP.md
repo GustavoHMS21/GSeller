@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.11 — commitlint (issue #13)  
+> **Versão:** 0.12 — Login com Supabase e onboarding no frontend (issue #9)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4198,10 +4198,42 @@ Erros seguem um formato único: `{"error": código, "message": texto, "request_i
 
 ## 52.5 Pendências deste bloco
 
-- **Parte 2 (frontend):** tela de login (Tela 1) com Supabase e onboarding "Criar empresa" ligado à API. Depende do projeto Supabase criado.
+- ~~**Parte 2 (frontend):** tela de login e onboarding~~ → entregue na v0.12 (issue #9, Bloco 52.7).
 - **Deploy:** no Supabase Postgres, criar as roles `app_migrator` e `app_runtime` (a API nunca usa `postgres` nem a secret key). Com o pooler em modo *transaction*, desativar prepared statements do asyncpg ou usar o modo *session*.
 - **MFA** para contas administrativas (Bloco 18.5) quando existir painel administrativo.
 - **Exclusão de conta** (Bloco 19.7) exigirá a secret key do Supabase, somente no backend.
+
+## 52.7 Parte 2 — frontend (v0.12, issue #9)
+
+**Projeto Supabase:** `pokilanhievqbkxzozsz`, chave de assinatura ES256 publicada no JWKS (validada em 2026-10-10).
+
+| Peça | Como funciona |
+|---|---|
+| `src/proxy.ts` | Antes de cada página, renova a sessão e confere a identidade com `getClaims()`, que valida a assinatura. Sem sessão, redireciona para `/login?next=<destino>`. Respostas que gravam cookie de sessão saem com `Cache-Control: private, no-store` |
+| `/login` | E-mail e senha (entrar ou criar conta), validados no servidor. O formulário é renderizado no servidor e funciona antes do JavaScript carregar |
+| `/auth/confirm` | Destino do link de confirmação de e-mail; aceita os fluxos `code` (PKCE) e `token_hash` |
+| `/onboarding` | "Crie sua empresa": chama `POST /api/tenants` e segue para o painel |
+| Cabeçalho do painel | Nome da empresa e e-mail vindos de `GET /api/me`, e botão "Sair". Sem empresa, leva ao onboarding. Com a API fora do ar, mostra um aviso em vez de derrubar o painel |
+| `src/lib/api.ts` | O servidor do Next.js chama a API com o token do usuário. O navegador nunca fala direto com a API, então não há CORS a abrir. `401` leva ao login e `403 onboarding_required` ao onboarding |
+
+**Segurança aplicada:**
+
+- O destino depois do login só aceita caminhos internos. `//evil.com`, `/\evil.com` e URLs absolutas são descartados (proteção contra open redirect, coberta por teste).
+- Mesma resposta para cadastro de e-mail novo ou já existente: o formulário não revela quem tem conta.
+- Login com erro genérico ("E-mail ou senha incorretos"). Só o e-mail não confirmado tem mensagem própria.
+- Somente a publishable key no frontend; a secret key do Supabase não é usada.
+- `redirect()` do Next.js nunca é engolido por `try/catch` (`unstable_rethrow`).
+
+**Variáveis do frontend:**
+
+- `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (públicas);
+- `API_URL` (somente servidor; substitui `NEXT_PUBLIC_API_URL`).
+
+**Fora desta entrega (issues abertas):**
+
+- **#31:** SMTP próprio. O e-mail padrão do Supabase tem limite baixo e não serve para o piloto.
+- **#32:** recuperação de senha.
+- **#17:** teste E2E do fluxo de login.
 
 ## 52.6 Aprendizado registrado
 
@@ -4635,6 +4667,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.12
+
+- login (entrar e criar conta) com Supabase, confirmação de e-mail, onboarding "Crie sua empresa" e botão de sair (issue #9, Bloco 52.7);
+- proxy do Next.js protege todas as rotas privadas e renova a sessão; identidade sempre por `getClaims()`;
+- servidor do Next.js chama a API com o token do usuário; `API_URL` passa a ser variável somente do servidor;
+- testes de risco: rotas protegidas, bloqueio de open redirect, validação de credenciais e tratamento de erros da API;
+- abertas as issues #31 (SMTP próprio) e #32 (recuperação de senha).
 
 ## v0.11
 
