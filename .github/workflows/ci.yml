@@ -43,7 +43,7 @@ jobs:
       MIGRATIONS_DATABASE_URL: postgresql+asyncpg://app_migrator:migrator_dev@localhost:5440/seller_test
       CORS_ORIGINS: http://localhost:3000
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: astral-sh/setup-uv@v6
         with:
@@ -84,7 +84,7 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v5
         with:
@@ -112,7 +112,7 @@ jobs:
     env:
       COMMITLINT: npx --yes -p @commitlint/cli@21.2.3 -p @commitlint/config-conventional@21.2.3 commitlint
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -136,7 +136,7 @@ jobs:
     name: Varredura de segredos
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
