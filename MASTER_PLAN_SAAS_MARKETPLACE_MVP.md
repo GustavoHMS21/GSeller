@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.8 — Biome no frontend (issue #11)  
+> **Versão:** 0.9 — Vitest no frontend (issue #12)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4458,13 +4458,21 @@ sem dependências circulares
 | Ferramenta | Issue | Estado |
 |---|---|---|
 | Biome | #11 | ✅ Implementado (v0.8) |
-| Vitest | #12 | Pendente |
+| Vitest | #12 | ✅ Implementado (v0.9) |
 | commitlint | #13 | Pendente |
 | Codecov | #14 | Pendente |
 | dependency-cruiser / import-linter | #15 | Pendente |
 | Playwright | #17 | Pendente |
 | Stryker / mutmut | #20 | Pendente |
 | Knip | #21 | Pendente |
+
+### Vitest: como está organizado
+
+- Dois projetos em `frontend/vitest.config.mts`: **unit** (lógica em `src/lib`, ambiente Node) e **components** (componentes em `src/components`, ambiente jsdom). Separar derrubou a suíte de 55 s para menos de 1 s na parte de lógica.
+- Testes ficam ao lado do código (`*.test.ts` / `*.test.tsx`).
+- Cobertura v8 com meta mínima em `src/lib/**` (linhas, funções e statements 90%, ramos 85%). O build falha se cair.
+- `rules.test.ts` protege os cenários do protótipo de discovery (Bloco 49.4): se um ajuste nos dados de demonstração quebrar um cenário usado nas entrevistas, o teste falha.
+- Componentes assíncronos de servidor não rodam no Vitest; são cobertos pelos testes E2E (#17).
 
 ### Biome: o que substitui o ESLint
 
@@ -4503,6 +4511,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.9
+
+- Vitest + Testing Library no frontend, com projetos separados para lógica e componentes e meta de cobertura em `src/lib` (issue #12);
+- 91 testes: formatação, cálculo de resultado (golden case), health score, regras R001–R006 com cenários positivos e negativos, priorização da fila, cenários do protótipo e componentes;
+- corrigido bug de acessibilidade encontrado pelos testes: o nome dos botões do editor de custos era anunciado como "Alterarde ..."; agora usa `aria-label` explícito;
+- montagem de produto extraída para `lib/demo/product.ts` (responsabilidade única);
+- `@types/node` alinhado ao Node 24 usado no projeto e no CI.
 
 ## v0.8
 

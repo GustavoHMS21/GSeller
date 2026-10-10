@@ -50,7 +50,7 @@ uv run ruff check . && uv run ruff format --check .
 uv run pytest -q                 # testes marcados como `db` exigem o Postgres local
 
 # frontend
-npm run check && npm run typecheck && npm run build
+npm run check && npm test && npm run typecheck && npm run build
 ```
 
 Hooks locais opcionais (varredura de segredos + lint antes do commit):

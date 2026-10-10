@@ -167,9 +167,12 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
                   </td>
                   <td className="px-4 py-3 tabular-nums">{formatDate(row.cost.validFrom)}</td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="ghost" onClick={() => setEditing(row.id)}>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setEditing(row.id)}
+                      aria-label={`${row.cost.unitCost === null ? "Informar custo" : "Alterar custo"} de ${row.name}`}
+                    >
                       {row.cost.unitCost === null ? "Informar custo" : "Alterar"}
-                      <span className="sr-only"> de {row.name}</span>
                     </Button>
                   </td>
                 </tr>
