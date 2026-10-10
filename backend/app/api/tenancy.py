@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, status
 
-from app.auth.deps import Context, OwnerContext, TenantContext
+from app.auth.deps import AccountContext, Context, OwnerContext, TenantContext
 from app.schemas.tenancy import MeOut, TenantCreate, TenantOut, TenantUpdate, UserOut
 from app.services import tenancy
 
@@ -22,7 +22,7 @@ async def me(ctx: Context) -> MeOut:
 
 
 @router.post("/tenants", status_code=status.HTTP_201_CREATED)
-async def create_tenant(body: TenantCreate, ctx: Context) -> TenantOut:
+async def create_tenant(body: TenantCreate, ctx: AccountContext) -> TenantOut:
     tenant = await tenancy.create_tenant(ctx.session, ctx.user, body.name)
     return TenantOut.model_validate(tenant)
 

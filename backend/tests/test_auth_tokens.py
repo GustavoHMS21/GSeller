@@ -25,7 +25,6 @@ async def test_valid_token_returns_principal(verifier: TokenVerifier, make_token
         ({"aud": "outra-audiencia"}, "audiência errada"),
         ({"iss": "https://atacante.example.com/auth/v1"}, "emissor errado"),
         ({"role": "service_role"}, "role inesperada"),
-        ({"is_anonymous": True}, "sessão anônima"),
     ],
 )
 async def test_rejects_invalid_claims(
@@ -33,6 +32,14 @@ async def test_rejects_invalid_claims(
 ):
     with pytest.raises(InvalidTokenError):
         await verifier.verify(make_token(**claims))
+
+
+async def test_anonymous_session_is_accepted_and_flagged(
+    verifier: TokenVerifier, make_token: TokenFactory
+):
+    principal = await verifier.verify(make_token(email="", is_anonymous=True))
+    assert principal.is_anonymous is True
+    assert principal.email is None
 
 
 async def test_rejects_missing_sub(verifier: TokenVerifier, make_token: TokenFactory):
@@ -92,13 +99,18 @@ async def test_api_rejects_invalid_token(client: AsyncClient):
     assert response.status_code == 401
 
 
-async def test_api_reports_missing_auth_configuration(settings, make_token: TokenFactory):
+async def test_api_reports_missing_auth_configuration(
+    settings, make_token: TokenFactory, monkeypatch: pytest.MonkeyPatch
+):
     from httpx import ASGITransport
 
+    from app.auth import deps
     from app.main import create_app
 
-    app = create_app(settings)  # sem override: settings de teste não têm JWKS configurado
-    transport = ASGITransport(app=app)
+    # Independe do .env local: força a ausência da configuração de autenticação.
+    unconfigured = settings.model_copy(update={"auth_jwks_url": None, "auth_issuer": None})
+    monkeypatch.setattr(deps, "get_settings", lambda: unconfigured)
+    transport = ASGITransport(app=create_app(settings))
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.get("/api/me", headers={"Authorization": f"Bearer {make_token()}"})
     assert response.status_code == 503

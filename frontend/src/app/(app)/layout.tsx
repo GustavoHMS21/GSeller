@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { AccountBar } from "@/components/app/account-bar";
+import { AccountBar, DemoNotice } from "@/components/app/account-bar";
 import { ConnectionStatusBadge } from "@/components/app/connection-status";
 import { SidebarNav } from "@/components/app/sidebar-nav";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
@@ -19,7 +19,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       </a>
 
       <div role="note" className="bg-info-soft px-4 py-2 text-center text-sm text-info">
-        Protótipo com <strong>dados de demonstração</strong> de uma loja fictícia. Nenhum dado real.
+        <Suspense fallback="Dados de demonstração de uma loja fictícia.">
+          <DemoNotice />
+        </Suspense>
       </div>
 
       <div className="flex flex-1 flex-col md:flex-row">

@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.12 — Login com Supabase e onboarding no frontend (issue #9)  
+> **Versão:** 0.13 — Modo demonstração, trial e assinatura: decisões e acesso anônimo (issue #33)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4209,7 +4209,7 @@ Erros seguem um formato único: `{"error": código, "message": texto, "request_i
 
 | Peça | Como funciona |
 |---|---|
-| `src/proxy.ts` | Antes de cada página, renova a sessão e confere a identidade com `getClaims()`, que valida a assinatura. Sem sessão, redireciona para `/login?next=<destino>`. Respostas que gravam cookie de sessão saem com `Cache-Control: private, no-store` |
+| `src/proxy.ts` | Antes de cada página, renova a sessão e confere a identidade com `getClaims()`, que valida a assinatura. Desde a v0.13 distingue sem sessão, anônimo e conta, e libera só a demonstração sem conta (Bloco 58.2). Respostas que gravam cookie de sessão saem com `Cache-Control: private, no-store` |
 | `/login` | E-mail e senha (entrar ou criar conta), validados no servidor. O formulário é renderizado no servidor e funciona antes do JavaScript carregar |
 | `/auth/confirm` | Destino do link de confirmação de e-mail; aceita os fluxos `code` (PKCE) e `token_hash` |
 | `/onboarding` | "Crie sua empresa": chama `POST /api/tenants` e segue para o painel |
@@ -4646,6 +4646,65 @@ A suíte passou de **140 para 121 testes** (frontend 91 → 75; backend 49 → 4
 - **#19 (OpenTelemetry):** só backend no MVP.
 - **#21 (Knip):** P2 → P1, porque apagar código morto é a forma mais barata de reduzir manutenção.
 
+---
+
+# BLOCO 58 — MODO DEMONSTRAÇÃO, TRIAL E ASSINATURA
+
+> Decisões do mantenedor em 2026-10-10. Antecipam a cobrança, que o Bloco 44.4 previa só para depois do piloto (30–45 dias).
+
+## 58.1 Decisões
+
+| Tema | Decisão |
+|---|---|
+| Uso sem conta | **Modo demonstração livre**, com dados de uma loja fictícia e aviso de que a conta é necessária para salvar dados e conectar marketplaces |
+| Conectar marketplace | **Exige conta.** Não guardamos acesso de loja de quem não sabemos quem é (segurança e LGPD) |
+| Trial | **7 dias a partir do primeiro acesso**, mesmo sem conta. Ao criar a conta, o prazo **não reinicia** (mesmo usuário) |
+| Bloqueio | No **8º dia**, a **API** recusa o uso (`402 trial_expired`) e o frontend mostra a tela de planos. Bloqueio só visual seria contornável |
+| E-mail de fim de trial | Somente para quem criou conta (anônimo não tem e-mail): avisos no 6º e no 8º dia |
+| Cobrança | **Stripe**: Checkout hospedado (o número de cartão nunca passa pelo nosso site) e Customer Portal |
+| Planos | **R$ 97 / R$ 197 / R$ 297 por volume**. Limites propostos na #35, a confirmar |
+
+## 58.2 Como funciona a identidade
+
+```text
+Primeiro acesso ──► sessão anônima no Supabase (navegador)
+                      │  backend registra o usuário: início do trial
+                      ▼
+            modo demonstração (telas de demo liberadas)
+                      │
+     "Criar conta" ───┤ updateUser({ email }) → link de confirmação
+                      ▼
+            /conta/senha (define a senha) → mesmo usuário, agora com conta
+                      │
+                      ▼
+            /onboarding (cria a empresa) → painel
+```
+
+- O token anônimo tem `is_anonymous: true`. O backend aceita, mas **só em `GET /api/me`**. Criar empresa e acessar dados respondem `403 account_required`.
+- A conversão mantém o mesmo `sub`. O backend marca `is_anonymous = false` e grava `user.converted` na auditoria.
+- **Rotas do frontend negadas por padrão:** só a demonstração (`/`, `/dashboard`, `/produtos`, `/custos`, `/conexoes`, `/design`) e o login ficam abertos. Toda rota nova exige conta, a menos que seja liberada explicitamente.
+
+## 58.3 Riscos e mitigação
+
+| Risco | Mitigação | Issue |
+|---|---|---|
+| Robôs criando contas anônimas em massa | Sessão só é criada no navegador (JS); CAPTCHA Turnstile | #38 |
+| Contas anônimas abandonadas (LGPD) | Limpeza agendada após o trial | #39 |
+| Limpar cookies reinicia o trial da demonstração | Aceito: a demonstração não tem dados reais. Conta com dados reais tem prazo próprio | — |
+| E-mails de autenticação não chegam no piloto | SMTP próprio | #31 |
+| Cobrança antes da validação de preço | Planos e preços continuam sendo testados nas entrevistas (Bloco 49.5) | #35 |
+
+## 58.4 Estado
+
+| Parte | Issue | Estado |
+|---|---|---|
+| Modo demonstração e conversão em conta | #33 | ✅ v0.13 |
+| Trial e bloqueio no 8º dia | #34 | Pendente |
+| Planos e Stripe | #35 | Pendente |
+| E-mail de fim de trial | #36 | Pendente |
+| CAPTCHA | #38 | Pendente (conta Cloudflare) |
+| Limpeza de anônimos | #39 | Pendente (deploy) |
+
 # PRÓXIMO PASSO
 
 O próximo bloco de trabalho não deve ser código de integração.
@@ -4667,6 +4726,16 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.13
+
+- adicionado Bloco 58 — modo demonstração, trial de 7 dias, bloqueio no 8º dia e assinatura com Stripe (decisões de 2026-10-10);
+- modo demonstração sem login: sessão anônima do Supabase criada no navegador, aviso de conta no topo e no cabeçalho (issue #33);
+- conversão em conta mantém o mesmo usuário (e o prazo do trial); senha definida em `/conta/senha` após confirmar o e-mail;
+- backend aceita token anônimo só em `GET /api/me`; criar ou acessar empresa responde `403 account_required`; nova coluna `users.is_anonymous` e evento `user.converted`;
+- rotas do frontend passam a ser negadas por padrão, com a demonstração liberada explicitamente;
+- fluxo verificado contra o Supabase real (token ES256 validado pela API);
+- abertas as issues #38 (CAPTCHA) e #39 (limpeza de contas anônimas).
 
 ## v0.12
 

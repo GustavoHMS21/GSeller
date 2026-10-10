@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, false, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import SCHEMA, Base
@@ -34,6 +34,8 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     auth_subject: Mapped[str] = mapped_column(String(255), unique=True)
     email: Mapped[str | None] = mapped_column(String(320))
+    # Sessão anônima (modo demonstração); vira False quando a pessoa cria a conta.
+    is_anonymous: Mapped[bool] = mapped_column(server_default=false())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

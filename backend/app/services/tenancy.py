@@ -23,7 +23,12 @@ async def provision_user(session: AsyncSession, principal: Principal) -> User:
     user = await session.scalar(select(User).where(User.auth_subject == principal.subject))
 
     if user is None:
-        user = User(id=uuid.uuid4(), auth_subject=principal.subject, email=principal.email)
+        user = User(
+            id=uuid.uuid4(),
+            auth_subject=principal.subject,
+            email=principal.email,
+            is_anonymous=principal.is_anonymous,
+        )
         await bind_context(session, user_id=user.id)
         session.add(user)
         await session.flush()  # o usuário precisa existir antes do evento que o referencia
@@ -43,6 +48,20 @@ async def provision_user(session: AsyncSession, principal: Principal) -> User:
             user = await session.scalar(select(User).where(User.auth_subject == principal.subject))
             if user is None:
                 raise
+    elif user.is_anonymous and not principal.is_anonymous:
+        # Conversão: mesmo usuário (mesmo prazo de trial), agora com conta (issue #33).
+        await bind_context(session, user_id=user.id)
+        user.is_anonymous = False
+        user.email = principal.email
+        record_audit(
+            session,
+            action="user.converted",
+            resource_type="user",
+            resource_id=user.id,
+            actor_user_id=user.id,
+            tenant_id=None,
+        )
+        await session.commit()
     elif principal.email and user.email != principal.email:
         user.email = principal.email
         await session.commit()
