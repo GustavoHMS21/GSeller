@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { AccountBar } from "@/components/app/account-bar";
 import { ConnectionStatusBadge } from "@/components/app/connection-status";
 import { SidebarNav } from "@/components/app/sidebar-nav";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
+import { Skeleton } from "@/components/ui/states";
 import { connections, DEMO } from "@/lib/demo/data";
 import { formatDateTime } from "@/lib/format";
 
@@ -32,13 +35,12 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-line bg-surface px-6 py-3 text-sm">
-            <div>
-              <span className="font-medium">{DEMO.storeName}</span>
-              <span className="text-fg-muted">
-                {" "}
-                · {DEMO.periodLabel} {DEMO.comparisonLabel}
-              </span>
-            </div>
+            <Suspense fallback={<Skeleton className="h-5 w-56" />}>
+              <AccountBar />
+            </Suspense>
+            <span className="text-fg-muted">
+              {DEMO.periodLabel} {DEMO.comparisonLabel}
+            </span>
             <div className="flex flex-wrap items-center gap-3 md:ml-auto">
               {connections.map((c) => (
                 <span key={c.marketplace} className="inline-flex items-center gap-2">
