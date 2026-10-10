@@ -93,8 +93,16 @@ async def get_context(
         yield RequestContext(session=session, user=user, membership=membership)
 
 
-async def require_tenant(
+async def require_account(
     ctx: Annotated[RequestContext, Depends(get_context)],
+) -> RequestContext:
+    if ctx.user.is_anonymous:
+        raise ApiError(403, "account_required", "Crie sua conta para continuar.")
+    return ctx
+
+
+async def require_tenant(
+    ctx: Annotated[RequestContext, Depends(require_account)],
 ) -> RequestContext:
     _ = ctx.tenant_id  # levanta onboarding_required se não houver empresa
     return ctx
@@ -109,5 +117,6 @@ async def require_owner(
 
 
 Context = Annotated[RequestContext, Depends(get_context)]
+AccountContext = Annotated[RequestContext, Depends(require_account)]
 TenantContext = Annotated[RequestContext, Depends(require_tenant)]
 OwnerContext = Annotated[RequestContext, Depends(require_owner)]

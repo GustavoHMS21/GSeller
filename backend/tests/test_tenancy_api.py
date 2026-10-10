@@ -130,3 +130,37 @@ async def test_member_cannot_rename_tenant(db, client: AsyncClient, make_token: 
         "WHERE action = 'tenant.renamed'"
     )
     assert tuple(rows[0]) == ("Loja A", "Loja A2")
+
+
+async def test_anonymous_session_can_only_read_me(
+    db, client: AsyncClient, make_token: TokenFactory
+):
+    token = make_token(sub=USER_A, email="", is_anonymous=True)
+    me = await client.get("/api/me", headers=auth(token))
+    assert me.status_code == 200
+    assert me.json()["user"]["is_anonymous"] is True
+
+    denied = await client.post("/api/tenants", json={"name": "Loja"}, headers=auth(token))
+    assert denied.status_code == 403
+    assert denied.json()["error"] == "account_required"
+    assert (await client.get("/api/tenant", headers=auth(token))).json()["error"] == (
+        "account_required"
+    )
+
+
+async def test_creating_account_keeps_the_same_user(
+    db, client: AsyncClient, make_token: TokenFactory
+):
+    anonymous = make_token(sub=USER_A, email="", is_anonymous=True)
+    first = (await client.get("/api/me", headers=auth(anonymous))).json()["user"]
+
+    # Mesmo sub depois da conversão no Supabase: só muda a claim is_anonymous e o e-mail.
+    account = make_token(sub=USER_A, email="seller-a@example.com")
+    converted = (await client.get("/api/me", headers=auth(account))).json()["user"]
+
+    assert converted["id"] == first["id"]
+    assert converted["is_anonymous"] is False
+    assert converted["email"] == "seller-a@example.com"
+    rows = await admin_sql("SELECT count(*) FROM app.audit_logs WHERE action = 'user.converted'")
+    assert rows[0][0] == 1
+    await create_tenant(client, account)

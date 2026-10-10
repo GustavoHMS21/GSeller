@@ -33,6 +33,7 @@ class KeysUnavailableError(Exception):
 class Principal:
     subject: str
     email: str | None
+    is_anonymous: bool = False
 
 
 class KeyProvider(Protocol):
@@ -140,10 +141,10 @@ class TokenVerifier:
 
         if claims.get("role", "authenticated") != "authenticated":
             raise InvalidTokenError("unexpected role")
-        if claims.get("is_anonymous") is True:
-            raise InvalidTokenError("anonymous sessions are not allowed")
-
+        # Sessões anônimas são aceitas aqui; o que elas podem fazer é decidido nas rotas.
         email = claims.get("email")
         return Principal(
-            subject=str(claims["sub"]), email=email if isinstance(email, str) else None
+            subject=str(claims["sub"]),
+            email=email if isinstance(email, str) and email else None,
+            is_anonymous=claims.get("is_anonymous") is True,
         )

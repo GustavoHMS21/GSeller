@@ -6,6 +6,7 @@ const { classifyApiFailure } = await import("@/lib/api");
 
 it.each([
   [401, "unauthorized", "login"],
+  [403, "account_required", "account"],
   [403, "onboarding_required", "onboarding"],
   [403, "forbidden", "error"],
   [409, "tenant_already_exists", "error"],

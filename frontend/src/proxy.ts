@@ -4,7 +4,7 @@ import { authRedirect } from "@/lib/auth/guards";
 import { supabaseKey, supabaseUrl } from "@/lib/supabase/env";
 
 /**
- * Renova a sessão do Supabase a cada navegação e protege as rotas privadas.
+ * Renova a sessão do Supabase a cada navegação e protege as rotas que exigem conta.
  * A identidade vem de getClaims(), que valida a assinatura do token. Nunca de getSession(),
  * que só lê o cookie. As rotas da API verificam o token de novo (Bloco 52).
  */
@@ -27,11 +27,8 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  const target = authRedirect(
-    request.nextUrl.pathname,
-    request.nextUrl.search,
-    Boolean(data?.claims?.sub),
-  );
+  const session = !data?.claims?.sub ? "none" : data.claims.is_anonymous ? "anonymous" : "account";
+  const target = authRedirect(request.nextUrl.pathname, request.nextUrl.search, session);
   if (!target) return response;
 
   const redirect = NextResponse.redirect(new URL(target, request.url));
