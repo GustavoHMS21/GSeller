@@ -3,7 +3,7 @@ import { redirect, unstable_rethrow } from "next/navigation";
 import { DemoSession } from "@/components/app/demo-session";
 import { Badge } from "@/components/ui/badge";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { apiFetch, type Me, ONBOARDING_PATH } from "@/lib/api";
+import { apiFetch, type Me, ONBOARDING_PATH, PLANS_PATH } from "@/lib/api";
 import { getSessionKind } from "@/lib/auth/session";
 import { signOut } from "@/lib/auth/sign-out";
 
@@ -27,11 +27,16 @@ export async function AccountBar() {
     unstable_rethrow(err);
     // A API fora do ar não derruba o painel: o erro aparece aqui e no Sentry (#18).
   }
-  if (session === "anonymous") return <DemoActions />;
+  // Bloqueio do 8º dia (Bloco 58). A API também recusa os dados da empresa com 402.
+  if (me?.access.status === "expired") redirect(PLANS_PATH);
+  const trial =
+    me?.access.status === "trial" ? <TrialBadge daysLeft={me.access.days_left} /> : null;
+  if (session === "anonymous") return <DemoActions trial={trial} />;
   if (me && !me.tenant) redirect(ONBOARDING_PATH);
 
   return (
     <div className="flex items-center gap-3">
+      {trial}
       {me?.tenant ? (
         <span>
           <span className="font-medium">{me.tenant.name}</span>
@@ -51,12 +56,24 @@ export async function AccountBar() {
   );
 }
 
-function DemoActions() {
+function TrialBadge({ daysLeft }: { daysLeft: number }) {
+  const label = daysLeft === 1 ? "Último dia de teste" : `${daysLeft} dias de teste`;
+  return (
+    <Link href={PLANS_PATH}>
+      <Badge tone={daysLeft <= 2 ? "warning" : "neutral"} icon="◷">
+        {label}
+      </Badge>
+    </Link>
+  );
+}
+
+function DemoActions({ trial }: { trial?: React.ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Badge tone="info" icon="●">
         Modo demonstração
       </Badge>
+      {trial}
       <ButtonLink href="/login?modo=criar" className="px-3 py-1.5">
         Criar conta
       </ButtonLink>

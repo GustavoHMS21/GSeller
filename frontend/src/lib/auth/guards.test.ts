@@ -7,6 +7,7 @@ describe("authRedirect: negar por padrão, demonstração aberta", () => {
     ["/dashboard", "", "none", null],
     ["/produtos/kit", "", "none", null],
     ["/", "", "none", null],
+    ["/planos", "", "none", null],
     ["/onboarding", "", "none", "/login?next=%2Fonboarding"],
     ["/conta/senha", "", "none", "/login?next=%2Fconta%2Fsenha"],
     ["/rota-nova-qualquer", "?x=1", "none", "/login?next=%2Frota-nova-qualquer%3Fx%3D1"],

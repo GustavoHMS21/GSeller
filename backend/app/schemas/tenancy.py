@@ -7,6 +7,7 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
 from app.models import Role
+from app.services.access import AccessStatus
 
 TenantName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=2, max_length=120)]
 
@@ -35,7 +36,15 @@ class UserOut(BaseModel):
     is_anonymous: bool
 
 
+class AccessOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    status: AccessStatus
+    trial_ends_at: datetime
+    days_left: int
+
+
 class MeOut(BaseModel):
     user: UserOut
     tenant: TenantOut | None
     role: Role | None
+    access: AccessOut

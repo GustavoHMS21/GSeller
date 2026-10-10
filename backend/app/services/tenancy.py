@@ -14,6 +14,7 @@ from app.auth.db_context import bind_context
 from app.auth.tokens import Principal
 from app.core.errors import ApiError
 from app.models import Role, Tenant, TenantUser, User
+from app.services.access import trial_end_from_first_access
 from app.services.audit import record_audit
 
 
@@ -89,7 +90,11 @@ async def create_tenant(session: AsyncSession, user: User, name: str) -> Tenant:
     if await get_membership(session, user.id) is not None:
         raise ApiError(409, "tenant_already_exists", "Este usuário já possui uma empresa.")
 
-    tenant = Tenant(id=uuid.uuid4(), name=name)
+    tenant = Tenant(
+        id=uuid.uuid4(),
+        name=name,
+        trial_ends_at=trial_end_from_first_access(user.created_at),
+    )
     await bind_context(session, tenant_id=tenant.id)
     session.add(tenant)
     await session.flush()

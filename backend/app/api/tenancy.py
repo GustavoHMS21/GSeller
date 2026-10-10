@@ -1,10 +1,20 @@
 """Rotas de identidade e empresa. O tenant nunca vem da URL ou do corpo: é derivado da sessão."""
 
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, status
 
 from app.auth.deps import AccountContext, Context, OwnerContext, TenantContext
-from app.schemas.tenancy import MeOut, TenantCreate, TenantOut, TenantUpdate, UserOut
+from app.schemas.tenancy import (
+    AccessOut,
+    MeOut,
+    TenantCreate,
+    TenantOut,
+    TenantUpdate,
+    UserOut,
+)
 from app.services import tenancy
+from app.services.access import evaluate_access, trial_end_from_first_access
 
 router = APIRouter(prefix="/api", tags=["tenancy"])
 
@@ -14,10 +24,15 @@ async def me(ctx: Context) -> MeOut:
     tenant = (
         await tenancy.get_tenant(ctx.session, ctx.tenant_id) if ctx.membership is not None else None
     )
+    # Sem empresa (ex.: modo demonstração), o prazo conta do primeiro acesso do usuário.
+    trial_ends_at = (
+        tenant.trial_ends_at if tenant else trial_end_from_first_access(ctx.user.created_at)
+    )
     return MeOut(
         user=UserOut.model_validate(ctx.user),
         tenant=TenantOut.model_validate(tenant) if tenant else None,
         role=ctx.role,
+        access=AccessOut.model_validate(evaluate_access(trial_ends_at, datetime.now(UTC))),
     )
 
 
