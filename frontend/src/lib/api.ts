@@ -5,6 +5,7 @@ import { LOGIN_PATH } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 
 export const ONBOARDING_PATH = "/onboarding";
+export const PLANS_PATH = "/planos";
 
 export type Role = "OWNER" | "MEMBER";
 export type Tenant = { id: string; name: string; created_at: string };
@@ -12,6 +13,7 @@ export type Me = {
   user: { id: string; email: string | null; is_anonymous: boolean };
   tenant: Tenant | null;
   role: Role | null;
+  access: { status: "trial" | "active" | "expired"; trial_ends_at: string; days_left: number };
 };
 
 export class ApiError extends Error {
@@ -28,10 +30,11 @@ export class ApiError extends Error {
 export function classifyApiFailure(
   status: number,
   code: unknown,
-): "login" | "account" | "onboarding" | "error" {
+): "login" | "account" | "onboarding" | "paywall" | "error" {
   if (status === 401) return "login";
   if (status === 403 && code === "account_required") return "account";
   if (status === 403 && code === "onboarding_required") return "onboarding";
+  if (status === 402 && code === "trial_expired") return "paywall";
   return "error";
 }
 
@@ -59,6 +62,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   if (outcome === "login") redirect(LOGIN_PATH);
   if (outcome === "account") redirect(`${LOGIN_PATH}?modo=criar`);
   if (outcome === "onboarding") redirect(ONBOARDING_PATH);
+  if (outcome === "paywall") redirect(PLANS_PATH);
   throw new ApiError(response.status, body.error ?? "http_error", body.message ?? "Falha na API.");
 }
 

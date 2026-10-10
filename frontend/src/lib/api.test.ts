@@ -9,6 +9,7 @@ it.each([
   [403, "account_required", "account"],
   [403, "onboarding_required", "onboarding"],
   [403, "forbidden", "error"],
+  [402, "trial_expired", "paywall"],
   [409, "tenant_already_exists", "error"],
   [500, undefined, "error"],
 ] as const)("status %s (%s) → %s", (status, code, expected) => {

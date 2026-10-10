@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.13 — Modo demonstração, trial e assinatura: decisões e acesso anônimo (issue #33)  
+> **Versão:** 0.14 — Trial de 7 dias com bloqueio no 8º dia (issue #34)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4684,7 +4684,16 @@ Primeiro acesso ──► sessão anônima no Supabase (navegador)
 - A conversão mantém o mesmo `sub`. O backend marca `is_anonymous = false` e grava `user.converted` na auditoria.
 - **Rotas do frontend negadas por padrão:** só a demonstração (`/`, `/dashboard`, `/produtos`, `/custos`, `/conexoes`, `/design`) e o login ficam abertos. Toda rota nova exige conta, a menos que seja liberada explicitamente.
 
-## 58.3 Riscos e mitigação
+## 58.3 Regra do trial (implementada na v0.14)
+
+- **Prazo:** o trial termina exatamente **7 × 24 h** após o primeiro acesso (`users.created_at`). Exemplo: primeiro acesso na segunda às 10h, bloqueio a partir da segunda seguinte às 10h, o 8º dia. Dias restantes são arredondados para cima.
+- **Empresa:** `tenants.trial_ends_at` é gravado na criação a partir do primeiro acesso de quem cria. Empresas antigas foram preenchidas pelo primeiro acesso do dono.
+- **Bloqueio:** toda rota da empresa passa por `require_active_access` e responde `402 trial_expired`. `GET /api/me` nunca é bloqueado e informa `access` (`trial` / `active` / `expired`, `trial_ends_at`, `days_left`).
+- **Frontend:** contador "N dias de teste" no cabeçalho (destaque nos 2 últimos dias). Trial expirado leva a `/planos`, e qualquer `402` da API também.
+- **Assinatura:** ainda não existe (#35); o ponto de consulta está marcado com `shortcut:` em `require_active_access`.
+- **Verificado no navegador:** visitante novo vê "7 dias de teste"; o mesmo visitante, com o primeiro acesso recuado 8 dias, cai em "Seu período de teste terminou".
+
+## 58.4 Riscos e mitigação
 
 | Risco | Mitigação | Issue |
 |---|---|---|
@@ -4694,12 +4703,12 @@ Primeiro acesso ──► sessão anônima no Supabase (navegador)
 | E-mails de autenticação não chegam no piloto | SMTP próprio | #31 |
 | Cobrança antes da validação de preço | Planos e preços continuam sendo testados nas entrevistas (Bloco 49.5) | #35 |
 
-## 58.4 Estado
+## 58.5 Estado
 
 | Parte | Issue | Estado |
 |---|---|---|
 | Modo demonstração e conversão em conta | #33 | ✅ v0.13 |
-| Trial e bloqueio no 8º dia | #34 | Pendente |
+| Trial e bloqueio no 8º dia | #34 | ✅ v0.14 |
 | Planos e Stripe | #35 | Pendente |
 | E-mail de fim de trial | #36 | Pendente |
 | CAPTCHA | #38 | Pendente (conta Cloudflare) |
@@ -4726,6 +4735,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.14
+
+- trial de 7 dias a partir do primeiro acesso, com bloqueio na API (`402 trial_expired`) a partir do 8º dia (issue #34, Bloco 58.3);
+- `tenants.trial_ends_at` herdado do primeiro acesso de quem cria a empresa; migration preenche empresas existentes;
+- `GET /api/me` passa a informar o status de acesso e os dias restantes;
+- contador de dias no cabeçalho e tela `/planos` com os três planos (assinatura online na #35);
+- testes de fronteira: um segundo antes do fim ainda é trial; no instante exato do fim, bloqueio.
 
 ## v0.13
 

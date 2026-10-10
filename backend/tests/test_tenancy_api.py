@@ -164,3 +164,39 @@ async def test_creating_account_keeps_the_same_user(
     rows = await admin_sql("SELECT count(*) FROM app.audit_logs WHERE action = 'user.converted'")
     assert rows[0][0] == 1
     await create_tenant(client, account)
+
+
+async def test_new_user_starts_seven_day_trial(db, client: AsyncClient, make_token: TokenFactory):
+    access = (await client.get("/api/me", headers=auth(make_token(sub=USER_A)))).json()["access"]
+    assert access["status"] == "trial"
+    assert access["days_left"] == 7
+
+
+async def test_creating_company_does_not_restart_trial(
+    db, client: AsyncClient, make_token: TokenFactory
+):
+    token = make_token(sub=USER_A)
+    await client.get("/api/me", headers=auth(token))
+    await admin_sql("UPDATE app.users SET created_at = now() - interval '5 days'")
+    await create_tenant(client, token)
+    access = (await client.get("/api/me", headers=auth(token))).json()["access"]
+    assert access["days_left"] == 2
+
+
+async def test_expired_trial_blocks_company_routes_but_not_me(
+    db, client: AsyncClient, make_token: TokenFactory
+):
+    token = make_token(sub=USER_A)
+    await create_tenant(client, token)
+    await admin_sql("UPDATE app.tenants SET trial_ends_at = now() - interval '1 second'")
+
+    for response in (
+        await client.get("/api/tenant", headers=auth(token)),
+        await client.patch("/api/tenant", json={"name": "Nova"}, headers=auth(token)),
+    ):
+        assert response.status_code == 402
+        assert response.json()["error"] == "trial_expired"
+
+    me = await client.get("/api/me", headers=auth(token))
+    assert me.status_code == 200
+    assert me.json()["access"]["status"] == "expired"

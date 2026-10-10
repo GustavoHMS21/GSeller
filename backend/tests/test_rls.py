@@ -22,7 +22,9 @@ async def seed_two_tenants() -> tuple[uuid.UUID, uuid.UUID]:
         for tenant, name in ((tenant_a, "Loja A"), (tenant_b, "Loja B")):
             user = uuid.uuid4()
             await conn.execute(
-                text("INSERT INTO app.tenants (id, name) VALUES (:id, :name)"),
+                text(
+                    "INSERT INTO app.tenants (id, name, trial_ends_at) VALUES (:id, :name, now())"
+                ),
                 {"id": tenant, "name": name},
             )
             await conn.execute(
@@ -93,7 +95,10 @@ async def test_cannot_write_into_another_tenant(db):
     try:
         with pytest.raises(DBAPIError, match="row-level security"):
             await conn.execute(
-                text("INSERT INTO app.tenants (id, name) VALUES (:id, 'Intrusa')"),
+                text(
+                    "INSERT INTO app.tenants (id, name, trial_ends_at) "
+                    "VALUES (:id, 'Intrusa', now())"
+                ),
                 {"id": tenant_b},
             )
     finally:

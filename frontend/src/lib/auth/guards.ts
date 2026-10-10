@@ -9,7 +9,8 @@ export type SessionKind = "none" | "anonymous" | "account";
 
 const AUTH_PREFIXES = [LOGIN_PATH, "/auth"];
 // Telas que mostram só dados de demonstração. Todo o resto exige conta (negar por padrão).
-const DEMO_PREFIXES = ["/dashboard", "/produtos", "/custos", "/conexoes", "/design"];
+// /planos fica aberto: é para onde vai quem terminou o trial, com ou sem conta.
+const DEMO_PREFIXES = ["/dashboard", "/produtos", "/custos", "/conexoes", "/design", "/planos"];
 
 const matches = (pathname: string, prefixes: string[]) =>
   prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
