@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.5 — Bloco A: discovery kit, threat model, Data Map LGPD, Design System v0.1 e protótipo  
+> **Versão:** 0.6 — Auth + Tenant isolation (backend) com Supabase Auth  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
 
@@ -3432,8 +3432,8 @@ Dentro deste mesmo documento mestre, manter a tabela abaixo atualizada:
 
 | Componente | Status | Versão | Última validação | Pode alterar? |
 |---|---|---|---|---|
-| Auth | EXPERIMENTAL | 0.1 | — | Sim |
-| Tenant Isolation | EXPERIMENTAL | 0.1 | — | Sim |
+| Auth | VALIDATING | 0.1 | 2026-10-08 (backend) | Sim |
+| Tenant Isolation | VALIDATING | 0.1 | 2026-10-08 | Sim |
 | OAuth Mercado Livre | EXPERIMENTAL | 0.1 | — | Sim |
 | Financial Engine | EXPERIMENTAL | 0.1 | — | Sim |
 | Analytics Engine | EXPERIMENTAL | 0.1 | — | Sim |
@@ -4108,6 +4108,74 @@ A calibração garante que **nenhum produto com alerta apareça como "Saudável"
 - Filtros da lista de produtos não ficam na URL.
 - CSP com nonce ainda pendente (Bloco 48.5).
 
+---
+
+# BLOCO 52 — AUTH + TENANT ISOLATION (BACKEND, EXECUTADO EM 2026-10-08)
+
+## 52.1 Decisões
+
+| Tema | Decisão | Motivo |
+|---|---|---|
+| Provedor de identidade | **Supabase Auth** (decidido em 2026-10-08) | Login pronto (e-mail, magic link, OAuth), MFA disponível, região São Paulo |
+| Validação do token | Local, via **JWKS** do Supabase (`/auth/v1/.well-known/jwks.json`), em cache | Sem chamada externa por requisição; o backend não precisa de nenhuma chave secreta do Supabase |
+| Algoritmos aceitos | Somente **ES256 e RS256** | Bloqueia confusão de algoritmo (HS256 com chave pública) e `alg: none` |
+| Identidade local | Tabela `app.users` com `auth_subject` = `sub` do token | Desacopla do provedor; trocar de provedor não muda o domínio |
+| Tenant | Derivado do vínculo `tenant_users`, **nunca** recebido do frontend | Bloco 42.1 |
+| Empresas por usuário | Uma no MVP (Bloco 4.1); o modelo já suporta várias | Convites ficam para depois |
+| Schema das tabelas | `app` (não `public`) | O Supabase expõe `public` pela Data API; `app` só é acessível pela nossa API |
+| Banco de dados no dev | Postgres local continua; Supabase Postgres entra no bloco de deploy | O teste roda offline e o CI não depende de serviço externo |
+
+## 52.2 Isolamento em duas camadas
+
+```text
+Camada 1 — aplicação
+  token → usuário → vínculo → tenant_id do contexto
+  toda consulta filtra por tenant_id (Bloco 42.2)
+
+Camada 2 — banco (RLS)
+  a cada transação a API define app.tenant_id / app.user_id / app.auth_subject
+  com set_config(..., true) — o valor morre com a transação
+  políticas comparam cada linha com esses valores
+```
+
+Mesmo que uma consulta da aplicação esqueça o filtro, o banco devolve apenas as linhas do tenant da requisição. Sem contexto, **nenhuma linha** aparece.
+
+| Tabela | Política | Privilégios da `app_runtime` |
+|---|---|---|
+| `tenants` | só o tenant do contexto | SELECT, INSERT, UPDATE, DELETE |
+| `users` | só o próprio usuário | SELECT, INSERT, UPDATE, DELETE |
+| `tenant_users` | vínculos do tenant ou do próprio usuário | SELECT, INSERT, UPDATE, DELETE |
+| `audit_logs` | eventos do tenant ou do próprio usuário | **somente SELECT e INSERT** (append-only) |
+
+## 52.3 API
+
+| Rota | Quem pode | O que faz |
+|---|---|---|
+| `GET /api/me` | qualquer usuário autenticado | Cria o usuário local no primeiro acesso; devolve usuário, empresa e papel |
+| `POST /api/tenants` | autenticado sem empresa | Cria a empresa e torna o usuário OWNER (409 se já tiver) |
+| `GET /api/tenant` | membro | Dados da empresa atual (403 `onboarding_required` se não tiver) |
+| `PATCH /api/tenant` | OWNER | Renomeia a empresa; registra auditoria com valor anterior e novo |
+
+Erros seguem um formato único: `{"error": código, "message": texto, "request_id": id}`. Corpos com campos extras são rejeitados (proteção contra mass assignment).
+
+## 52.4 Testes (49 no total, ~3 s)
+
+- **Tokens:** válido; expirado; audiência, emissor ou role errados; sessão anônima; sem `sub`; assinado por outra chave; `kid` desconhecido; HS256; `alg: none`; lixo.
+- **API:** provisionamento idempotente; criação de empresa; segunda empresa recusada; mass assignment recusado; onboarding exigido; usuário B não enxerga a empresa de A; MEMBER não renomeia; auditoria gravada.
+- **RLS direto no banco:** consulta sem filtro só vê o próprio tenant; sem contexto nada aparece; escrever em outro tenant falha; atualizar linha de outro tenant afeta 0 linhas; `audit_logs` não aceita UPDATE/DELETE; a API não cria objetos no schema.
+- **Migrations:** ida e volta (downgrade/upgrade) validada.
+
+## 52.5 Pendências deste bloco
+
+- **Parte 2 (frontend):** tela de login (Tela 1) com Supabase e onboarding "Criar empresa" ligado à API. Depende do projeto Supabase criado.
+- **Deploy:** no Supabase Postgres, criar as roles `app_migrator` e `app_runtime` (a API nunca usa `postgres` nem a secret key). Com o pooler em modo *transaction*, desativar prepared statements do asyncpg ou usar o modo *session*.
+- **MFA** para contas administrativas (Bloco 18.5) quando existir painel administrativo.
+- **Exclusão de conta** (Bloco 19.7) exigirá a secret key do Supabase, somente no backend.
+
+## 52.6 Aprendizado registrado
+
+No Windows, `localhost` tenta IPv6 primeiro; como o Postgres do Docker escuta só em `127.0.0.1`, cada conexão esperava cerca de 2 s. Usar `127.0.0.1` nas URLs locais derrubou a suíte de 90 s para 3 s.
+
 # PRÓXIMO PASSO
 
 O próximo bloco de trabalho não deve ser código de integração.
@@ -4129,6 +4197,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.6
+
+- decidido: Supabase Auth como provedor de identidade (Bloco 52);
+- adicionado Bloco 52 — validação de token via JWKS (ES256/RS256), usuários/tenants/vínculos/auditoria no schema `app`, RLS em duas camadas, rotas `/api/me`, `/api/tenants`, `/api/tenant`;
+- audit_logs passa a ser append-only no nível de privilégio do banco;
+- formato único de erro da API;
+- URLs locais do banco trocadas para `127.0.0.1`.
 
 ## v0.5
 
