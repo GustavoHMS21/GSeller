@@ -1,0 +1,38 @@
+name: Nova função
+description: Capacidade nova para o usuário ou para o sistema
+title: "feat: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Qual dor ou necessidade isto resolve? Cite o bloco do Master Plan.
+    validations:
+      required: true
+  - type: textarea
+    id: escopo
+    attributes:
+      label: Escopo
+      description: O que será feito.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite
+      description: Lista verificável. Cada item deve poder ser testado.
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: textarea
+    id: fora
+    attributes:
+      label: Fora de escopo
+  - type: dropdown
+    id: prioridade
+    attributes:
+      label: Prioridade
+      options: ["P0", "P1", "P2"]
+    validations:
+      required: true

@@ -1,3 +1,7 @@
+Closes #
+
+<!-- Obrigatório: número da issue (Bloco 53). Use "Refs #" se o PR não fecha a issue. -->
+
 ## O que muda
 
 <!-- Descreva a mudança e o bloco do Master Plan relacionado. -->
@@ -9,9 +13,11 @@
 ## Definition of Done (Bloco 33)
 
 - [ ] Requisito definido no Master Plan
-- [ ] Estados de loading / empty / error (quando houver UI)
+- [ ] SOLID respeitado e contratos de arquitetura verdes (Blocos 53.4 e 56)
+- [ ] Estados de skeleton, entrada, saída e progresso com reduced motion (Bloco 54), quando houver UI
 - [ ] Autorização e isolamento por tenant verificados
-- [ ] Testes adicionados ou atualizados
+- [ ] Testes adicionados ou atualizados (unitário, integração e E2E quando aplicável)
+- [ ] Erros capturados e operações relevantes instrumentadas (Bloco 55)
 - [ ] Logs adequados, sem token, segredo ou PII
 - [ ] LGPD avaliada (novos dados pessoais? finalidade? retenção?)
 - [ ] Nenhum segredo exposto (`.env`, `NEXT_PUBLIC_*`)

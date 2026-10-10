@@ -1,0 +1,32 @@
+name: Melhoria
+description: Evolução de algo que já existe (qualidade, performance, UX, ferramental)
+title: "chore: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: atual
+    attributes:
+      label: Situação atual
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Melhoria proposta
+      description: O que muda e por quê. Cite o bloco do Master Plan.
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Critérios de aceite
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: prioridade
+    attributes:
+      label: Prioridade
+      options: ["P0", "P1", "P2"]
+    validations:
+      required: true
