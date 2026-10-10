@@ -2,7 +2,7 @@
 // Nenhum dado real de seller ou comprador. Cada produto foi desenhado para exercitar
 // uma regra do Bloco 10, para testar se o seller entende o diagnóstico.
 
-import { computeEconomics, sumEconomics, type PeriodInput } from "@/lib/demo/economics";
+import { computeEconomics, type PeriodInput, sumEconomics } from "@/lib/demo/economics";
 import { computeHealth } from "@/lib/demo/health";
 import { generateInsights } from "@/lib/demo/rules";
 import type { Connection, Listing, Marketplace, Product, ProductCost, Variant } from "@/lib/types";
@@ -21,7 +21,10 @@ const SHOPEE = { commissionRate: 0.2, fixedFeePerUnit: 4 };
 
 type Fees = { commissionRate: number; fixedFeePerUnit: number };
 
-function period(fees: Fees, values: Partial<PeriodInput> & Pick<PeriodInput, "units" | "avgPrice">): PeriodInput {
+function period(
+  fees: Fees,
+  values: Partial<PeriodInput> & Pick<PeriodInput, "units" | "avgPrice">,
+): PeriodInput {
   return {
     orders: values.units,
     sellerDiscount: 0,
@@ -68,14 +71,48 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810001",
-        current: period(ML, { units: 212, orders: 205, avgPrice: 79.9, sellerShipping: 2120, adsSpend: 620, adsAttributedRevenue: 2600, visits: 7100, refunds: 160 }),
-        previous: period(ML, { units: 196, orders: 190, avgPrice: 79.9, sellerShipping: 1960, adsSpend: 580, adsAttributedRevenue: 2450, visits: 6800, refunds: 150 }),
+        current: period(ML, {
+          units: 212,
+          orders: 205,
+          avgPrice: 79.9,
+          sellerShipping: 2120,
+          adsSpend: 620,
+          adsAttributedRevenue: 2600,
+          visits: 7100,
+          refunds: 160,
+        }),
+        previous: period(ML, {
+          units: 196,
+          orders: 190,
+          avgPrice: 79.9,
+          sellerShipping: 1960,
+          adsSpend: 580,
+          adsAttributedRevenue: 2450,
+          visits: 6800,
+          refunds: 150,
+        }),
       },
       {
         marketplace: "shopee",
         externalId: "22870015",
-        current: period(SHOPEE, { units: 168, orders: 160, avgPrice: 64.9, adsSpend: 290, adsAttributedRevenue: 900, visits: 9400, refunds: 120 }),
-        previous: period(SHOPEE, { units: 150, orders: 144, avgPrice: 64.9, adsSpend: 270, adsAttributedRevenue: 850, visits: 8900, refunds: 100 }),
+        current: period(SHOPEE, {
+          units: 168,
+          orders: 160,
+          avgPrice: 64.9,
+          adsSpend: 290,
+          adsAttributedRevenue: 900,
+          visits: 9400,
+          refunds: 120,
+        }),
+        previous: period(SHOPEE, {
+          units: 150,
+          orders: 144,
+          avgPrice: 64.9,
+          adsSpend: 270,
+          adsAttributedRevenue: 850,
+          visits: 8900,
+          refunds: 100,
+        }),
       },
     ],
   },
@@ -89,8 +126,28 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810002",
-        current: period(ML, { units: 385, orders: 380, avgPrice: 114.9, sellerDiscount: 3900, sellerShipping: 4620, adsSpend: 1200, adsAttributedRevenue: 5000, visits: 13600, refunds: 460 }),
-        previous: period(ML, { units: 300, orders: 296, avgPrice: 119.9, sellerDiscount: 900, sellerShipping: 3600, adsSpend: 900, adsAttributedRevenue: 4200, visits: 11000, refunds: 360 }),
+        current: period(ML, {
+          units: 385,
+          orders: 380,
+          avgPrice: 114.9,
+          sellerDiscount: 3900,
+          sellerShipping: 4620,
+          adsSpend: 1200,
+          adsAttributedRevenue: 5000,
+          visits: 13600,
+          refunds: 460,
+        }),
+        previous: period(ML, {
+          units: 300,
+          orders: 296,
+          avgPrice: 119.9,
+          sellerDiscount: 900,
+          sellerShipping: 3600,
+          adsSpend: 900,
+          adsAttributedRevenue: 4200,
+          visits: 11000,
+          refunds: 360,
+        }),
       },
     ],
   },
@@ -104,8 +161,26 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810003",
-        current: period(ML_PREMIUM, { units: 112, orders: 110, avgPrice: 141.9, sellerShipping: 1568, adsSpend: 720, adsAttributedRevenue: 2300, visits: 5150, refunds: 140 }),
-        previous: period(ML_PREMIUM, { units: 158, orders: 156, avgPrice: 129.9, sellerShipping: 2212, adsSpend: 700, adsAttributedRevenue: 3100, visits: 5200, refunds: 260 }),
+        current: period(ML_PREMIUM, {
+          units: 112,
+          orders: 110,
+          avgPrice: 141.9,
+          sellerShipping: 1568,
+          adsSpend: 720,
+          adsAttributedRevenue: 2300,
+          visits: 5150,
+          refunds: 140,
+        }),
+        previous: period(ML_PREMIUM, {
+          units: 158,
+          orders: 156,
+          avgPrice: 129.9,
+          sellerShipping: 2212,
+          adsSpend: 700,
+          adsAttributedRevenue: 3100,
+          visits: 5200,
+          refunds: 260,
+        }),
       },
     ],
   },
@@ -119,14 +194,46 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810004",
-        current: period(ML_LOW_TICKET, { units: 640, orders: 630, avgPrice: 59.9, adsSpend: 1400, adsAttributedRevenue: 6100, visits: 21000, refunds: 380 }),
-        previous: period(ML_LOW_TICKET, { units: 610, orders: 600, avgPrice: 59.9, adsSpend: 1350, adsAttributedRevenue: 5900, visits: 20500, refunds: 360 }),
+        current: period(ML_LOW_TICKET, {
+          units: 640,
+          orders: 630,
+          avgPrice: 59.9,
+          adsSpend: 1400,
+          adsAttributedRevenue: 6100,
+          visits: 21000,
+          refunds: 380,
+        }),
+        previous: period(ML_LOW_TICKET, {
+          units: 610,
+          orders: 600,
+          avgPrice: 59.9,
+          adsSpend: 1350,
+          adsAttributedRevenue: 5900,
+          visits: 20500,
+          refunds: 360,
+        }),
       },
       {
         marketplace: "shopee",
         externalId: "22870018",
-        current: period(SHOPEE, { units: 520, orders: 515, avgPrice: 54.9, adsSpend: 600, adsAttributedRevenue: 2100, visits: 24000, refunds: 260 }),
-        previous: period(SHOPEE, { units: 500, orders: 495, avgPrice: 54.9, adsSpend: 580, adsAttributedRevenue: 2000, visits: 23500, refunds: 240 }),
+        current: period(SHOPEE, {
+          units: 520,
+          orders: 515,
+          avgPrice: 54.9,
+          adsSpend: 600,
+          adsAttributedRevenue: 2100,
+          visits: 24000,
+          refunds: 260,
+        }),
+        previous: period(SHOPEE, {
+          units: 500,
+          orders: 495,
+          avgPrice: 54.9,
+          adsSpend: 580,
+          adsAttributedRevenue: 2000,
+          visits: 23500,
+          refunds: 240,
+        }),
       },
     ],
   },
@@ -140,8 +247,24 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810005",
-        current: period(ML_LOW_TICKET, { units: 290, orders: 285, avgPrice: 49.9, adsSpend: 150, adsAttributedRevenue: 900, visits: 8200, refunds: 40 }),
-        previous: period(ML_LOW_TICKET, { units: 260, orders: 255, avgPrice: 49.9, adsSpend: 140, adsAttributedRevenue: 850, visits: 7700, refunds: 50 }),
+        current: period(ML_LOW_TICKET, {
+          units: 290,
+          orders: 285,
+          avgPrice: 49.9,
+          adsSpend: 150,
+          adsAttributedRevenue: 900,
+          visits: 8200,
+          refunds: 40,
+        }),
+        previous: period(ML_LOW_TICKET, {
+          units: 260,
+          orders: 255,
+          avgPrice: 49.9,
+          adsSpend: 140,
+          adsAttributedRevenue: 850,
+          visits: 7700,
+          refunds: 50,
+        }),
       },
     ],
   },
@@ -155,14 +278,32 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810006",
-        current: period(ML, { units: 158, orders: 156, avgPrice: 99.9, sellerShipping: 2054, adsSpend: 1150, adsAttributedRevenue: 2000, visits: 6900, refunds: 100 }),
-        previous: period(ML, { units: 150, orders: 148, avgPrice: 99.9, sellerShipping: 1950, adsSpend: 400, adsAttributedRevenue: 1800, visits: 6000, refunds: 100 }),
+        current: period(ML, {
+          units: 158,
+          orders: 156,
+          avgPrice: 99.9,
+          sellerShipping: 2054,
+          adsSpend: 1150,
+          adsAttributedRevenue: 2000,
+          visits: 6900,
+          refunds: 100,
+        }),
+        previous: period(ML, {
+          units: 150,
+          orders: 148,
+          avgPrice: 99.9,
+          sellerShipping: 1950,
+          adsSpend: 400,
+          adsAttributedRevenue: 1800,
+          visits: 6000,
+          refunds: 100,
+        }),
       },
     ],
   },
   {
     id: "cap-nb-15",
-    name: "Capa para Notebook 15,6\"",
+    name: 'Capa para Notebook 15,6"',
     sku: "CAP-NB-15",
     category: "Acessórios",
     cost: { unitCost: null, taxRate: 0.06, additionalUnitCost: 0, validFrom: null },
@@ -170,8 +311,20 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810007",
-        current: period(ML_LOW_TICKET, { units: 140, orders: 138, avgPrice: 69.9, visits: 4100, refunds: 70 }),
-        previous: period(ML_LOW_TICKET, { units: 128, orders: 126, avgPrice: 69.9, visits: 3900, refunds: 60 }),
+        current: period(ML_LOW_TICKET, {
+          units: 140,
+          orders: 138,
+          avgPrice: 69.9,
+          visits: 4100,
+          refunds: 70,
+        }),
+        previous: period(ML_LOW_TICKET, {
+          units: 128,
+          orders: 126,
+          avgPrice: 69.9,
+          visits: 3900,
+          refunds: 60,
+        }),
       },
     ],
   },
@@ -185,14 +338,46 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "mercadolivre",
         externalId: "MLB3810008",
-        current: period(ML, { units: 74, orders: 73, avgPrice: 189.9, sellerShipping: 1332, adsSpend: 500, adsAttributedRevenue: 2400, visits: 4100, refunds: 190 }),
-        previous: period(ML, { units: 96, orders: 95, avgPrice: 189.9, sellerShipping: 1728, adsSpend: 500, adsAttributedRevenue: 2600, visits: 4300, refunds: 380 }),
+        current: period(ML, {
+          units: 74,
+          orders: 73,
+          avgPrice: 189.9,
+          sellerShipping: 1332,
+          adsSpend: 500,
+          adsAttributedRevenue: 2400,
+          visits: 4100,
+          refunds: 190,
+        }),
+        previous: period(ML, {
+          units: 96,
+          orders: 95,
+          avgPrice: 189.9,
+          sellerShipping: 1728,
+          adsSpend: 500,
+          adsAttributedRevenue: 2600,
+          visits: 4300,
+          refunds: 380,
+        }),
       },
       {
         marketplace: "shopee",
         externalId: "22870021",
-        current: period(SHOPEE, { units: 52, orders: 52, avgPrice: 184.9, adsSpend: 150, adsAttributedRevenue: 700, visits: 3300 }),
-        previous: period(SHOPEE, { units: 40, orders: 40, avgPrice: 184.9, adsSpend: 150, adsAttributedRevenue: 650, visits: 3000 }),
+        current: period(SHOPEE, {
+          units: 52,
+          orders: 52,
+          avgPrice: 184.9,
+          adsSpend: 150,
+          adsAttributedRevenue: 700,
+          visits: 3300,
+        }),
+        previous: period(SHOPEE, {
+          units: 40,
+          orders: 40,
+          avgPrice: 184.9,
+          adsSpend: 150,
+          adsAttributedRevenue: 650,
+          visits: 3000,
+        }),
       },
     ],
   },
@@ -259,12 +444,16 @@ export function storeSummary(marketplace?: Marketplace) {
 
   const withCost = (list: typeof current) => list.filter((e) => e.result !== null);
   const all = { current: sumEconomics(current), previous: sumEconomics(previous) };
-  const costed = { current: sumEconomics(withCost(current)), previous: sumEconomics(withCost(previous)) };
+  const costed = {
+    current: sumEconomics(withCost(current)),
+    previous: sumEconomics(withCost(previous)),
+  };
 
   return {
     revenue: all,
     result: costed,
     coverage: all.current.revenue ? costed.current.revenue / all.current.revenue : 0,
-    productsWithoutCost: products.filter((p) => p.cost.unitCost === null && pick(p).length > 0).length,
+    productsWithoutCost: products.filter((p) => p.cost.unitCost === null && pick(p).length > 0)
+      .length,
   };
 }

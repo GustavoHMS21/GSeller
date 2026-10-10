@@ -33,8 +33,9 @@ export default function ConnectionsPage() {
       <div>
         <h1 className="text-2xl font-semibold">Conexões</h1>
         <p className="max-w-2xl text-sm text-fg-muted">
-          Conectamos pela API oficial de cada marketplace, com <strong>acesso somente leitura</strong>.
-          Nunca pedimos sua senha e não alteramos anúncios, preços ou campanhas.
+          Conectamos pela API oficial de cada marketplace, com{" "}
+          <strong>acesso somente leitura</strong>. Nunca pedimos sua senha e não alteramos anúncios,
+          preços ou campanhas.
         </p>
       </div>
 

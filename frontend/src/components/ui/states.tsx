@@ -48,6 +48,9 @@ export function ErrorState({
 
 export function Skeleton({ className }: { className?: string }) {
   return (
-    <div aria-hidden="true" className={cx("animate-pulse rounded-md bg-surface-muted", className)} />
+    <div
+      aria-hidden="true"
+      className={cx("animate-pulse rounded-md bg-surface-muted", className)}
+    />
   );
 }

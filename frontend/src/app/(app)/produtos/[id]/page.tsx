@@ -77,7 +77,9 @@ async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
       </header>
 
       <section aria-labelledby="alertas" className="space-y-3">
-        <h2 id="alertas" className="text-lg font-semibold">O que merece atenção</h2>
+        <h2 id="alertas" className="text-lg font-semibold">
+          O que merece atenção
+        </h2>
         {productInsights.length === 0 ? (
           <p className="text-sm text-fg-muted">Nenhum alerta para este produto no período.</p>
         ) : (
@@ -115,11 +117,16 @@ async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
         </Card>
 
         <Card>
-          <CardHeader title="Por que este score?" description={`Health Score ${product.health.version}`} />
+          <CardHeader
+            title="Por que este score?"
+            description={`Health Score ${product.health.version}`}
+          />
           <p className="text-hero font-semibold tabular-nums">{product.health.score ?? "—"}</p>
           <ul className="mt-2 space-y-1 text-sm">
             {product.health.components.length === 0 ? (
-              <li className="text-fg-muted">Nenhum desconto: todos os critérios dentro do esperado.</li>
+              <li className="text-fg-muted">
+                Nenhum desconto: todos os critérios dentro do esperado.
+              </li>
             ) : (
               product.health.components.map((c) => (
                 <li key={c.label} className="flex justify-between gap-2">
@@ -144,21 +151,34 @@ async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
 
       {product.variants.length > 0 && (
         <Card>
-          <CardHeader title="Variações" description="Unidades vendidas no período, todos os canais" />
+          <CardHeader
+            title="Variações"
+            description="Unidades vendidas no período, todos os canais"
+          />
           <table className="w-full max-w-xl text-sm">
             <caption className="sr-only">Unidades por variação</caption>
             <thead>
               <tr className="border-b border-line text-left text-xs text-fg-muted">
-                <th scope="col" className="py-2 pr-4 font-medium">Variação</th>
-                <th scope="col" className="py-2 pr-4 font-medium">SKU</th>
-                <th scope="col" className="py-2 pr-4 text-right font-medium">Unidades</th>
-                <th scope="col" className="py-2 text-right font-medium">Participação</th>
+                <th scope="col" className="py-2 pr-4 font-medium">
+                  Variação
+                </th>
+                <th scope="col" className="py-2 pr-4 font-medium">
+                  SKU
+                </th>
+                <th scope="col" className="py-2 pr-4 text-right font-medium">
+                  Unidades
+                </th>
+                <th scope="col" className="py-2 text-right font-medium">
+                  Participação
+                </th>
               </tr>
             </thead>
             <tbody>
               {product.variants.map((v) => (
                 <tr key={v.sku} className="border-b border-line last:border-0">
-                  <th scope="row" className="py-2 pr-4 text-left font-normal">{v.name}</th>
+                  <th scope="row" className="py-2 pr-4 text-left font-normal">
+                    {v.name}
+                  </th>
                   <td className="py-2 pr-4 text-fg-muted">{v.sku}</td>
                   <td className="py-2 pr-4 text-right tabular-nums">{formatInt(v.unitsCurrent)}</td>
                   <td className="py-2 text-right tabular-nums">
@@ -197,7 +217,10 @@ function ChannelComparison({ product }: { product: Product }) {
   const summary =
     comparable.length >= 2
       ? comparable
-          .map((l) => `${formatBRL(unit(l.period.current) ?? 0)} por unidade no ${MARKETPLACE_LABEL[l.marketplace]}`)
+          .map(
+            (l) =>
+              `${formatBRL(unit(l.period.current) ?? 0)} por unidade no ${MARKETPLACE_LABEL[l.marketplace]}`,
+          )
           .join(" e ")
       : null;
 
@@ -213,7 +236,9 @@ function ChannelComparison({ product }: { product: Product }) {
           <caption className="sr-only">Métricas do produto por marketplace</caption>
           <thead>
             <tr className="border-b border-line text-left text-xs text-fg-muted">
-              <th scope="col" className="py-2 pr-4 font-medium">Métrica</th>
+              <th scope="col" className="py-2 pr-4 font-medium">
+                Métrica
+              </th>
               {listings.map((l) => (
                 <th key={l.marketplace} scope="col" className="py-2 pr-4 text-right font-medium">
                   <MarketplaceBadge marketplace={l.marketplace} />
@@ -224,7 +249,9 @@ function ChannelComparison({ product }: { product: Product }) {
           <tbody>
             {metrics.map((m) => (
               <tr key={m.label} className="border-b border-line last:border-0">
-                <th scope="row" className="py-2 pr-4 text-left font-normal text-fg-muted">{m.label}</th>
+                <th scope="row" className="py-2 pr-4 text-left font-normal text-fg-muted">
+                  {m.label}
+                </th>
                 {listings.map((l) => (
                   <td key={l.marketplace} className="py-2 pr-4 text-right tabular-nums">
                     {m.value(l.period.current)}

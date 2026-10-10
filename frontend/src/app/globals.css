@@ -110,11 +110,21 @@ body {
   border-radius: 4px;
 }
 
+/*
+ * Reduced motion (Bloco 54.5): precisa vencer qualquer animação declarada em
+ * componentes, por isso usa !important. Preserva o estado final das transições.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: precisa sobrepor qualquer animação */
     animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: precisa sobrepor qualquer animação */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: precisa sobrepor qualquer transição */
     transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: precisa sobrepor rolagem suave */
+    scroll-behavior: auto !important;
   }
 }

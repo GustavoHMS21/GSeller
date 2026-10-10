@@ -139,7 +139,10 @@ export default function DesignPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <EmptyState title="Nenhum produto ainda" description="Conecte um marketplace para importar seus anúncios." />
+        <EmptyState
+          title="Nenhum produto ainda"
+          description="Conecte um marketplace para importar seus anúncios."
+        />
         <ErrorState description="A sincronização falhou. Tentaremos de novo em alguns minutos." />
         <div className="space-y-2 rounded-lg border border-line p-4">
           <Skeleton className="h-4 w-1/2" />

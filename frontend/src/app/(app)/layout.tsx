@@ -34,7 +34,10 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-line bg-surface px-6 py-3 text-sm">
             <div>
               <span className="font-medium">{DEMO.storeName}</span>
-              <span className="text-fg-muted"> · {DEMO.periodLabel} {DEMO.comparisonLabel}</span>
+              <span className="text-fg-muted">
+                {" "}
+                · {DEMO.periodLabel} {DEMO.comparisonLabel}
+              </span>
             </div>
             <div className="flex flex-wrap items-center gap-3 md:ml-auto">
               {connections.map((c) => (

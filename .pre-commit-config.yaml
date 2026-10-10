@@ -25,3 +25,12 @@ repos:
         files: ^backend/
       - id: ruff-format
         files: ^backend/
+
+  # Frontend: Biome (lint + formatação). Roda dentro de frontend/, onde fica o biome.json.
+  - repo: local
+    hooks:
+      - id: biome
+        name: biome (frontend)
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|mjs|json|css)$
+        entry: bash -c 'cd frontend && npx --no-install biome check --write --no-errors-on-unmatched --files-ignore-unknown=true "${@#frontend/}"' --

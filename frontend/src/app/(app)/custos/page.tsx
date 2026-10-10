@@ -22,8 +22,8 @@ export default function CostsPage() {
       {missing > 0 && (
         <p role="status" className="rounded-md bg-warning-soft p-3 text-sm text-warning">
           <span aria-hidden="true">▲ </span>
-          {missing} {missing === 1 ? "produto está" : "produtos estão"} sem custo. O resultado desses
-          produtos não é calculado até o custo ser informado.
+          {missing} {missing === 1 ? "produto está" : "produtos estão"} sem custo. O resultado
+          desses produtos não é calculado até o custo ser informado.
         </p>
       )}
 

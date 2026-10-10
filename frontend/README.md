@@ -6,7 +6,8 @@ Aplicação Next.js (App Router, TypeScript, Tailwind).
 cp .env.example .env.local
 npm install
 npm run dev        # http://localhost:3000
-npm run lint
+npm run check      # Biome: lint + formatação + ordem de imports
+npm run check:fix  # aplica as correções seguras
 npm run typecheck
 npm run build
 ```

@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 // Bloqueia o build se alguma variável exposta ao navegador tiver nome de segredo.
 // Variáveis NEXT_PUBLIC_* são embutidas no bundle público durante o build.
-const FORBIDDEN_PUBLIC_ENV = /SECRET|PRIVATE|PASSWORD|TOKEN|PARTNER_KEY|SERVICE_ROLE|DATABASE|ENCRYPTION/i;
+const FORBIDDEN_PUBLIC_ENV =
+  /SECRET|PRIVATE|PASSWORD|TOKEN|PARTNER_KEY|SERVICE_ROLE|DATABASE|ENCRYPTION/i;
 const leakedPublicEnv = Object.keys(process.env).filter(
   (name) => name.startsWith("NEXT_PUBLIC_") && FORBIDDEN_PUBLIC_ENV.test(name),
 );

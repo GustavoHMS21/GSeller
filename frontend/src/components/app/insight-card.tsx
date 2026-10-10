@@ -13,10 +13,18 @@ const SEVERITY: Record<Severity, { tone: Tone; icon: string; label: string; bord
  * Card de insight: o que aconteceu, evidência, o que investigar e limitação (Bloco 17).
  * A recomendação é sempre "investigar", nunca uma verdade absoluta.
  */
-export function InsightCard({ insight, showProduct = true }: { insight: Insight; showProduct?: boolean }) {
+export function InsightCard({
+  insight,
+  showProduct = true,
+}: {
+  insight: Insight;
+  showProduct?: boolean;
+}) {
   const severity = SEVERITY[insight.severity];
   return (
-    <article className={`rounded-lg border border-l-4 border-line ${severity.border} bg-surface p-4`}>
+    <article
+      className={`rounded-lg border border-l-4 border-line ${severity.border} bg-surface p-4`}
+    >
       <header className="flex flex-wrap items-center gap-2">
         <Badge tone={severity.tone} icon={severity.icon}>
           {severity.label}

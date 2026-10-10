@@ -14,6 +14,7 @@ interface CostRow {
 }
 
 interface HistoryEntry {
+  id: string;
   productName: string;
   previous: ProductCost;
   next: ProductCost;
@@ -47,7 +48,10 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
       additionalUnitCost: Number.isFinite(additional) ? additional : 0,
       validFrom,
     };
-    setHistory((h) => [{ productName: row.name, previous: row.cost, next }, ...h]);
+    setHistory((h) => [
+      { id: crypto.randomUUID(), productName: row.name, previous: row.cost, next },
+      ...h,
+    ]);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, cost: next } : r)));
     setEditing(null);
   }
@@ -59,12 +63,24 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
           <caption className="sr-only">Custos vigentes por produto</caption>
           <thead>
             <tr className="border-b border-line text-left text-xs text-fg-muted">
-              <th scope="col" className="px-4 py-3 font-medium">Produto</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Custo unitário</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Imposto estimado</th>
-              <th scope="col" className="px-4 py-3 text-right font-medium">Custo adicional</th>
-              <th scope="col" className="px-4 py-3 font-medium">Vigente desde</th>
-              <th scope="col" className="px-4 py-3"><span className="sr-only">Ações</span></th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                Produto
+              </th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">
+                Custo unitário
+              </th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">
+                Imposto estimado
+              </th>
+              <th scope="col" className="px-4 py-3 text-right font-medium">
+                Custo adicional
+              </th>
+              <th scope="col" className="px-4 py-3 font-medium">
+                Vigente desde
+              </th>
+              <th scope="col" className="px-4 py-3">
+                <span className="sr-only">Ações</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -82,19 +98,42 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
                       </p>
                       <label className="text-xs text-fg-muted">
                         Custo unitário (R$)
-                        <input name="unitCost" required inputMode="decimal" defaultValue={row.cost.unitCost ?? ""} className={INPUT} />
+                        <input
+                          name="unitCost"
+                          required
+                          inputMode="decimal"
+                          defaultValue={row.cost.unitCost ?? ""}
+                          className={INPUT}
+                        />
                       </label>
                       <label className="text-xs text-fg-muted">
                         Imposto (%)
-                        <input name="taxRate" required inputMode="decimal" defaultValue={row.cost.taxRate * 100} className={INPUT} />
+                        <input
+                          name="taxRate"
+                          required
+                          inputMode="decimal"
+                          defaultValue={row.cost.taxRate * 100}
+                          className={INPUT}
+                        />
                       </label>
                       <label className="text-xs text-fg-muted">
                         Adicional (R$)
-                        <input name="additional" inputMode="decimal" defaultValue={row.cost.additionalUnitCost} className={INPUT} />
+                        <input
+                          name="additional"
+                          inputMode="decimal"
+                          defaultValue={row.cost.additionalUnitCost}
+                          className={INPUT}
+                        />
                       </label>
                       <label className="text-xs text-fg-muted">
                         Vigente a partir de
-                        <input name="validFrom" required type="date" defaultValue="2026-10-08" className={INPUT} />
+                        <input
+                          name="validFrom"
+                          required
+                          type="date"
+                          defaultValue="2026-10-08"
+                          className={INPUT}
+                        />
                       </label>
                       <div className="flex gap-2">
                         <Button type="submit">Salvar</Button>
@@ -113,13 +152,19 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
                   </th>
                   <td className="px-4 py-3 text-right tabular-nums">
                     {row.cost.unitCost === null ? (
-                      <Badge tone="warning" icon="▲">Sem custo</Badge>
+                      <Badge tone="warning" icon="▲">
+                        Sem custo
+                      </Badge>
                     ) : (
                       formatBRL(row.cost.unitCost)
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums">{formatPct(row.cost.taxRate)}</td>
-                  <td className="px-4 py-3 text-right tabular-nums">{formatBRL(row.cost.additionalUnitCost)}</td>
+                  <td className="px-4 py-3 text-right tabular-nums">
+                    {formatPct(row.cost.taxRate)}
+                  </td>
+                  <td className="px-4 py-3 text-right tabular-nums">
+                    {formatBRL(row.cost.additionalUnitCost)}
+                  </td>
                   <td className="px-4 py-3 tabular-nums">{formatDate(row.cost.validFrom)}</td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="ghost" onClick={() => setEditing(row.id)}>
@@ -135,7 +180,9 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
       </div>
 
       <section aria-labelledby="cost-history">
-        <h2 id="cost-history" className="text-lg font-semibold">Histórico de alterações</h2>
+        <h2 id="cost-history" className="text-lg font-semibold">
+          Histórico de alterações
+        </h2>
         {history.length === 0 ? (
           <p className="mt-1 text-sm text-fg-muted">
             Nenhuma alteração nesta sessão. Ao alterar um custo, a vigência anterior é encerrada e o
@@ -143,12 +190,15 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
           </p>
         ) : (
           <ul className="mt-2 space-y-2 text-sm">
-            {history.map((h, i) => (
-              <li key={`${h.productName}-${i}`} className="rounded-md border border-line bg-surface p-3">
+            {history.map((h) => (
+              <li key={h.id} className="rounded-md border border-line bg-surface p-3">
                 <span className="font-medium">{h.productName}</span>: custo{" "}
                 {h.previous.unitCost === null ? "não informado" : formatBRL(h.previous.unitCost)} →{" "}
-                <strong>{formatBRL(h.next.unitCost ?? 0)}</strong> a partir de {formatDate(h.next.validFrom)}.{" "}
-                <span className="text-fg-muted">Vigência anterior preservada para o histórico.</span>
+                <strong>{formatBRL(h.next.unitCost ?? 0)}</strong> a partir de{" "}
+                {formatDate(h.next.validFrom)}.{" "}
+                <span className="text-fg-muted">
+                  Vigência anterior preservada para o histórico.
+                </span>
               </li>
             ))}
           </ul>
