@@ -10,7 +10,8 @@ Antes de qualquer tarefa, leia nele:
 3. **Bloco 54** — motion e estados de carregamento (toda interface).
 4. **Bloco 55** — observabilidade.
 5. **Bloco 56** — quality gates.
-6. **Bloco 33** — Definition of Done.
+6. **Bloco 57** — código mínimo e testes por risco: escada antes de escrever código, quando testar e quando não testar, economia de tokens ao rodar testes.
+7. **Bloco 33** — Definition of Done.
 
 Resumo do que nunca fazer:
 
@@ -18,4 +19,8 @@ Resumo do que nunca fazer:
 - mencionar ferramentas de IA, assistentes ou modelos em código, commits, PRs ou issues;
 - expor segredos no frontend ou registrar tokens em logs;
 - receber `tenant_id` do cliente em vez de derivá-lo da sessão;
-- tomar uma decisão nova sem registrá-la no Master Plan e no CHANGELOG.
+- tomar uma decisão nova sem registrá-la no Master Plan e no CHANGELOG;
+- escrever teste que não protege lógica de risco (prop renderizada, framework, snapshot, só para cobertura);
+- adicionar dependência quando o projeto, a biblioteca padrão ou a plataforma já resolvem.
+
+Toda entrega termina com uma ou duas linhas: o que não foi feito ou verificado e qual risco o mantenedor precisa saber.

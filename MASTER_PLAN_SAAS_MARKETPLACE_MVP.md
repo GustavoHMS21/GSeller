@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.9 — Vitest no frontend (issue #12)  
+> **Versão:** 0.10 — Código mínimo e testes por risco (issue #28)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -2673,7 +2673,9 @@ Uma feature só está pronta quando:
 - [ ] princípios SOLID respeitados (Bloco 53.4);
 - [ ] estados de motion: skeleton, entrada, saída e progresso, com `prefers-reduced-motion` (Bloco 54);
 - [ ] erros capturados e operações relevantes instrumentadas (Bloco 55);
-- [ ] todos os quality gates verdes no CI (Bloco 56).
+- [ ] todos os quality gates verdes no CI (Bloco 56);
+- [ ] lógica de risco com teste que falha quando ela quebra, e nenhum teste trivial (Bloco 57);
+- [ ] entrega termina dizendo o que não foi feito ou verificado e os riscos (Bloco 57.7).
 
 ---
 
@@ -4279,6 +4281,7 @@ Os contratos de arquitetura do Bloco 56 verificam automaticamente as fronteiras 
 ## 53.7 Checklist do agente ao finalizar uma tarefa
 
 - [ ] Issue existe e está referenciada.
+- [ ] Escada do código mínimo e política de testes do Bloco 57 aplicadas.
 - [ ] Gates locais rodados (lint, tipos, testes, contratos de arquitetura) e resultados reportados.
 - [ ] Interfaces novas seguem o Bloco 54 (motion e estados de carregamento).
 - [ ] Erros e operações relevantes instrumentados (Bloco 55).
@@ -4354,7 +4357,8 @@ Motion existe para **comunicar estado**: algo carregando, entrando, saindo, prog
 
 ## 54.6 Implementação e auditoria
 
-- **CSS transitions por padrão** (interrompíveis). A biblioteca Motion (`motion/react`) entra somente para animações de saída (`AnimatePresence`) e layout compartilhado.
+- **CSS nativo por padrão** (Bloco 57.2: plataforma antes de dependência). Transitions são interrompíveis; entrada e saída usam `@starting-style` e `transition-behavior: allow-discrete`; overlays usam `<dialog>` e a Popover API do navegador.
+- A biblioteca Motion (`motion/react`) só entra se um caso concreto não puder ser resolvido com CSS (por exemplo, layout compartilhado entre componentes), com a justificativa no PR.
 - Componentes base do Design System recebem os estados prontos: `Skeleton`, `Fade`/`Presence`, `ProgressBar`, `Button` com `pending`, `Toast`.
 - Todo PR com interface passa por **auditoria de motion** usando os itens 54.2 e 54.4 como checklist. Com a skill disponível, rodar o modo *Audit*.
 
@@ -4378,6 +4382,8 @@ Backend + Frontend ── Sentry ── erros, stack traces sanitizados, release
 | **Sentry** | Rastreamento de erros (backend e frontend) e performance do frontend | **Obrigatório** desde o piloto (plano gratuito atende) |
 | **Datadog** | Backend de observabilidade (recebe OTLP) | Suportado por configuração |
 | **New Relic** | Backend de observabilidade (recebe OTLP) | Suportado por configuração |
+
+**Frontend no MVP (v0.10):** o Sentry já cobre erros e performance do navegador. OpenTelemetry no frontend só entra quando houver uma pergunta que o Sentry não responda (Bloco 57.2). No backend, OTel continua obrigatório.
 
 **Por que não ligar Datadog e New Relic juntos:** os dois cobram por volume e fazem a mesma função. Com OTel, trocar de um para o outro é mudar duas variáveis de ambiente (`OTEL_EXPORTER_OTLP_ENDPOINT` e o header de chave). O guardrail de custo do Bloco 45.3 manda escolher **um** por ambiente.
 
@@ -4414,8 +4420,8 @@ Backend + Frontend ── Sentry ── erros, stack traces sanitizados, release
 | Mensagens de commit | **commitlint** (Conventional Commits) | idem | CI (commits do PR + título) e hook local |
 | Testes unitários | **Vitest** + Testing Library | pytest | CI |
 | Integração | Vitest | pytest + Postgres real (já existe) | CI |
-| End-to-end | **Playwright** (fluxos críticos do Bloco 24) | — | CI |
-| Cobertura | **Codecov** (relatório no PR) | **Codecov** | CI |
+| End-to-end | **Playwright**: só os fluxos críticos do Bloco 24 + verificação de acessibilidade (axe) | — | CI |
+| Cobertura | **Codecov**: relatório informativo, sem bloquear por porcentagem (Bloco 57.5) | **Codecov** | CI |
 | Testes de mutação | **Stryker** (StrykerJS) | **mutmut** | Agendado (semanal) e manual — lentos demais para cada PR |
 | Segurança | npm audit, gitleaks | pip-audit, gitleaks | CI (já existe) |
 
@@ -4445,13 +4451,15 @@ sem dependências circulares
 
 ## 56.3 Metas
 
-| Métrica | Meta |
-|---|---|
-| Cobertura de patch (código novo do PR) | ≥ 80% |
-| Cobertura do projeto | Nunca cair em relação ao `main` |
-| Cobertura em finanças e regras de insight | ≥ 95% |
-| Mutation score em finanças e regras | ≥ 80% |
-| Fluxo E2E crítico | 100% verde para merge |
+> Revisado na v0.10 (Bloco 57.5): cobertura deixa de ser meta global. Metas de porcentagem incentivam testes que não protegem nada.
+
+| Métrica | Meta | Bloqueia merge? |
+|---|---|---|
+| Lógica de risco nova ou alterada com teste que falha quando ela quebra | 100% | Sim, na revisão |
+| Cobertura de linhas nos módulos de risco (cálculo, health score, regras; depois finanças e auth do backend) | ≥ 90% | Sim |
+| Mutation score nos módulos de risco | ≥ 80% | Sim, quando a #20 estiver implementada |
+| Cobertura de patch e do projeto | Apenas relatório | Não |
+| Fluxo E2E crítico | 100% verde | Sim |
 
 ## 56.4 Estado de implementação
 
@@ -4464,13 +4472,13 @@ sem dependências circulares
 | dependency-cruiser / import-linter | #15 | Pendente |
 | Playwright | #17 | Pendente |
 | Stryker / mutmut | #20 | Pendente |
-| Knip | #21 | Pendente |
+| Knip | #21 | Pendente (prioridade elevada para P1 na v0.10) |
 
 ### Vitest: como está organizado
 
 - Dois projetos em `frontend/vitest.config.mts`: **unit** (lógica em `src/lib`, ambiente Node) e **components** (componentes em `src/components`, ambiente jsdom). Separar derrubou a suíte de 55 s para menos de 1 s na parte de lógica.
 - Testes ficam ao lado do código (`*.test.ts` / `*.test.tsx`).
-- Cobertura v8 com meta mínima em `src/lib/**` (linhas, funções e statements 90%, ramos 85%). O build falha se cair.
+- Cobertura v8 com meta mínima apenas nos módulos de risco (`economics`, `health`, `rules`): linhas, funções e statements 90%, ramos 85%. O build falha se cair. Os outros arquivos aparecem no relatório sem meta.
 - `rules.test.ts` protege os cenários do protótipo de discovery (Bloco 49.4): se um ajuste nos dados de demonstração quebrar um cenário usado nas entrevistas, o teste falha.
 - Componentes assíncronos de servidor não rodam no Vitest; são cobertos pelos testes E2E (#17).
 
@@ -4489,6 +4497,122 @@ sem dependências circulares
 | Codecov | Conectar o repositório e salvar `CODECOV_TOKEN` nos secrets do GitHub |
 | Sentry | Projeto criado; `SENTRY_DSN` como secret |
 | Datadog ou New Relic | Somente quando houver deploy; chave como secret |
+
+---
+
+# BLOCO 57 — CÓDIGO MÍNIMO E TESTES POR RISCO (ANÁLISE PONYTAIL)
+
+> Base: **Ponytail** (github.com/DietrichGebert/ponytail, licença MIT), regras para agentes de código que escrevem apenas o necessário sem cortar validação, segurança ou acessibilidade. O benchmark publicado pelo projeto (39 tarefas, 5 execuções cada) mediu cerca de metade do código e dos tokens de saída, com mais lógica de risco testada (98% contra 68%) e testes que pegam mais bugs injetados (66% contra 46%). Este bloco adapta essas regras ao projeto e vale para pessoas e agentes de qualquer modelo.
+>
+> **Objetivo declarado (2026-10-10):** gastar o mínimo de tempo e de tokens com testes e código que não protegem nada.
+
+## 57.1 A regra
+
+> Escrever só o que a tarefa precisa. Nunca cortar: validação nas fronteiras de confiança, tratamento de erro que evita perda de dados, segurança, acessibilidade, nem nada que foi pedido.
+
+O código fica pequeno porque é o necessário, não porque foi espremido. Uma linha que precisa ser decifrada não é curta.
+
+## 57.2 Escada antes de escrever código
+
+Primeiro entender o problema e ler o código que a mudança toca (chamadores, testes, fixtures, configuração). Depois parar no **primeiro degrau que resolve por completo**:
+
+1. **Precisa existir?** Funcionalidade, opção ou flexibilidade que ninguém pediu fica de fora, citada em uma linha.
+2. **Já existe no projeto?** Um helper, componente, serviço ou padrão. Use do jeito que o código ao redor usa.
+3. **A biblioteca padrão ou a plataforma resolvem?** Por exemplo `Intl`, `<dialog>`, `<input type="date">`, `@starting-style`, `<details>`.
+4. **Uma dependência já instalada resolve?** Nunca adicionar dependência para poucas linhas.
+5. **Cabe em uma linha legível?**
+6. **Só então** o mínimo de código que funciona.
+
+Sem abstração, wrapper, opção, configuração ou código "para depois" que ninguém pediu. Apagar vale mais que adicionar. A estrutura existente (camadas, interfaces, convenções, SOLID do Bloco 53.4) é mantida.
+
+## 57.3 Quando escrever teste
+
+**Obrigatório, com um bom teste por comportamento:**
+
+| Tipo de lógica | Exemplo no projeto |
+|---|---|
+| Ramificação ou laço com regra de negócio | Regras R001–R006, Health Score, ordenação da fila |
+| Dinheiro | Cálculo de resultado, comissões, custos versionados, ajustes |
+| Segurança, autenticação e tenant | Validação de token, RLS, RBAC, mascaramento de logs |
+| Parser ou conversão de dados externos | Normalizadores dos marketplaces, CORS por lista |
+| Escrita de dados | Criação de tenant, vigência de custo, idempotência |
+| Correção de bug | Um teste que reproduz o bug e falha sem a correção |
+
+**Não escrever:**
+
+- teste que só confere que a prop passada aparece na tela;
+- teste do framework, do navegador ou da biblioteca padrão (Intl, atributos HTML, roteador);
+- snapshot de componente visual;
+- teste que repete outro em outra camada sem cobrir um caminho novo;
+- teste escrito só para subir a porcentagem de cobertura.
+
+Atributos de acessibilidade são obrigatórios no código, mas verificados pelo E2E com axe (#17), não por teste unitário de atributo.
+
+## 57.4 Como é um bom teste
+
+- **Falha para um bug plausível:** comparação invertida, `if` removido, erro de fronteira (off-by-one), sinal trocado. Se nenhuma dessas mutações faz o teste falhar, ele não protege nada.
+- **Fronteiras com tabela** (`it.each` / `pytest.mark.parametrize`) em vez de testes copiados.
+- **O nome descreve o comportamento** ("não calcula resultado sem custo"), não a implementação.
+- **Valores conferidos à mão** em cálculos (golden case), nunca o valor copiado da própria saída do código.
+
+## 57.5 Cobertura e mutação
+
+- **Cobertura é relatório, não meta.** A única meta de porcentagem fica nos módulos de risco (Bloco 56.3).
+- **A qualidade dos testes é medida por mutação** (#20): o mutation score diz quantos bugs injetados os testes pegam.
+- **Codecov** mostra a cobertura no PR para informar a revisão, sem bloquear merge por porcentagem.
+
+## 57.6 Economia de tokens ao executar testes (agentes)
+
+- **Durante o trabalho,** rodar só o que a mudança afeta:
+  - frontend: `npx vitest related <arquivos>` ou `npx vitest run <arquivo>`;
+  - backend: `uv run pytest tests/<arquivo>.py -k <nome>`.
+- **Antes de entregar,** a suíte completa **uma vez**.
+- **Ler só as falhas:** `vitest --reporter=dot` e `pytest -q`. Não colar saídas inteiras na conversa.
+- **Não gerar testes em lote** nem reescrever testes que já passam sem motivo.
+
+## 57.7 Fechamento de toda entrega
+
+Toda resposta de entrega termina com uma ou duas linhas: **o que não foi feito ou verificado e qual risco o mantenedor precisa saber.**
+
+## 57.8 Atalhos conscientes
+
+Um atalho com limite conhecido recebe um comentário no código, no formato:
+
+```text
+shortcut: <o limite>, <quando evoluir>
+```
+
+Exemplo: `# shortcut: lock em memória por processo, trocar por advisory lock do Postgres ao ter 2+ workers`.
+
+## 57.9 Revisão de código
+
+Ordem de importância: **correto → seguro → aguenta a carga esperada → testado → rápido → enxuto.**
+
+Cada apontamento precisa de um **caso concreto** ("esta entrada leva a este resultado errado"). Sem caso, não é apontamento.
+
+## 57.10 Aplicação inicial (2026-10-10, issue #28)
+
+A suíte passou de **140 para 121 testes** (frontend 91 → 75; backend 49 → 46). Removidos os que não protegiam lógica de risco; os testes de `Delta` viraram uma tabela que agora cobre também o caso "queda é boa":
+
+| Removido | Motivo |
+|---|---|
+| Frontend: `ButtonLink`, `type submit`/`disabled`, `KpiCard` (renderiza props), `EmptyState`, `MarketplaceBadge`, `HealthBadge` sem score | Conferem que a prop aparece na tela |
+| Frontend: `ErrorState` com `role=alert`, `Skeleton` e ícone do `Badge` com `aria-hidden` | Atributo estático; acessibilidade passa a ser verificada pelo axe no E2E (#17) |
+| Frontend: `formatBRL`, `formatBRLRounded`, `formatInt`, `formatPct` | Testavam o `Intl` do JavaScript |
+| Frontend: `getProduct` | Busca trivial em lista |
+| Frontend: "omite custo adicional quando é zero" | Ramo só de exibição, sem efeito no resultado |
+| Frontend: estado vazio da tabela e cancelar edição de custo | Renderização condicional sem regra |
+| Frontend: `Delta` em pontos percentuais | Repetia o teste de `formatPP` |
+| Backend: liveness, request id gerado, DDL no schema `public` | Trivial ou já coberto por outro teste (rejeição de request id inseguro; DDL no schema `app`) |
+
+**Mantidos integralmente:** todos os testes de segurança (tokens, RLS, mascaramento, CORS, headers), de dinheiro (golden case, ajustes, Ads fora do resultado), de regras R001–R006, da fila e dos cenários do protótipo.
+
+**Ajustes de escopo decorrentes:**
+- **#14 (Codecov):** só relatório.
+- **#16 (motion):** CSS nativo antes da biblioteca Motion.
+- **#17 (Playwright):** só fluxos críticos + axe.
+- **#19 (OpenTelemetry):** só backend no MVP.
+- **#21 (Knip):** P2 → P1, porque apagar código morto é a forma mais barata de reduzir manutenção.
 
 # PRÓXIMO PASSO
 
@@ -4511,6 +4635,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.10
+
+- adicionado Bloco 57 — código mínimo e testes por risco, a partir da análise do Ponytail (issue #28);
+- cobertura deixa de ser meta global; a meta de porcentagem fica só nos módulos de risco e a qualidade dos testes passa a ser medida por mutação (Bloco 56.3);
+- suíte de 140 para 121 testes, com o motivo de cada remoção registrado (Bloco 57.10); nenhum teste de segurança, dinheiro ou regra removido;
+- motion com CSS nativo antes da biblioteca Motion (Bloco 54.6); OpenTelemetry no frontend adiado (Bloco 55.1);
+- Definition of Done e checklist do agente atualizados (Blocos 33 e 53.7).
 
 ## v0.9
 

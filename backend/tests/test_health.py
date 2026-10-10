@@ -3,22 +3,11 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 
-async def test_liveness_ok(client: AsyncClient) -> None:
-    response = await client.get("/health")
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
-
-
 async def test_security_headers_present(client: AsyncClient) -> None:
     response = await client.get("/health")
     assert response.headers["X-Content-Type-Options"] == "nosniff"
     assert response.headers["X-Frame-Options"] == "DENY"
     assert response.headers["Cache-Control"] == "no-store"
-
-
-async def test_request_id_generated_when_missing(client: AsyncClient) -> None:
-    response = await client.get("/health")
-    assert len(response.headers["X-Request-ID"]) >= 8
 
 
 async def test_request_id_propagated_when_safe(client: AsyncClient) -> None:

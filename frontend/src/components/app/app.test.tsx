@@ -99,13 +99,6 @@ describe("ProductsTable", () => {
     await user.selectOptions(screen.getByLabelText("Ordenar por"), "revenue");
     expect(within(rows()[0]).getByText("Kit 3 Cuecas Algodão")).toBeInTheDocument();
   });
-
-  it("mostra estado vazio que orienta o próximo passo", async () => {
-    const user = userEvent.setup();
-    render(<ProductsTable products={products} />);
-    await user.type(screen.getByLabelText("Buscar"), "inexistente");
-    expect(screen.getByText("Nenhum produto com esses filtros")).toBeInTheDocument();
-  });
 });
 
 describe("CostsEditor", () => {
@@ -128,16 +121,6 @@ describe("CostsEditor", () => {
     expect(history).toHaveTextContent("Capa para Notebook");
     expect(history).toHaveTextContent("não informado");
     expect(history).toHaveTextContent("32,50");
-  });
-
-  it("cancela a edição sem alterar nada", async () => {
-    const user = userEvent.setup();
-    render(<CostsEditor rows={rows} />);
-    await user.click(
-      screen.getByRole("button", { name: "Alterar custo de Camiseta Oversized Preta" }),
-    );
-    await user.click(screen.getByRole("button", { name: "Cancelar" }));
-    expect(screen.getByText(/Nenhuma alteração nesta sessão/)).toBeInTheDocument();
   });
 });
 

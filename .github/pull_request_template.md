@@ -16,12 +16,16 @@ Closes #
 - [ ] SOLID respeitado e contratos de arquitetura verdes (Blocos 53.4 e 56)
 - [ ] Estados de skeleton, entrada, saída e progresso com reduced motion (Bloco 54), quando houver UI
 - [ ] Autorização e isolamento por tenant verificados
-- [ ] Testes adicionados ou atualizados (unitário, integração e E2E quando aplicável)
+- [ ] Lógica de risco tem teste que falha quando ela quebra; nenhum teste trivial (Bloco 57)
 - [ ] Erros capturados e operações relevantes instrumentadas (Bloco 55)
 - [ ] Logs adequados, sem token, segredo ou PII
 - [ ] LGPD avaliada (novos dados pessoais? finalidade? retenção?)
 - [ ] Nenhum segredo exposto (`.env`, `NEXT_PUBLIC_*`)
 - [ ] Master Plan / CHANGELOG atualizados se houve decisão nova
+
+## O que não foi feito ou verificado / riscos (Bloco 57.7)
+
+<!-- Uma ou duas linhas. -->
 
 ## Impacto financeiro
 
