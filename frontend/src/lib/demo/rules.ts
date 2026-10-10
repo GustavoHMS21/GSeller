@@ -1,21 +1,28 @@
 // Regras determinísticas do protótipo (Bloco 10). Servem também de especificação
-// para o Analytics Engine do backend. Cada insight responde às 6 perguntas do Bloco 17:
-// o que aconteceu, período, dado, comparação, o que investigar e limitação.
+// para o Analytics Engine do backend. Cada alerta diz o problema, o número que o comprova
+// e uma ação direta (Bloco 17, revisado na v0.16).
 
-import { formatBRL, formatInt, formatPct, formatPP, relativeChange } from "@/lib/format";
+import { formatBRL, formatInt, formatPct, relativeChange } from "@/lib/format";
 import type { Economics, Insight, Marketplace, Product, Severity } from "@/lib/types";
 
 export const MIN_MARGIN = 0.1;
-const PERIOD = "últimos 30 dias vs. 30 dias anteriores";
 
 export const MARKETPLACE_LABEL: Record<Marketplace, string> = {
   mercadolivre: "Mercado Livre",
   shopee: "Shopee",
 };
 
-const signedPct = (ratio: number) => `${ratio >= 0 ? "+" : "−"}${formatPct(Math.abs(ratio))}`;
+const IN_MARKETPLACE: Record<Marketplace, string> = {
+  mercadolivre: "no Mercado Livre",
+  shopee: "na Shopee",
+};
+
+const signedPct = (ratio: number) => `${ratio >= 0 ? "+" : "−"}${formatPct(Math.abs(ratio), 0)}`;
 
 const unitResult = (e: Economics) => (e.result !== null && e.units ? e.result / e.units : null);
+
+type Base = Pick<Insight, "productId" | "productName">;
+const base = (product: Product): Base => ({ productId: product.id, productName: product.name });
 
 /** R001 — conversão caiu com tráfego estável. */
 function conversionDrop(product: Product): Insight[] {
@@ -29,36 +36,21 @@ function conversionDrop(product: Product): Insight[] {
     if (!(cur.conversion < prev.conversion * 0.8 && Math.abs(visitsChange) <= 0.1)) return [];
 
     const priceChange = relativeChange(cur.avgPrice, prev.avgPrice) ?? 0;
-    const priceRose = priceChange > 0.03;
-    const evidence = [
-      `Conversão: ${formatPct(prev.conversion)} → ${formatPct(cur.conversion)} (${signedPct(conversionChange)}).`,
-      `Visitas praticamente estáveis (${signedPct(visitsChange)}).`,
-    ];
-    if (Math.abs(priceChange) > 0.03) {
-      evidence.push(
-        `Preço médio ${priceRose ? "subiu" : "caiu"} ${formatPct(Math.abs(priceChange))} (${formatBRL(prev.avgPrice)} → ${formatBRL(cur.avgPrice)}).`,
-      );
-    }
-
     const lostOrders = (prev.conversion - cur.conversion) * cur.visits;
     const prevUnit = unitResult(prev);
     return [
       {
+        ...base(product),
         id: `R001-${product.id}-${listing.marketplace}`,
         ruleId: "R001",
-        productId: product.id,
-        productName: product.name,
         severity: "warning" as Severity,
-        title: `Conversão caiu ${formatPct(Math.abs(conversionChange), 0)} no ${MARKETPLACE_LABEL[listing.marketplace]}`,
-        evidence,
-        investigate: priceRose
-          ? ["competitividade de preço", "frete e prazo", "avaliações", "qualidade do anúncio"]
-          : ["frete e prazo", "avaliações", "qualidade do anúncio", "concorrência"],
-        limitation: priceRose
-          ? "O aumento de preço é um dos sinais associados à queda e deve ser investigado — não é causa comprovada."
-          : "Os dados mostram a queda de conversão, não a causa.",
+        title: `Conversão caiu ${formatPct(Math.abs(conversionChange), 0)} ${IN_MARKETPLACE[listing.marketplace]}`,
+        detail: `${formatPct(prev.conversion)} → ${formatPct(cur.conversion)}, com as mesmas visitas`,
+        action:
+          priceChange > 0.03
+            ? `Reveja o preço: subiu ${formatPct(priceChange, 0)} no período.`
+            : "Reveja frete, prazo de entrega e avaliações do anúncio.",
         impact: prevUnit !== null ? lostOrders * prevUnit : null,
-        impactLabel: "resultado estimado não realizado se a conversão anterior se mantivesse",
       },
     ];
   });
@@ -72,40 +64,32 @@ function growthWithMarginLoss(product: Product): Insight[] {
   const marginDrop = prev.margin - cur.margin;
   if (!(revenueChange > 0.15 && marginDrop > 0.05)) return [];
 
-  // Componente que mais ganhou peso sobre a receita: principal sinal da perda de margem.
+  // O custo que mais ganhou peso sobre a receita é o que precisa ser corrigido.
   const share = (e: Economics, key: string) =>
     (e.components.find((c) => c.key === key)?.amount ?? 0) / e.revenue;
   const driver = cur.components
     .map((c) => ({ c, delta: share(cur, c.key) - share(prev, c.key) }))
     .sort((a, b) => b.delta - a.delta)[0];
+  const driverShare = formatPct(share(cur, driver.c.key));
 
-  const investigateByDriver: Record<string, string[]> = {
-    discount: [
-      "profundidade e duração das promoções",
-      "preço mínimo viável",
-      "efeito da promoção no volume",
-    ],
-    ads: ["eficiência das campanhas", "lances e orçamento", "anúncios com baixo retorno"],
-    shipping: ["tabela de frete", "faixa de preço vs. frete grátis"],
+  const actionByDriver: Record<string, string> = {
+    discount: `Reduza os descontos: já são ${driverShare} da receita.`,
+    ads: `Reduza o Ads: já é ${driverShare} da receita.`,
+    shipping: `Reveja o frete grátis: já é ${driverShare} da receita.`,
   };
 
   return [
     {
+      ...base(product),
       id: `R002-${product.id}`,
       ruleId: "R002",
-      productId: product.id,
-      productName: product.name,
       severity: "warning",
-      title: "Vendas cresceram, mas o ganho por venda caiu",
-      evidence: [
-        `Receita: ${formatBRL(prev.revenue)} → ${formatBRL(cur.revenue)} (${signedPct(revenueChange)}).`,
-        `Margem estimada: ${formatPct(prev.margin)} → ${formatPct(cur.margin)} (−${formatPP(marginDrop)}).`,
-        `Maior pressão: ${driver.c.label.toLowerCase()} passou de ${formatPct(share(prev, driver.c.key))} para ${formatPct(share(cur, driver.c.key))} da receita.`,
-      ],
-      investigate: investigateByDriver[driver.c.key] ?? ["composição de custos do período"],
-      limitation: `Comparação ${PERIOD}. Sazonalidade e mix de variações podem influenciar.`,
+      title: "Vendeu mais e lucrou menos",
+      detail: `Margem ${formatPct(prev.margin)} → ${formatPct(cur.margin)}`,
+      action:
+        actionByDriver[driver.c.key] ??
+        `Reveja ${driver.c.label.toLowerCase()}: subiu para ${driverShare} da receita.`,
       impact: marginDrop * cur.revenue,
-      impactLabel: "de resultado a menos do que com a margem do período anterior",
     },
   ];
 }
@@ -117,25 +101,14 @@ function highVolumeLowMargin(product: Product, unitsP75: number): Insight[] {
   if (!(cur.units >= unitsP75 && cur.margin < MIN_MARGIN)) return [];
   return [
     {
+      ...base(product),
       id: `R004-${product.id}`,
       ruleId: "R004",
-      productId: product.id,
-      productName: product.name,
       severity: "critical",
-      title: "Vende muito, mas quase não contribui",
-      evidence: [
-        `${formatInt(cur.units)} unidades no período — entre os 25% mais vendidos do catálogo.`,
-        `Margem estimada de ${formatPct(cur.margin)}, abaixo do mínimo configurado de ${formatPct(MIN_MARGIN, 0)}.`,
-        `Resultado estimado de ${formatBRL(cur.result)} para ${formatBRL(cur.revenue)} de receita.`,
-      ],
-      investigate: [
-        "preço vs. custo atualizado",
-        "comissão e tarifa fixa por canal",
-        "se o produto tem papel estratégico (atrair clientes)",
-      ],
-      limitation: `Margem mínima de ${formatPct(MIN_MARGIN, 0)} é uma configuração sua. O produto pode ter papel estratégico.`,
+      title: "Vende muito e quase não lucra",
+      detail: `Margem de ${formatPct(cur.margin)} em ${formatInt(cur.units)} unidades`,
+      action: `Aumente o preço ou reduza o custo para passar de ${formatPct(MIN_MARGIN, 0)} de margem.`,
       impact: (MIN_MARGIN - cur.margin) * cur.revenue,
-      impactLabel: `para atingir a margem mínima de ${formatPct(MIN_MARGIN, 0)}`,
     },
   ];
 }
@@ -153,22 +126,14 @@ function adsPressure(product: Product): Insight[] {
   }
   return [
     {
+      ...base(product),
       id: `R005-${product.id}`,
       ruleId: "R005",
-      productId: product.id,
-      productName: product.name,
       severity: "warning",
-      title: "Gasto com Ads subiu sem retorno proporcional",
-      evidence: [
-        `Gasto com Ads: ${formatBRL(prev.adsSpend)} → ${formatBRL(cur.adsSpend)} (${signedPct(spendChange)}).`,
-        `Receita atribuída a Ads: ${formatBRL(prev.adsAttributedRevenue)} → ${formatBRL(cur.adsAttributedRevenue)} (${signedPct(attributedChange)}).`,
-        `Margem estimada: ${formatPct(prev.margin)} → ${formatPct(cur.margin)}.`,
-      ],
-      investigate: ["campanhas e lances", "anúncios com baixo retorno", "orçamento diário"],
-      limitation:
-        "Receita atribuída a Ads segue a janela de atribuição do marketplace e não é receita realizada.",
+      title: "Ads subiu sem trazer vendas",
+      detail: `Gasto ${signedPct(spendChange)}, vendas por Ads ${signedPct(attributedChange)}`,
+      action: "Pause ou reduza as campanhas deste produto com baixo retorno.",
       impact: cur.adsSpend - prev.adsSpend,
-      impactLabel: "de gasto adicional em Ads no período",
     },
   ];
 }
@@ -189,45 +154,33 @@ function crossChannel(product: Product): Insight[] {
 
   const bestUnit = unitResult(best.period.current) ?? 0;
   const worstUnit = unitResult(worst.period.current) ?? 0;
-  const line = (l: typeof best) =>
-    `${MARKETPLACE_LABEL[l.marketplace]}: ${formatBRL(unitResult(l.period.current) ?? 0)} por unidade (margem ${formatPct(l.period.current.margin ?? 0)}, ${formatInt(l.period.current.units)} unidades).`;
-
   return [
     {
+      ...base(product),
       id: `R003-${product.id}`,
       ruleId: "R003",
-      productId: product.id,
-      productName: product.name,
       severity: "info",
-      title: `Resultado por unidade é maior no ${MARKETPLACE_LABEL[best.marketplace]}`,
-      evidence: [line(best), line(worst)],
-      investigate: ["preço por canal", "comissão e tarifa fixa", "esforço de Ads por canal"],
-      limitation:
-        "Comparação não considera elasticidade: mudar preço ou foco de canal pode alterar o volume.",
+      title: `Rende mais ${IN_MARKETPLACE[best.marketplace]}`,
+      detail: `${formatBRL(bestUnit)} vs. ${formatBRL(worstUnit)} de lucro por unidade`,
+      action: `Suba o preço ${IN_MARKETPLACE[worst.marketplace]} ou priorize o canal que rende mais.`,
       impact: (bestUnit - worstUnit) * worst.period.current.units,
-      impactLabel: `de diferença nas unidades vendidas no ${MARKETPLACE_LABEL[worst.marketplace]}`,
     },
   ];
 }
 
-/** R006 — qualidade de dados: sem custo, sem resultado. */
+/** R006 — sem custo, sem resultado. */
 function missingCost(product: Product): Insight[] {
   if (product.cost.unitCost !== null) return [];
   return [
     {
+      ...base(product),
       id: `R006-${product.id}`,
       ruleId: "R006",
-      productId: product.id,
-      productName: product.name,
       severity: "warning",
-      title: "Sem custo cadastrado: resultado não calculado",
-      evidence: [
-        `${formatInt(product.totals.current.units)} unidades e ${formatBRL(product.totals.current.revenue)} de receita no período sem custo associado.`,
-      ],
-      investigate: ["cadastrar o custo unitário na tela de Custos"],
-      limitation: "Sem custo, não exibimos resultado nem margem para não mostrar lucro fictício.",
+      title: "Custo não cadastrado",
+      detail: `${formatBRL(product.totals.current.revenue)} vendidos sem lucro calculado`,
+      action: "Cadastre o custo em Custos para ver o lucro.",
       impact: null,
-      impactLabel: null,
     },
   ];
 }

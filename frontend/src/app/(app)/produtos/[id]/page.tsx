@@ -2,16 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EconomicsBreakdown } from "@/components/app/economics-breakdown";
-import { ResultFormula } from "@/components/app/formula-text";
 import { InsightCard } from "@/components/app/insight-card";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Formula } from "@/components/ui/formula";
 import { HealthBadge } from "@/components/ui/health-badge";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
 import { Skeleton } from "@/components/ui/states";
-import { DEMO, getProduct, insights, products } from "@/lib/demo/data";
-import { HEALTH_RULES } from "@/lib/demo/health";
-import { MARKETPLACE_LABEL } from "@/lib/demo/rules";
+import { getProduct, insights, products } from "@/lib/demo/data";
 import { formatBRL, formatInt, formatPct } from "@/lib/format";
 import type { Economics, Product } from "@/lib/types";
 
@@ -78,10 +74,10 @@ async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
 
       <section aria-labelledby="alertas" className="space-y-3">
         <h2 id="alertas" className="text-lg font-semibold">
-          O que merece atenção
+          O que corrigir
         </h2>
         {productInsights.length === 0 ? (
-          <p className="text-sm text-fg-muted">Nenhum alerta para este produto no período.</p>
+          <p className="text-sm text-fg-muted">Nada a corrigir neste produto.</p>
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {productInsights.map((insight) => (
@@ -92,41 +88,30 @@ async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
       </section>
 
       <Card>
-        <CardHeader title="Por marketplace" description={`${DEMO.periodLabel}`} />
+        <CardHeader title="Por marketplace" />
         <ChannelComparison product={product} />
       </Card>
 
       <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
         <Card>
-          <CardHeader
-            title="Para onde foi o dinheiro"
-            description="Todos os canais somados. Cada linha mostra de onde veio o valor."
-          />
+          <CardHeader title="Para onde foi o dinheiro" />
           {product.totals.current.result === null && (
-            <p className="mb-3 rounded-md bg-warning-soft p-3 text-sm text-warning">
-              Sem o custo do produto, mostramos as despesas conhecidas mas não calculamos resultado
-              nem margem.
-            </p>
+            <Link
+              href="/custos"
+              className="mb-3 block rounded-md bg-warning-soft p-3 text-sm text-warning hover:underline"
+            >
+              ▲ Cadastre o custo para ver o lucro.
+            </Link>
           )}
           <EconomicsBreakdown economics={product.totals.current} />
-          <div className="mt-4">
-            <Formula>
-              <ResultFormula />
-            </Formula>
-          </div>
         </Card>
 
         <Card>
-          <CardHeader
-            title="Por que este score?"
-            description={`Health Score ${product.health.version}`}
-          />
+          <CardHeader title="Saúde do produto" />
           <p className="text-hero font-semibold tabular-nums">{product.health.score ?? "—"}</p>
           <ul className="mt-2 space-y-1 text-sm">
             {product.health.components.length === 0 ? (
-              <li className="text-fg-muted">
-                Nenhum desconto: todos os critérios dentro do esperado.
-              </li>
+              <li className="text-fg-muted">Tudo em ordem.</li>
             ) : (
               product.health.components.map((c) => (
                 <li key={c.label} className="flex justify-between gap-2">
@@ -136,25 +121,12 @@ async function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
               ))
             )}
           </ul>
-          <div className="mt-4">
-            <Formula label="Regras do score">
-              <p>Começa em 100. 80–100 saudável · 60–79 atenção · 0–59 crítico.</p>
-              <ul className="list-disc space-y-0.5 pl-4">
-                {HEALTH_RULES.map((rule) => (
-                  <li key={rule}>{rule}</li>
-                ))}
-              </ul>
-            </Formula>
-          </div>
         </Card>
       </div>
 
       {product.variants.length > 0 && (
         <Card>
-          <CardHeader
-            title="Variações"
-            description="Unidades vendidas no período, todos os canais"
-          />
+          <CardHeader title="Variações" />
           <table className="w-full max-w-xl text-sm">
             <caption className="sr-only">Unidades por variação</caption>
             <thead>
@@ -207,30 +179,14 @@ function ChannelComparison({ product }: { product: Product }) {
     { label: "Visitas", value: (e) => (e.visits === null ? "—" : formatInt(e.visits)) },
     { label: "Conversão", value: (e) => pct(e.conversion) },
     { label: "Gasto com Ads", value: (e) => formatBRL(e.adsSpend) },
-    { label: "Receita atribuída a Ads*", value: (e) => formatBRL(e.adsAttributedRevenue) },
-    { label: "Resultado estimado", value: (e) => money(e.result) },
-    { label: "Resultado por unidade", value: (e) => money(unit(e)) },
+    { label: "Vendas por Ads", value: (e) => formatBRL(e.adsAttributedRevenue) },
+    { label: "Lucro estimado", value: (e) => money(e.result) },
+    { label: "Lucro por unidade", value: (e) => money(unit(e)) },
     { label: "Margem estimada", value: (e) => pct(e.margin) },
   ];
 
-  const comparable = listings.filter((l) => unit(l.period.current) !== null);
-  const summary =
-    comparable.length >= 2
-      ? comparable
-          .map(
-            (l) =>
-              `${formatBRL(unit(l.period.current) ?? 0)} por unidade no ${MARKETPLACE_LABEL[l.marketplace]}`,
-          )
-          .join(" e ")
-      : null;
-
   return (
     <div>
-      {summary && (
-        <p className="mb-4 text-sm">
-          Este produto gera <strong>{summary}</strong>.
-        </p>
-      )}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] text-sm">
           <caption className="sr-only">Métricas do produto por marketplace</caption>
@@ -262,10 +218,6 @@ function ChannelComparison({ product }: { product: Product }) {
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-xs text-fg-muted">
-        * Receita atribuída a Ads segue a janela de atribuição de cada plataforma e não é receita
-        realizada. Não entra no resultado.
-      </p>
     </div>
   );
 }

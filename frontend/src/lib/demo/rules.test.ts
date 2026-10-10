@@ -135,21 +135,18 @@ function withoutCost() {
 // Regras
 // ---------------------------------------------------------------------------
 describe("R001 — conversão caiu com tráfego estável", () => {
-  it("dispara e cita o aumento de preço como sinal a investigar", () => {
+  it("dispara e manda rever o preço quando ele subiu", () => {
     const [insight] = generateInsights([conversionDrop()]);
     expect(insight.ruleId).toBe("R001");
     expect(insight.severity).toBe("warning");
-    expect(insight.title).toContain("Mercado Livre");
-    expect(insight.evidence).toHaveLength(3);
-    expect(insight.investigate[0]).toBe("competitividade de preço");
-    expect(insight.limitation).toContain("não é causa comprovada");
+    expect(insight.title).toBe("Conversão caiu 35% no Mercado Livre");
+    expect(insight.action).toBe("Reveja o preço: subiu 9% no período.");
     expect(insight.impact).toBeGreaterThan(0);
   });
 
-  it("sem mudança de preço, não sugere preço como primeira hipótese", () => {
+  it("sem mudança de preço, manda rever frete, prazo e avaliações", () => {
     const [insight] = generateInsights([conversionDrop({ priceUp: false })]);
-    expect(insight.evidence).toHaveLength(2);
-    expect(insight.investigate[0]).toBe("frete e prazo");
+    expect(insight.action).toBe("Reveja frete, prazo de entrega e avaliações do anúncio.");
   });
 
   it("não dispara quando as visitas mudaram mais de 10%", () => {
@@ -158,11 +155,11 @@ describe("R001 — conversão caiu com tráfego estável", () => {
 });
 
 describe("R002 — receita cresceu, margem caiu", () => {
-  it("dispara e aponta o desconto como maior pressão", () => {
+  it("dispara e manda reduzir o desconto, que foi o custo que mais cresceu", () => {
     const [insight] = generateInsights([growthWithMarginLoss()]);
     expect(insight.ruleId).toBe("R002");
-    expect(insight.evidence[2]).toContain("desconto financiado por você");
-    expect(insight.investigate).toContain("profundidade e duração das promoções");
+    expect(insight.detail).toBe("Margem 40,0% → 28,0%");
+    expect(insight.action).toBe("Reduza os descontos: já são 12,0% da receita.");
     expect(insight.impact).toBeCloseTo(0.12 * 12_500);
   });
 });
@@ -185,7 +182,7 @@ describe("R005 — Ads subiu sem retorno proporcional", () => {
     const [insight] = generateInsights([adsPressure()]);
     expect(insight.ruleId).toBe("R005");
     expect(insight.impact).toBe(800);
-    expect(insight.limitation).toContain("não é receita realizada");
+    expect(insight.action).toContain("campanhas");
   });
 });
 
@@ -202,7 +199,8 @@ describe("R003 — mesmo produto rende diferente entre canais", () => {
     const [insight] = generateInsights([crossChannel()]);
     expect(insight.ruleId).toBe("R003");
     expect(insight.severity).toBe("info");
-    expect(insight.title).toContain("Mercado Livre");
+    expect(insight.title).toBe("Rende mais no Mercado Livre");
+    expect(insight.action).toBe("Suba o preço na Shopee ou priorize o canal que rende mais.");
     expect(insight.impact).toBeCloseTo((38 - 18.1) * 50);
   });
 
@@ -243,6 +241,14 @@ describe("cenários do protótipo de discovery", () => {
     ["moc-exe-01", []],
   ])("%s dispara %j", (id, expected) => {
     expect(rulesFor(id)).toEqual(expected);
+  });
+
+  it("todo alerta é direto: problema, número e uma ação curta (Bloco 17, v0.16)", () => {
+    for (const insight of demoInsights) {
+      expect(insight.title.length, insight.id).toBeLessThanOrEqual(45);
+      expect(insight.detail, insight.id).not.toBe("");
+      expect(insight.action, insight.id).toMatch(/^[A-ZÀ-Ú].{10,90}\.$/);
+    }
   });
 
   it("nenhum produto com alerta aparece como saudável", () => {

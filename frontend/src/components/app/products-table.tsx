@@ -121,7 +121,7 @@ export function ProductsTable({ products }: { products: Product[] }) {
                   Receita
                 </th>
                 <th scope="col" className="px-4 py-3 text-right font-medium">
-                  Resultado est.
+                  Lucro est.
                 </th>
                 <th scope="col" className="px-4 py-3 text-right font-medium">
                   Margem est.
