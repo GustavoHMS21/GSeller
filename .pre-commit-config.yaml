@@ -1,5 +1,9 @@
 # Verificações locais antes de cada commit (opcional, recomendado).
-# Instalação única: uvx pre-commit install
+# Instalação única (também ativa a validação da mensagem do commit): uvx pre-commit install
+default_install_hook_types: [pre-commit, commit-msg]
+# Hooks sem 'stages' rodam só antes do commit; a mensagem é validada apenas pelo commitlint.
+default_stages: [pre-commit]
+
 repos:
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.28.0
@@ -34,3 +38,14 @@ repos:
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx|mjs|json|css)$
         entry: bash -c 'cd frontend && npx --no-install biome check --write --no-errors-on-unmatched --files-ignore-unknown=true "${@#frontend/}"' --
+
+  # Mensagem do commit: Conventional Commits (Bloco 23), mesma configuração do CI.
+  - repo: local
+    hooks:
+      # Usa o Node do sistema (já exigido pelo frontend); o ambiente Node isolado do
+      # pre-commit não funciona no Windows. Versões fixadas iguais às do CI.
+      - id: commitlint
+        name: commitlint (mensagem do commit)
+        language: system
+        stages: [commit-msg]
+        entry: npx --yes -p @commitlint/cli@21.2.3 -p @commitlint/config-conventional@21.2.3 commitlint --edit
