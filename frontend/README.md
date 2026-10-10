@@ -8,6 +8,9 @@ npm install
 npm run dev        # http://localhost:3000
 npm run check      # Biome: lint + formatação + ordem de imports
 npm run check:fix  # aplica as correções seguras
+npm test               # Vitest: lógica (Node) + componentes (jsdom)
+npm run test:watch     # modo observação
+npm run test:coverage  # com cobertura (meta: 90% em src/lib)
 npm run typecheck
 npm run build
 ```

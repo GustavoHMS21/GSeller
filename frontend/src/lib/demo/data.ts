@@ -2,10 +2,10 @@
 // Nenhum dado real de seller ou comprador. Cada produto foi desenhado para exercitar
 // uma regra do Bloco 10, para testar se o seller entende o diagnóstico.
 
-import { computeEconomics, type PeriodInput, sumEconomics } from "@/lib/demo/economics";
-import { computeHealth } from "@/lib/demo/health";
+import { sumEconomics } from "@/lib/demo/economics";
+import { buildProduct, type ProductSeed, period } from "@/lib/demo/product";
 import { generateInsights } from "@/lib/demo/rules";
-import type { Connection, Listing, Marketplace, Product, ProductCost, Variant } from "@/lib/types";
+import type { Connection, Marketplace, Product } from "@/lib/types";
 
 export const DEMO = {
   storeName: "Loja Exemplo",
@@ -18,42 +18,6 @@ const ML = { commissionRate: 0.14, fixedFeePerUnit: 0 };
 const ML_LOW_TICKET = { commissionRate: 0.14, fixedFeePerUnit: 6.75 };
 const ML_PREMIUM = { commissionRate: 0.19, fixedFeePerUnit: 0 };
 const SHOPEE = { commissionRate: 0.2, fixedFeePerUnit: 4 };
-
-type Fees = { commissionRate: number; fixedFeePerUnit: number };
-
-function period(
-  fees: Fees,
-  values: Partial<PeriodInput> & Pick<PeriodInput, "units" | "avgPrice">,
-): PeriodInput {
-  return {
-    orders: values.units,
-    sellerDiscount: 0,
-    sellerShipping: 0,
-    adsSpend: 0,
-    adsAttributedRevenue: 0,
-    visits: null,
-    refunds: 0,
-    ...fees,
-    ...values,
-  };
-}
-
-interface ListingSeed {
-  marketplace: Marketplace;
-  externalId: string;
-  current: PeriodInput;
-  previous: PeriodInput;
-}
-
-interface ProductSeed {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  cost: ProductCost;
-  listings: ListingSeed[];
-  variants?: Variant[];
-}
 
 const SEEDS: ProductSeed[] = [
   {
@@ -382,33 +346,6 @@ const SEEDS: ProductSeed[] = [
     ],
   },
 ];
-
-function buildProduct(seed: ProductSeed): Product {
-  const listings: Listing[] = seed.listings.map((l) => ({
-    marketplace: l.marketplace,
-    externalId: l.externalId,
-    title: seed.name,
-    period: {
-      current: computeEconomics(l.marketplace, l.current, seed.cost),
-      previous: computeEconomics(l.marketplace, l.previous, seed.cost),
-    },
-  }));
-  const totals = {
-    current: sumEconomics(listings.map((l) => l.period.current)),
-    previous: sumEconomics(listings.map((l) => l.period.previous)),
-  };
-  return {
-    id: seed.id,
-    name: seed.name,
-    sku: seed.sku,
-    category: seed.category,
-    cost: seed.cost,
-    listings,
-    variants: seed.variants ?? [],
-    totals,
-    health: computeHealth(totals),
-  };
-}
 
 export const products: Product[] = SEEDS.map(buildProduct);
 

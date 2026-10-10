@@ -78,7 +78,7 @@ jobs:
           uvx pip-audit -r /tmp/requirements.txt --disable-pip --strict
 
   frontend:
-    name: Frontend (Biome, tipos, build, auditoria)
+    name: Frontend (Biome, testes, tipos, build, auditoria)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -95,6 +95,8 @@ jobs:
       - run: npm ci
       - name: Biome (lint, formatação e imports)
         run: npx biome ci --reporter=github .
+      - name: Testes unitários e de componentes (Vitest) com cobertura
+        run: npm run test:coverage
       - run: npm run typecheck
       - run: npm run build
         env:

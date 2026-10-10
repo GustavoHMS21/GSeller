@@ -27,6 +27,7 @@ venv/
 .coverage.*
 htmlcov/
 coverage.xml
+coverage/
 
 # ---------------------------------------------------------------
 # Node / Next.js
