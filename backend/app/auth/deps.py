@@ -28,7 +28,7 @@ from app.core.config import get_settings
 from app.core.db import get_sessionmaker
 from app.core.errors import ApiError, unauthorized
 from app.models import Role, TenantUser, User
-from app.services import tenancy
+from app.services import billing, tenancy
 from app.services.access import AccessStatus, evaluate_access
 
 logger = logging.getLogger(__name__)
@@ -115,21 +115,36 @@ async def require_active_access(
 ) -> RequestContext:
     """Bloqueia as rotas da empresa depois do trial (402). `GET /api/me` não passa por aqui."""
     tenant = await tenancy.get_tenant(ctx.session, ctx.tenant_id)
-    # shortcut: sem assinatura até a #35; a assinatura ativa passa a ser consultada aqui.
-    if evaluate_access(tenant.trial_ends_at, datetime.now(UTC)).status is AccessStatus.EXPIRED:
+    paid = billing.has_active_subscription(await billing.get_subscription(ctx.session, tenant.id))
+    if (
+        evaluate_access(tenant.trial_ends_at, datetime.now(UTC), paid).status
+        is AccessStatus.EXPIRED
+    ):
         raise ApiError(402, "trial_expired", "Seu período de teste terminou.")
+    return ctx
+
+
+def _ensure_owner(ctx: RequestContext) -> RequestContext:
+    if ctx.role is not Role.OWNER:
+        raise ApiError(403, "forbidden", "Apenas o proprietário pode fazer esta alteração.")
     return ctx
 
 
 async def require_owner(
     ctx: Annotated[RequestContext, Depends(require_active_access)],
 ) -> RequestContext:
-    if ctx.role is not Role.OWNER:
-        raise ApiError(403, "forbidden", "Apenas o proprietário pode fazer esta alteração.")
-    return ctx
+    return _ensure_owner(ctx)
+
+
+async def require_billing_owner(
+    ctx: Annotated[RequestContext, Depends(require_tenant)],
+) -> RequestContext:
+    """Dono da empresa, mesmo com o trial vencido: pagar não pode ficar bloqueado."""
+    return _ensure_owner(ctx)
 
 
 Context = Annotated[RequestContext, Depends(get_context)]
 AccountContext = Annotated[RequestContext, Depends(require_account)]
 TenantContext = Annotated[RequestContext, Depends(require_active_access)]
 OwnerContext = Annotated[RequestContext, Depends(require_owner)]
+BillingOwnerContext = Annotated[RequestContext, Depends(require_billing_owner)]

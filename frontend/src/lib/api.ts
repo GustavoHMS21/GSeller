@@ -13,7 +13,12 @@ export type Me = {
   user: { id: string; email: string | null; is_anonymous: boolean };
   tenant: Tenant | null;
   role: Role | null;
-  access: { status: "trial" | "active" | "expired"; trial_ends_at: string; days_left: number };
+  access: {
+    status: "trial" | "active" | "expired";
+    trial_ends_at: string;
+    days_left: number;
+    plan: "start" | "pro" | "scale" | null;
+  };
 };
 
 export class ApiError extends Error {

@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health, tenancy
+from app.api import billing, health, tenancy
 from app.core.config import Settings, get_settings
 from app.core.db import get_engine
 from app.core.errors import install_error_handlers
@@ -51,6 +51,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     install_error_handlers(app)
     app.include_router(health.router)
     app.include_router(tenancy.router)
+    app.include_router(billing.router)
     return app
 
 

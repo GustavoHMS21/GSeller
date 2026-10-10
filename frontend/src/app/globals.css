@@ -111,6 +111,37 @@ body {
 }
 
 /*
+ * Progresso indeterminado (Bloco 54.2): faixa discreta em movimento linear, sempre
+ * acompanhada de texto. Com reduced motion, fica parada (regra global abaixo).
+ */
+.progress-indeterminate {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--ds-surface-muted);
+}
+
+.progress-indeterminate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--ds-primary);
+  animation: progress-slide 1.2s linear infinite;
+}
+
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/*
  * Reduced motion (Bloco 54.5): precisa vencer qualquer animação declarada em
  * componentes, por isso usa !important. Preserva o estado final das transições.
  */

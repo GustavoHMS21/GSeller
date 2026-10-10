@@ -6,6 +6,7 @@ import { Button, ButtonLink } from "@/components/ui/button";
 import { apiFetch, type Me, ONBOARDING_PATH, PLANS_PATH } from "@/lib/api";
 import { getSessionKind } from "@/lib/auth/session";
 import { signOut } from "@/lib/auth/sign-out";
+import { PLANS } from "@/lib/plans";
 
 /** Quem está usando: modo demonstração (sem conta) ou empresa e usuário (Bloco 6, Tela 2). */
 export async function AccountBar() {
@@ -31,12 +32,20 @@ export async function AccountBar() {
   if (me?.access.status === "expired") redirect(PLANS_PATH);
   const trial =
     me?.access.status === "trial" ? <TrialBadge daysLeft={me.access.days_left} /> : null;
+  const plan = PLANS.find((p) => p.id === me?.access.plan);
   if (session === "anonymous") return <DemoActions trial={trial} />;
   if (me && !me.tenant) redirect(ONBOARDING_PATH);
 
   return (
     <div className="flex items-center gap-3">
       {trial}
+      {plan && (
+        <Link href={PLANS_PATH}>
+          <Badge tone="success" icon="●">
+            Plano {plan.name}
+          </Badge>
+        </Link>
+      )}
       {me?.tenant ? (
         <span>
           <span className="font-medium">{me.tenant.name}</span>

@@ -13,7 +13,7 @@ from app.schemas.tenancy import (
     TenantUpdate,
     UserOut,
 )
-from app.services import tenancy
+from app.services import billing, tenancy
 from app.services.access import evaluate_access, trial_end_from_first_access
 
 router = APIRouter(prefix="/api", tags=["tenancy"])
@@ -28,11 +28,19 @@ async def me(ctx: Context) -> MeOut:
     trial_ends_at = (
         tenant.trial_ends_at if tenant else trial_end_from_first_access(ctx.user.created_at)
     )
+    subscription = await billing.get_subscription(ctx.session, tenant.id) if tenant else None
+    paid = billing.has_active_subscription(subscription)
+    access = evaluate_access(trial_ends_at, datetime.now(UTC), paid)
     return MeOut(
         user=UserOut.model_validate(ctx.user),
         tenant=TenantOut.model_validate(tenant) if tenant else None,
         role=ctx.role,
-        access=AccessOut.model_validate(evaluate_access(trial_ends_at, datetime.now(UTC))),
+        access=AccessOut(
+            status=access.status,
+            trial_ends_at=access.trial_ends_at,
+            days_left=access.days_left,
+            plan=subscription.plan if paid and subscription else None,
+        ),
     )
 
 
