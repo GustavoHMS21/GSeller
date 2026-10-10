@@ -42,6 +42,25 @@ npm install
 npm run dev
 ```
 
+## Cobrança (Stripe) em desenvolvimento
+
+Use sempre chaves de **teste** (`sk_test_...`).
+
+```bash
+# 1. backend/.env: STRIPE_SECRET_KEY=sk_test_...
+# 2. Cria os planos e o portal no Stripe (idempotente)
+cd backend
+uv run python -m scripts.stripe_setup
+
+# 3. Em outro terminal: encaminha os webhooks do Stripe para a API local.
+#    Copie o "webhook signing secret" (whsec_...) para STRIPE_WEBHOOK_SECRET no backend/.env
+stripe listen --forward-to localhost:8000/api/billing/webhook --events checkout.session.completed,customer.subscription.created,customer.subscription.updated,customer.subscription.deleted
+```
+
+O `--events` é obrigatório nas versões atuais do Stripe CLI. A lista acima é a mesma que a API trata (`HANDLED_EVENTS` em `backend/app/services/billing.py`).
+
+No checkout de teste, use o cartão `4242 4242 4242 4242`, com qualquer data futura e qualquer CVC.
+
 ## Qualidade
 
 ```bash

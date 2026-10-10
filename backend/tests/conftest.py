@@ -139,7 +139,10 @@ async def db(migrated_db: None) -> None:
     engine = create_async_engine(os.environ["MIGRATIONS_DATABASE_URL"])
     async with engine.begin() as conn:
         await conn.execute(
-            text("TRUNCATE app.audit_logs, app.tenant_users, app.tenants, app.users CASCADE")
+            text(
+                "TRUNCATE app.audit_logs, app.tenant_users, app.tenants, app.users, "
+                "app.subscriptions, app.stripe_events CASCADE"
+            )
         )
     await engine.dispose()
 

@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.14 — Trial de 7 dias com bloqueio no 8º dia (issue #34)  
+> **Versão:** 0.15 — Assinatura com Stripe (issue #35)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4069,7 +4069,7 @@ O connector usa uma **allowlist de campos**: só o que está mapeado no modelo i
 | CEP/UF de entrega | API do marketplace | Futuro: análise regional de frete | — | Não persistir no MVP (futuro: só UF) | — | — | — |
 | Logs de acesso (IP, ação, data) | Sistema | Segurança e auditoria | Cumprimento de obrigação legal (Marco Civil, art. 15) e legítimo interesse | Logs | Admin | Mínimo 6 meses; máximo a definir | Rotação automática |
 | Gravações de entrevistas | Entrevistado | Pesquisa de produto | Consentimento | Pasta privada, fora do repositório | Equipe do projeto | 90 dias; depois só resumo anônimo | Apagar arquivo |
-| Dados de cobrança do SaaS (futuro) | Gateway de pagamento | Cobrança | Execução de contrato / obrigação legal | Gateway (suboperador) | Financeiro | Prazo fiscal | Conforme gateway |
+| Dados de cobrança do SaaS | Stripe (v0.15) | Cobrança da assinatura | Execução de contrato / obrigação legal | Stripe (suboperador). No nosso banco: só os ids de cliente e assinatura, plano e status; **nunca dados de cartão** | Financeiro | Prazo fiscal | Conforme Stripe |
 
 ## 50.6 Papéis (a confirmar com jurídico e com os termos de cada marketplace)
 
@@ -4693,7 +4693,34 @@ Primeiro acesso ──► sessão anônima no Supabase (navegador)
 - **Assinatura:** ainda não existe (#35); o ponto de consulta está marcado com `shortcut:` em `require_active_access`.
 - **Verificado no navegador:** visitante novo vê "7 dias de teste"; o mesmo visitante, com o primeiro acesso recuado 8 dias, cai em "Seu período de teste terminou".
 
-## 58.4 Riscos e mitigação
+## 58.4 Assinatura com Stripe (implementada na v0.15)
+
+```text
+/planos ──"Assinar Pro"──► POST /api/billing/checkout ──► Stripe Checkout (página do Stripe)
+                                                               │ cartão ou Pix
+                                                               ▼
+/assinatura/sucesso ◄── redireciona ──────────────────── pagamento concluído
+   │ aguarda até 30 s                                           │
+   ▼                                                            ▼
+"Assinatura ativa" ◄── GET /api/me ◄── webhook ──► API busca a assinatura no Stripe
+                                                    e atualiza app.subscriptions
+```
+
+- **Planos no Stripe:** criados por `scripts/stripe_setup.py` (idempotente), identificados por `lookup_key` (`gseller_start_mensal`, `gseller_pro_mensal`, `gseller_scale_mensal`). Nenhum id de preço em variável de ambiente.
+- **Checkout hospedado e Customer Portal** (trocar de plano, atualizar o cartão, cancelar no fim do período). O número do cartão nunca passa pelo nosso site.
+- **Webhook como fonte de verdade:** assinatura verificada pela biblioteca oficial; a cada evento, o estado atual é buscado na API do Stripe. Eventos repetidos são ignorados (`app.stripe_events`). O evento só atualiza a empresa se o cliente do Stripe for o mesmo que ela registrou.
+- **Acesso:** os status `active`, `trialing` e `past_due` liberam (em `past_due` o Stripe ainda está tentando cobrar). `canceled` e os demais voltam a respeitar o fim do trial.
+- **Pagar nunca é bloqueado:** checkout e portal exigem dono da empresa, mas não trial ativo.
+- **Variáveis do backend:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `FRONTEND_URL`. Sem a chave, as rotas de cobrança respondem `503 billing_not_configured`.
+- **Verificado no sandbox real:**
+  - checkout gerado em `checkout.stripe.com`;
+  - assinatura criada com cartão de teste e lida corretamente (status, plano, empresa, renovação);
+  - portal aberto;
+  - cancelamento refletido;
+  - evento real entregue pelo `stripe listen`, com assinatura verificada e resposta 200.
+- **Bug encontrado e corrigido:** a biblioteca `stripe` 16 não aceita `.get()` nos objetos; os dados passam por `.to_dict()`.
+
+## 58.5 Riscos e mitigação
 
 | Risco | Mitigação | Issue |
 |---|---|---|
@@ -4703,13 +4730,13 @@ Primeiro acesso ──► sessão anônima no Supabase (navegador)
 | E-mails de autenticação não chegam no piloto | SMTP próprio | #31 |
 | Cobrança antes da validação de preço | Planos e preços continuam sendo testados nas entrevistas (Bloco 49.5) | #35 |
 
-## 58.5 Estado
+## 58.6 Estado
 
 | Parte | Issue | Estado |
 |---|---|---|
 | Modo demonstração e conversão em conta | #33 | ✅ v0.13 |
 | Trial e bloqueio no 8º dia | #34 | ✅ v0.14 |
-| Planos e Stripe | #35 | Pendente |
+| Planos e Stripe | #35 | ✅ v0.15 |
 | E-mail de fim de trial | #36 | Pendente |
 | CAPTCHA | #38 | Pendente (conta Cloudflare) |
 | Limpeza de anônimos | #39 | Pendente (deploy) |
@@ -4735,6 +4762,16 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.15
+
+- assinatura com Stripe: checkout hospedado, portal do cliente e webhook como fonte de verdade (issue #35, Bloco 58.4);
+- novas tabelas `app.subscriptions` (com RLS) e `app.stripe_events` (idempotência);
+- assinatura ativa libera o acesso depois do trial; `past_due` mantém o acesso durante novas tentativas de cobrança;
+- tela de planos com "Assinar" e "Gerenciar assinatura", tela de confirmação de pagamento e selo do plano no cabeçalho;
+- `scripts/stripe_setup.py` cria planos e portal no Stripe de forma idempotente;
+- Stripe registrado como suboperador no Data Map (Bloco 50.5);
+- fluxo validado no sandbox do Stripe, incluindo evento real de webhook.
 
 ## v0.14
 

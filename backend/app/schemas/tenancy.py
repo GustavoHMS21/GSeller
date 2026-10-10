@@ -37,10 +37,10 @@ class UserOut(BaseModel):
 
 
 class AccessOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
     status: AccessStatus
     trial_ends_at: datetime
     days_left: int
+    plan: str | None = None
 
 
 class MeOut(BaseModel):

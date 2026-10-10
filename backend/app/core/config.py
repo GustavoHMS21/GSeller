@@ -51,6 +51,11 @@ class Settings(BaseSettings):
     shopee_partner_id: str | None = None
     shopee_partner_key: SecretStr | None = None
 
+    # Stripe (Bloco 58, issue #35). Sem a chave, as rotas de cobrança respondem 503.
+    stripe_secret_key: SecretStr | None = None
+    stripe_webhook_secret: SecretStr | None = None
+    frontend_url: str = "http://localhost:3000"
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_origins(cls, value: object) -> object:
