@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.10 — Código mínimo e testes por risco (issue #28)  
+> **Versão:** 0.11 — commitlint (issue #13)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -2029,7 +2029,7 @@ Usar PR/testes antes de merge em `main`.
 
 ## Commits
 
-Conventional Commits, validados no CI (Bloco 56):
+Conventional Commits, validados pelo commitlint no CI (commits e título de todo PR) e no hook local `commit-msg` (`commitlint.config.mjs`). A caixa do assunto é livre, porque assuntos em português citam nomes próprios. Cabeçalho com no máximo 100 caracteres:
 
 ```text
 feat:
@@ -4467,7 +4467,7 @@ sem dependências circulares
 |---|---|---|
 | Biome | #11 | ✅ Implementado (v0.8) |
 | Vitest | #12 | ✅ Implementado (v0.9) |
-| commitlint | #13 | Pendente |
+| commitlint | #13 | ✅ Implementado (v0.11) |
 | Codecov | #14 | Pendente |
 | dependency-cruiser / import-linter | #15 | Pendente |
 | Playwright | #17 | Pendente |
@@ -4635,6 +4635,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.11
+
+- commitlint valida Conventional Commits nos commits e no título de todo PR, num job próprio do CI (issue #13);
+- o título do PR chega ao script por variável de ambiente, para que texto livre nunca seja executado no runner;
+- hook local `commit-msg` no pre-commit usando o Node do sistema; os outros hooks rodam só antes do commit (`default_stages`);
+- sem `package.json` na raiz: as ferramentas são baixadas com versão fixada via `npx` (Bloco 57.2);
+- todo o histórico do repositório validado contra as regras.
 
 ## v0.10
 

@@ -105,6 +105,33 @@ jobs:
       - name: Auditoria de dependências de produção
         run: npm audit --omit=dev --audit-level=high
 
+  commits:
+    name: Conventional Commits (commits e título do PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      COMMITLINT: npx --yes -p @commitlint/cli@21.2.3 -p @commitlint/config-conventional@21.2.3 commitlint
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Mensagens dos commits do PR
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: $COMMITLINT --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
+      # O título chega por variável de ambiente: texto livre nunca é interpolado no script.
+      - name: Título do PR
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$PR_TITLE" | $COMMITLINT --verbose
+
   secrets:
     name: Varredura de segredos
     runs-on: ubuntu-latest

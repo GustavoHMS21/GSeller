@@ -53,11 +53,18 @@ uv run pytest -q                 # testes marcados como `db` exigem o Postgres l
 npm run check && npm test && npm run typecheck && npm run build
 ```
 
-Hooks locais opcionais (varredura de segredos + lint antes do commit):
+Hooks locais opcionais, recomendados:
 
 ```bash
 uvx pre-commit install
 ```
+
+Isso ativa duas etapas:
+
+- **antes do commit:** varredura de segredos (gitleaks), Ruff no backend e Biome no frontend;
+- **na mensagem do commit:** commitlint, que exige Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`, `refactor:`, `perf:`, `security:`, `build:`, `revert:`), com escopo opcional, por exemplo `feat(auth): tela de login`. As regras ficam em `commitlint.config.mjs`.
+
+O primeiro commit depois da instalação demora alguns minutos, porque cada ferramenta é baixada uma vez. O CI valida as mesmas regras nos commits e no título de todo PR, mesmo para quem não instalou os hooks.
 
 ## Regras de segurança do repositório
 
