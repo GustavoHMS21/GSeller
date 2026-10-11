@@ -155,6 +155,24 @@ export interface ReturnCost {
   total: number | null;
 }
 
+/** Central de atendimento (issue #52): pergunta antes da venda, mensagem pós-venda ou reclamação. */
+export type ConversationKind = "question" | "post_sale" | "claim";
+
+export interface Conversation {
+  id: string;
+  kind: ConversationKind;
+  marketplace: Marketplace;
+  storeName: string;
+  productId: string;
+  productName: string;
+  /** Pedido relacionado (pós-venda e reclamação). */
+  orderId: string | null;
+  /** Prazo dado pelo marketplace (reclamação); nas outras, vale a meta interna. */
+  replyBy: string | null;
+  /** Sem nome nem contato do comprador (Bloco 50.4): só quem escreveu e quando. */
+  messages: { from: "buyer" | "seller"; text: string; at: string }[];
+}
+
 export type ConnectionStatus =
   | "connected"
   | "syncing"

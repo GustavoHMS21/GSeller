@@ -37,7 +37,7 @@ repos:
         name: biome (frontend)
         language: system
         files: ^frontend/.*\.(ts|tsx|js|jsx|mjs|json|css)$
-        entry: bash -c 'cd frontend && npx --no-install biome check --write --no-errors-on-unmatched --files-ignore-unknown=true "${@#frontend/}"' --
+        entry: node scripts/biome-precommit.mjs
 
   # Mensagem do commit: Conventional Commits (Bloco 23), mesma configuração do CI.
   - repo: local

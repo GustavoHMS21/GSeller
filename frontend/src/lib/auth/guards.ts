@@ -14,6 +14,7 @@ const DEMO_PREFIXES = [
   "/dashboard",
   "/produtos",
   "/pedidos",
+  "/atendimento",
   "/custos",
   "/conexoes",
   "/design",
