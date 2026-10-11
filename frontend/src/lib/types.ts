@@ -5,7 +5,7 @@
 export type Marketplace = "mercadolivre" | "shopee";
 
 /** De onde veio cada valor financeiro (data lineage, Bloco 9.3). */
-export type ValueOrigin = "marketplace" | "seller" | "estimated";
+type ValueOrigin = "marketplace" | "seller" | "estimated";
 
 export type Severity = "critical" | "warning" | "info";
 
