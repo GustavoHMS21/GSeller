@@ -40,6 +40,8 @@ _PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(?i)\bbearer\s+[A-Za-z0-9\-._~+/]+=*"), f"Bearer {REDACTED}"),
     # Formato de token do Mercado Livre.
     (re.compile(r"\b(?:APP_USR|TG)-[A-Za-z0-9\-]{10,}"), REDACTED),
+    # Chaves de API do Resend.
+    (re.compile(r"\bre_[A-Za-z0-9_]{16,}"), REDACTED),
     # JWT (header.payload.signature).
     (re.compile(r"\beyJ[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+\.[A-Za-z0-9_\-]+"), REDACTED),
     # Parâmetros sensíveis em query strings e corpos form-encoded.

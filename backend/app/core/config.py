@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     stripe_webhook_secret: SecretStr | None = None
     frontend_url: str = "http://localhost:3000"
 
+    # E-mails pelo Resend (Bloco 59, issue #46). Sem a chave, nenhum e-mail é enviado.
+    resend_api_key: SecretStr | None = None
+    email_from: str | None = None
+    email_reply_to: str | None = None
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_origins(cls, value: object) -> object:
