@@ -17,7 +17,7 @@ const matches = (pathname: string, prefixes: string[]) =>
 
 const isAuthPath = (pathname: string) => matches(pathname, AUTH_PREFIXES);
 
-export function isPublicPath(pathname: string): boolean {
+function isPublicPath(pathname: string): boolean {
   return pathname === "/" || isAuthPath(pathname) || matches(pathname, DEMO_PREFIXES);
 }
 

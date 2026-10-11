@@ -4532,7 +4532,7 @@ sem dependências circulares
 | dependency-cruiser / import-linter | #15 | Pendente |
 | Playwright | #17 | Pendente |
 | Stryker / mutmut | #20 | Pendente |
-| Knip | #21 | Pendente (prioridade elevada para P1 na v0.10) |
+| Knip | #21 | ✅ Implementado (v0.17): etapa no CI, sem arquivo de configuração (plugins de Next.js e Vitest detectados) |
 
 ### Vitest: como está organizado
 
@@ -4855,7 +4855,8 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 - aviso de fim de trial por e-mail implementado: job diário idempotente, registro em `app.email_deliveries` com RLS e função SECURITY DEFINER para listar destinatários entre tenants (issue #36);
 - templates em português dos e-mails de autenticação versionados em `infra/supabase/email-templates/`;
 - Resend registrado como suboperador no Data Map, com a transferência internacional a validar; nova linha para comunicação promocional baseada em consentimento (#47);
-- chaves do Resend mascaradas nos logs.
+- chaves do Resend mascaradas nos logs;
+- Knip no CI do frontend; a primeira execução removeu um export morto e quatro exports desnecessários (issue #21).
 
 ## v0.16
 

@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export const ONBOARDING_PATH = "/onboarding";
 export const PLANS_PATH = "/planos";
 
-export type Role = "OWNER" | "MEMBER";
+type Role = "OWNER" | "MEMBER";
 export type Tenant = { id: string; name: string; created_at: string };
 export type Me = {
   user: { id: string; email: string | null; is_anonymous: boolean };

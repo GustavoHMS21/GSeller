@@ -5,12 +5,7 @@
 import { formatBRL, formatInt, formatPct, relativeChange } from "@/lib/format";
 import type { Economics, Insight, Marketplace, Product, Severity } from "@/lib/types";
 
-export const MIN_MARGIN = 0.1;
-
-export const MARKETPLACE_LABEL: Record<Marketplace, string> = {
-  mercadolivre: "Mercado Livre",
-  shopee: "Shopee",
-};
+const MIN_MARGIN = 0.1;
 
 const IN_MARKETPLACE: Record<Marketplace, string> = {
   mercadolivre: "no Mercado Livre",

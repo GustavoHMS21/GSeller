@@ -95,6 +95,8 @@ jobs:
       - run: npm ci
       - name: Biome (lint, formatação e imports)
         run: npx biome ci --reporter=github .
+      - name: Código, exports e dependências sem uso (Knip)
+        run: npm run knip
       - name: Testes unitários e de componentes (Vitest) com cobertura
         run: npm run test:coverage
       - run: npm run typecheck
