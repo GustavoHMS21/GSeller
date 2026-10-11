@@ -33,7 +33,7 @@ export default defineConfig({
       exclude: ["src/**/*.test.{ts,tsx}"],
       // Cobertura é relatório; meta só nos módulos de risco (Blocos 56.3 e 57.5).
       thresholds: {
-        "src/lib/demo/{economics,health,rules}.ts": {
+        "src/lib/demo/{economics,health,rules,orders}.ts": {
           lines: 90,
           functions: 90,
           statements: 90,

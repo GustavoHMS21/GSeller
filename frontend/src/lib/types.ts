@@ -9,6 +9,9 @@ type ValueOrigin = "marketplace" | "seller" | "estimated";
 
 export type Severity = "critical" | "warning" | "info";
 
+/** Tom visual de um status; o componente Badge decide as cores. */
+export type Tone = "neutral" | "success" | "warning" | "danger" | "info";
+
 export type HealthLevel = "healthy" | "attention" | "critical" | "unknown";
 
 export interface CostComponent {
@@ -100,6 +103,56 @@ export interface Product {
   variants: Variant[];
   totals: ListingPeriod;
   health: Health;
+}
+
+/** Etapas do pedido, de ponta a ponta (issue #50). Os status dos marketplaces são mapeados para elas. */
+export type OrderStage =
+  | "paid"
+  | "invoiced"
+  | "ready_to_ship"
+  | "shipped"
+  | "delivered"
+  | "claim_opened"
+  | "return_shipped"
+  | "returned"
+  | "refunded"
+  | "cancelled";
+
+export interface Order {
+  /** Número do pedido no marketplace. */
+  id: string;
+  marketplace: Marketplace;
+  storeName: string;
+  productId: string;
+  productName: string;
+  units: number;
+  total: number;
+  /** Null quando falta o custo do produto. */
+  profit: number | null;
+  /** Prazo de postagem definido pelo marketplace. */
+  shipBy: string | null;
+  /** Previsão de entrega informada ao comprador. */
+  deliverBy: string | null;
+  /** Prazo para responder a reclamação. */
+  claimReplyBy: string | null;
+  /** Etapas já ocorridas, em ordem. A primeira é sempre o pagamento. */
+  events: { stage: OrderStage; at: string }[];
+  /** Só em pedidos devolvidos ou reembolsados (issue #51). */
+  returnInfo: { condition: ReturnCondition; cost: ReturnCost } | null;
+}
+
+/** Estado do produto devolvido. "not_returned": reembolso sem o produto voltar. */
+export type ReturnCondition = "on_the_way" | "good" | "damaged" | "not_returned";
+
+export interface ReturnCost {
+  /** Frete de ida pago pelo seller, perdido na devolução. */
+  outboundShipping: number;
+  /** Frete de volta cobrado do seller. */
+  returnShipping: number;
+  /** Custo do produto que não volta a ser vendido; null sem custo cadastrado. */
+  lostProduct: number | null;
+  /** Null quando falta o custo do produto perdido. */
+  total: number | null;
 }
 
 export type ConnectionStatus =
