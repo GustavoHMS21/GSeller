@@ -3,7 +3,9 @@
 Uso (com STRIPE_SECRET_KEY no backend/.env):
     uv run python -m scripts.stripe_setup
 
-Os preços são identificados por `lookup_key`; rodar de novo não duplica nada.
+Os preços são identificados por `lookup_key`; rodar de novo não duplica nada. Um preço do
+Stripe não muda de valor: quando o valor daqui muda, o script cria outro preço no mesmo produto,
+transfere a `lookup_key` e desativa o antigo. Quem já assina continua no valor antigo.
 """
 
 import stripe
@@ -14,7 +16,7 @@ from app.integrations.stripe_gateway import PLAN_LOOKUP_KEYS
 PLANS = {
     "start": ("GSeller Start", 9700, "Até 500 pedidos por mês, 1 conta do Mercado Livre"),
     "pro": ("GSeller Pro", 19700, "Até 2.000 pedidos por mês, Mercado Livre e Shopee"),
-    "scale": ("GSeller Scale", 29700, "Até 5.000 pedidos por mês, até 5 contas"),
+    "scale": ("GSeller Scale", 49700, "Até 5.000 pedidos por mês, até 5 contas"),
 }
 
 
@@ -52,14 +54,39 @@ def main() -> None:
                 }
             )
             print(f"criado   {lookup_key}: R$ {amount / 100:.2f}/mês ({price.id})")
+        elif price.unit_amount != amount:
+            old = price
+            product = old.product if isinstance(old.product, str) else old.product.id
+            price = client.v1.prices.create(
+                params={
+                    "product": product,
+                    "currency": "brl",
+                    "unit_amount": amount,
+                    "recurring": {"interval": "month"},
+                    "lookup_key": lookup_key,
+                    "transfer_lookup_key": True,
+                    "metadata": {"plan": plan},
+                }
+            )
+            client.v1.prices.update(old.id, params={"active": False})
+            print(
+                f"alterado {lookup_key}: R$ {old.unit_amount / 100:.2f} -> "
+                f"R$ {amount / 100:.2f}/mês ({price.id}; antigo {old.id} desativado)"
+            )
         else:
             print(f"já existe {lookup_key}: R$ {price.unit_amount / 100:.2f}/mês ({price.id})")
         product_id = price.product if isinstance(price.product, str) else price.product.id
         portal_products.append({"product": product_id, "prices": [price.id]})
 
     configurations = client.v1.billing_portal.configurations.list(params={"limit": 10}).data
-    if any(config.is_default for config in configurations):
-        print("portal do cliente: configuração padrão já existe")
+    default = next((config for config in configurations if config.is_default), None)
+    if default is not None:
+        # Mantém a troca de plano do portal apontando para os preços atuais.
+        client.v1.billing_portal.configurations.update(
+            default.id,
+            params={"features": {"subscription_update": {"products": portal_products}}},
+        )
+        print("portal do cliente: preços da troca de plano atualizados")
         return
     client.v1.billing_portal.configurations.create(
         params={

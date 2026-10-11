@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { deleteCompany, deleteStore } from "@/app/(app)/empresas/actions";
 import { CompanyForm, StoreForm } from "@/app/(app)/empresas/forms";
+import { ModuleLayout, ModuleSidebar, SETTINGS_NAV } from "@/components/app/module-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
@@ -14,12 +15,16 @@ export const metadata: Metadata = { title: "Empresas e lojas" };
 
 export default function CompaniesPage() {
   return (
-    <div className="space-y-6">
+    <ModuleLayout
+      sidebar={
+        <ModuleSidebar title="Configurações" sections={SETTINGS_NAV} activeHref="/empresas" />
+      }
+    >
       <h1 className="text-2xl font-semibold">Empresas e lojas</h1>
       <Suspense fallback={<Skeleton className="h-64" />}>
         <CompaniesContent />
       </Suspense>
-    </div>
+    </ModuleLayout>
   );
 }
 

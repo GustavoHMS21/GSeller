@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ModuleLayout, ModuleSidebar } from "@/components/app/module-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, Skeleton } from "@/components/ui/states";
-import { cx } from "@/lib/cx";
 import { DEMO_NOW } from "@/lib/demo/order-data";
 import {
   KIND_LABEL,
@@ -14,16 +14,13 @@ import {
 } from "@/lib/demo/support";
 import { conversations } from "@/lib/demo/support-data";
 
-export const metadata: Metadata = { title: "Atendimento" };
+export const metadata: Metadata = { title: "SAC" };
 
 export default function SupportPage({ searchParams }: PageProps<"/atendimento">) {
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Atendimento</h1>
-      <Suspense fallback={<Skeleton className="h-96" />}>
-        <ConversationList searchParams={searchParams} />
-      </Suspense>
-    </div>
+    <Suspense fallback={<Skeleton className="h-96" />}>
+      <ConversationList searchParams={searchParams} />
+    </Suspense>
   );
 }
 
@@ -38,39 +35,29 @@ async function ConversationList({
     conversations.filter((c) => !active || matchesSupportFilter(c, active.value)),
   );
 
-  const tabs = [
-    { href: "/atendimento", label: "Todas", count: conversations.length, current: !active },
-    ...SUPPORT_FILTERS.map((f) => ({
-      href: `/atendimento?filtro=${f.value}`,
-      label: f.label,
-      count: conversations.filter((c) => matchesSupportFilter(c, f.value)).length,
-      current: active?.value === f.value,
-    })),
-  ];
+  const href = (value?: string) => (value ? `/atendimento?filtro=${value}` : "/atendimento");
 
   return (
-    <>
-      <nav aria-label="Filtrar conversas">
-        <ul className="flex flex-wrap gap-2">
-          {tabs.map((tab) => (
-            <li key={tab.href}>
-              <Link
-                href={tab.href}
-                aria-current={tab.current ? "page" : undefined}
-                className={cx(
-                  "inline-flex rounded-full border px-3 py-1 text-sm font-medium",
-                  tab.current
-                    ? "border-primary bg-primary text-primary-fg"
-                    : "border-line bg-surface text-fg-muted hover:text-fg",
-                )}
-              >
-                {tab.label} ({tab.count})
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
+    <ModuleLayout
+      sidebar={
+        <ModuleSidebar
+          title="SAC"
+          activeHref={href(active?.value)}
+          sections={[
+            { items: [{ href: "/atendimento", label: "Todas", count: conversations.length }] },
+            {
+              title: "Mercado Livre",
+              items: SUPPORT_FILTERS.map((f) => ({
+                href: href(f.value),
+                label: f.label,
+                count: conversations.filter((c) => matchesSupportFilter(c, f.value)).length,
+              })),
+            },
+          ]}
+        />
+      }
+    >
+      <h1 className="text-2xl font-semibold">{active ? active.label : "SAC"}</h1>
       {items.length === 0 ? (
         <EmptyState title="Nada para responder" description="Tudo em dia neste filtro." />
       ) : (
@@ -111,6 +98,6 @@ async function ConversationList({
           })}
         </ul>
       )}
-    </>
+    </ModuleLayout>
   );
 }
