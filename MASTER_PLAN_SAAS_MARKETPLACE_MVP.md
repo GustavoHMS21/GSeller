@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.19 — Pedido de ponta a ponta e devoluções com custo, na demonstração (issues #50 e #51)  
+> **Versão:** 0.20 — Central de atendimento do Mercado Livre na demonstração (issue #52)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4865,7 +4865,7 @@ agendador do deploy (1x/dia) ──► uv run python -m app.jobs.trial_emails
 | Agora | Conexão com o Mercado Livre por loja | #10 | Fonte dos dados |
 | Agora (demonstração ✅ v0.19) | Pedido de ponta a ponta com linha do tempo | #50 | Ver atraso, envio, entrega e devolução sem abrir o marketplace |
 | Agora (demonstração ✅ v0.19) | Devoluções e reclamações com custo no lucro | #51 | Perda escondida que o seller não mede |
-| Agora | Central de atendimento do Mercado Livre | #52 | Pergunta sem resposta derruba venda e reputação |
+| Agora (demonstração ✅ v0.20) | Central de atendimento do Mercado Livre | #52 | Pergunta sem resposta derruba venda e reputação |
 | Depois do piloto | Estoque em leitura: cobertura em dias, reposição, estoque parado | #53 | Dinheiro parado e ruptura, sem risco de escrever nos anúncios |
 | Depois do piloto | Pedidos e devoluções da Shopee | #54 | Segundo canal |
 | Depois do piloto | NF-e: importar XML, depois emitir via provedor (Simples Nacional) | #55 | Imposto real no lucro; emissão tem responsabilidade fiscal |
@@ -4957,6 +4957,33 @@ Tela `/pedidos`, aberta no modo demonstração, com 14 pedidos fictícios que co
 - **Voltou avariado** vira ação, logo depois da reclamação na urgência: "Conteste a devolução no marketplace, com fotos do produto."
 - **No produto e na loja:** a regra R007 (Bloco 10) avisa quando um produto devolve bem mais que a média da loja.
 
+## 60.8 Central de atendimento (demonstração na v0.20, issue #52)
+
+Tela `/atendimento`, aberta no modo demonstração. Regras em `frontend/src/lib/demo/support.ts`, especificação do backend.
+
+- **Caixa única** de perguntas (antes da venda), mensagens pós-venda e reclamações, de todas as lojas do Mercado Livre. Filtros: Para responder, Perguntas, Pós-venda, Reclamações.
+- **Prazo de resposta em cada conversa**, contado da última mensagem do comprador:
+
+  | Tipo | Prazo | Por quê |
+  |---|---|---|
+  | Pergunta | Meta de 1 hora | Pergunta sem resposta rápida vira venda perdida |
+  | Pós-venda | Meta de 24 horas | Pesa na reputação |
+  | Reclamação | Prazo do marketplace | Perder o prazo perde a disputa |
+
+  Faltando até 2 horas, fica em alerta; vencido, "Atrasada há N h". Pendentes primeiro, pelo prazo mais próximo.
+- **Respostas prontas** (prazo de envio, garantia, medidas, agradecimento) entram no campo e podem ser editadas.
+- **Trava de contato fora da plataforma:** antes de enviar, a resposta é checada contra telefone, e-mail, link e menção a WhatsApp ou redes sociais. O marketplace bloqueia essas mensagens (Bloco 60.3). Número de pedido e preço não disparam a trava (testado).
+- **Pedido ↔ conversa:** o detalhe do pedido leva à conversa; pedido da Shopee tem o botão "Abrir chat na Shopee" (Central do Vendedor), porque não há API de chat.
+- **Sem dado de comprador:** a conversa mostra só "Comprador" e a hora.
+
+**Regras do Mercado Livre para a integração (#10), da documentação de mensagens:**
+
+- o seller tem um **limite de mensagens** por conversa (`cap_available`); esgotado, só volta a escrever depois que o comprador responder;
+- iniciar contato no pós-venda exige escolher um **motivo**; nos envios Full, Flex, Cross docking e Drop off, sem motivo a chamada falha;
+- o limite exato de caracteres não está documentado de forma pública: vem da API na integração.
+
+Na demonstração, o envio da resposta é simulado na tela.
+
 ---
 
 # PRÓXIMO PASSO
@@ -4980,6 +5007,13 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.20
+
+- central de atendimento do Mercado Livre na demonstração: caixa única com prazo de resposta, respostas prontas e trava de contato fora da plataforma (issue #52, Bloco 60.8);
+- pedido leva à conversa; pedido da Shopee abre o chat na Central do Vendedor;
+- regras de mensagens do Mercado Livre registradas para a integração (limite de mensagens e motivo obrigatório);
+- hook do Biome no pre-commit sem `bash` (script Node), que falhava no Windows quando o `bash` do PATH era o do WSL (issue #61).
 
 ## v0.19
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
 import { Skeleton } from "@/components/ui/states";
@@ -13,7 +14,11 @@ import {
   orderTimeline,
   RETURN_CONDITION_LABEL,
 } from "@/lib/demo/orders";
+import { conversationForOrder } from "@/lib/demo/support-data";
 import { formatBRL, formatDateTime } from "@/lib/format";
+
+// A Shopee não libera chat para aplicativos no Brasil (Bloco 60.3): o seller abre o chat lá.
+const SHOPEE_SELLER_CENTER = "https://seller.shopee.com.br/";
 
 export function generateStaticParams() {
   return orders.map((o) => ({ id: o.id }));
@@ -39,6 +44,7 @@ async function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
 
   const status = orderStatus(order);
   const attention = orderAttention(order, DEMO_NOW);
+  const conversation = conversationForOrder(order.id);
 
   return (
     <div className="space-y-6">
@@ -89,6 +95,24 @@ async function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
           <p className="text-sm">→ {attention.action}</p>
         </div>
       )}
+
+      <div className="flex flex-wrap gap-2">
+        {conversation && (
+          <ButtonLink href={`/atendimento/${conversation.id}`} variant="secondary">
+            Ver conversa do pedido
+          </ButtonLink>
+        )}
+        {order.marketplace === "shopee" && (
+          <ButtonLink
+            href={SHOPEE_SELLER_CENTER}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="secondary"
+          >
+            Abrir chat na Shopee
+          </ButtonLink>
+        )}
+      </div>
 
       {order.returnInfo && (
         <Card>
