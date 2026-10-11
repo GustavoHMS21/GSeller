@@ -1,6 +1,8 @@
 import { cx } from "@/lib/cx";
 
-export type Tone = "neutral" | "success" | "warning" | "danger" | "info";
+import type { Tone } from "@/lib/types";
+
+export type { Tone };
 
 const TONE_CLASS: Record<Tone, string> = {
   neutral: "bg-surface-muted text-fg-muted",

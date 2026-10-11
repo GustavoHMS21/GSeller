@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.18 — Complemento operacional do UpSeller: CNPJs, lojas, pedido de ponta a ponta, devoluções e atendimento (Bloco 60)  
+> **Versão:** 0.19 — Pedido de ponta a ponta e devoluções com custo, na demonstração (issues #50 e #51)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -1043,6 +1043,22 @@ margem deteriorou
 ENTÃO
 alertar sobre eficiência de Ads
 ```
+
+### R007 — Devolução bem acima da média da loja
+
+```text
+SE
+custo de devoluções do produto >= 3% da receita
+E
+>= 2x a taxa de devolução da loja no período
+
+ENTÃO
+severity = warning
+impacto = (taxa do produto - taxa da loja) x receita do produto
+ação: ver o motivo das devoluções e corrigir anúncio, medidas ou embalagem
+```
+
+Adicionada na v0.19 (issue #51): devolução é perda escondida que o seller não mede.
 
 ---
 
@@ -3978,7 +3994,8 @@ Cenários embutidos nos dados de demonstração:
 | Luminária LED | R005 | Ads subiu sem retorno proporcional |
 | Capa Notebook | R006 | Sem custo não há resultado |
 | Camiseta / Kit | R003 | Mesmo produto rende diferente entre canais |
-| Organizador / Mochila | — | Produtos saudáveis (controle) |
+| Mochila Executiva | R007 (v0.19) | Devolve muito mais que o resto da loja |
+| Organizador | — | Produto saudável (controle) |
 
 ## 49.5 Teste de preço
 
@@ -4846,8 +4863,8 @@ agendador do deploy (1x/dia) ──► uv run python -m app.jobs.trial_emails
 |---|---|---|---|
 | Agora ✅ v0.18 | Empresas (CNPJ) e lojas dentro da conta | #49 | Base de tudo: a conexão do marketplace pertence à loja; regime tributário por CNPJ muda a margem |
 | Agora | Conexão com o Mercado Livre por loja | #10 | Fonte dos dados |
-| Agora | Pedido de ponta a ponta com linha do tempo | #50 | Ver atraso, envio, entrega e devolução sem abrir o marketplace |
-| Agora | Devoluções e reclamações com custo no lucro | #51 | Perda escondida que o seller não mede |
+| Agora (demonstração ✅ v0.19) | Pedido de ponta a ponta com linha do tempo | #50 | Ver atraso, envio, entrega e devolução sem abrir o marketplace |
+| Agora (demonstração ✅ v0.19) | Devoluções e reclamações com custo no lucro | #51 | Perda escondida que o seller não mede |
 | Agora | Central de atendimento do Mercado Livre | #52 | Pergunta sem resposta derruba venda e reputação |
 | Depois do piloto | Estoque em leitura: cobertura em dias, reposição, estoque parado | #53 | Dinheiro parado e ruptura, sem risco de escrever nos anúncios |
 | Depois do piloto | Pedidos e devoluções da Shopee | #54 | Segundo canal |
@@ -4889,6 +4906,57 @@ Conta (tenants: assinatura, usuários, trial)
 - **Onboarding:** passa a pedir o nome da operação (a conta); os CNPJs são cadastrados depois.
 - **Ainda não:** editar CNPJ, mover loja entre CNPJs, limite de lojas por plano (#57) e filtro por empresa no painel (entra com dados reais, #50).
 
+## 60.6 Pedido de ponta a ponta (demonstração na v0.19, issue #50)
+
+Tela `/pedidos`, aberta no modo demonstração, com 14 pedidos fictícios que cobrem cada situação. As regras ficam em `frontend/src/lib/demo/orders.ts` e são a especificação do backend.
+
+**Etapas:** pago → nota emitida → pronto para envio → a caminho → entregue. Desvios: em reclamação → devolução a caminho → devolvido → reembolsado; ou cancelado.
+
+**O que fazer, por ordem de urgência** (formato do Bloco 17: problema e ação direta):
+
+| Situação | Quando | Ação mostrada |
+|---|---|---|
+| Reclamação aberta | Etapa atual é reclamação | "Responda até 09/10, 16:00 para não perder a disputa." |
+| Envio atrasado | Não postado e prazo de postagem vencido | "Poste hoje: o atraso pesa na sua reputação." |
+| Postar hoje | Não postado e prazo vence hoje (horário de Brasília) | "Poste até 18:00 para não atrasar." |
+| Entrega atrasada | A caminho e previsão de entrega vencida | "Avise o comprador pela mensagem do pedido." |
+| Devolução a caminho | Produto voltando | "Confira o estado do produto quando chegar." |
+
+- **Filtros:** Atrasados (envio ou entrega), Para enviar, Com reclamação, Devolvidos. O filtro fica na URL (`/pedidos?filtro=atrasados`).
+- **Detalhe `/pedidos/[id]`:** linha do tempo com as etapas ocorridas e, sem desvio, as previstas (postagem e entrega).
+- **Lucro do pedido:** na demonstração, lucro por unidade do anúncio × unidades (o mesmo número das telas de produto). Cancelados e devolvidos ficam sem lucro até a #51 calcular o custo da devolução. No backend, o lucro será calculado pedido a pedido.
+- **Sem dado de comprador:** o pedido não tem nome, telefone nem endereço (Bloco 50.4).
+
+**Mapeamento previsto para o Mercado Livre (a confirmar na integração, #10):**
+
+| Mercado Livre | Etapa |
+|---|---|
+| Pedido `paid` | Pago |
+| Nota fiscal anexada ao pedido | Nota emitida |
+| Envio `ready_to_ship` | Pronto para envio (prazo de postagem do envio) |
+| Envio `shipped` | A caminho (previsão de entrega do envio) |
+| Envio `delivered` | Entregue |
+| Reclamação aberta (claims) | Em reclamação (prazo de resposta da reclamação) |
+| Devolução (returns) em trânsito / recebida | Devolução a caminho / Devolvido |
+| Reembolso concluído | Reembolsado |
+| Pedido `cancelled` | Cancelado |
+
+## 60.7 Devoluções com custo (demonstração na v0.19, issue #51)
+
+- **Custo de cada devolução** (`returnCost` em `lib/demo/orders.ts`): frete de ida + frete de volta + custo do produto quando ele não pode ser revendido.
+
+  | Estado do produto | Frete de ida | Frete de volta | Produto |
+  |---|---|---|---|
+  | A caminho | perde | perde | conta como inteiro até chegar |
+  | Voltou em bom estado | perde | perde | volta ao estoque |
+  | Voltou avariado | perde | perde | perde o custo |
+  | Não voltou (reembolso sem devolução) | perde | — | perde o custo |
+
+- **Premissas a confirmar com os dados reais:** a comissão é estornada pelo marketplace e o imposto é recuperado com a nota de devolução. Sem custo do produto cadastrado, o prejuízo não é inventado.
+- **No pedido:** devolvido aparece com prejuízo igual ao custo da devolução, em vermelho; o detalhe mostra o estado do produto e o custo separado em frete de ida, frete de volta e produto perdido.
+- **Voltou avariado** vira ação, logo depois da reclamação na urgência: "Conteste a devolução no marketplace, com fotos do produto."
+- **No produto e na loja:** a regra R007 (Bloco 10) avisa quando um produto devolve bem mais que a média da loja.
+
 ---
 
 # PRÓXIMO PASSO
@@ -4912,6 +4980,15 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.19
+
+- pedido de ponta a ponta na demonstração: tela `/pedidos` com filtros e o que fazer em cada pedido, e detalhe com linha do tempo (issue #50, Bloco 60.6);
+- regras de urgência do pedido com testes e meta de cobertura de módulo de risco;
+- mapeamento previsto dos status do Mercado Livre para as etapas do pedido;
+- tipo de tom visual movido para `lib/types.ts` (contrato do Bloco 56.2: `lib/` não importa `components/`);
+- devoluções com custo na demonstração: prejuízo do pedido devolvido (fretes e produto perdido), estado do produto e ação para produto avariado (issue #51, Bloco 60.7);
+- nova regra R007, devolução bem acima da média da loja (Bloco 10); a Mochila passa a ser o cenário dela e o Organizador continua como controle saudável.
 
 ## v0.18
 

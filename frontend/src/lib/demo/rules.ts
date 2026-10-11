@@ -6,6 +6,8 @@ import { formatBRL, formatInt, formatPct, relativeChange } from "@/lib/format";
 import type { Economics, Insight, Marketplace, Product, Severity } from "@/lib/types";
 
 const MIN_MARGIN = 0.1;
+/** Devolução alta: acima de 3% das vendas e pelo menos o dobro da média da loja. */
+const MIN_RETURN_RATE = 0.03;
 
 const IN_MARKETPLACE: Record<Marketplace, string> = {
   mercadolivre: "no Mercado Livre",
@@ -163,6 +165,27 @@ function crossChannel(product: Product): Insight[] {
   ];
 }
 
+/** R007 — devolução bem acima da média da loja (issue #51). */
+function highReturns(product: Product, storeRate: number): Insight[] {
+  const cur = product.totals.current;
+  if (!cur.revenue) return [];
+  const refunds = cur.components.find((c) => c.key === "refunds")?.amount ?? 0;
+  const rate = refunds / cur.revenue;
+  if (!(rate >= MIN_RETURN_RATE && rate >= storeRate * 2)) return [];
+  return [
+    {
+      ...base(product),
+      id: `R007-${product.id}`,
+      ruleId: "R007",
+      severity: "warning",
+      title: `Devolução alta: ${formatPct(rate, 0)} das vendas`,
+      detail: `${formatBRL(refunds)} em devoluções · média da loja ${formatPct(storeRate)}`,
+      action: "Veja o motivo das devoluções e corrija anúncio, medidas ou embalagem.",
+      impact: (rate - storeRate) * cur.revenue,
+    },
+  ];
+}
+
 /** R006 — sem custo, sem resultado. */
 function missingCost(product: Product): Insight[] {
   if (product.cost.unitCost !== null) return [];
@@ -193,12 +216,19 @@ export function generateInsights(products: Product[]): Insight[] {
     products.filter((p) => p.totals.current.margin !== null).map((p) => p.totals.current.units),
     0.75,
   );
+  const refundsOf = (p: Product) =>
+    p.totals.current.components.find((c) => c.key === "refunds")?.amount ?? 0;
+  const storeRevenue = products.reduce((sum, p) => sum + p.totals.current.revenue, 0);
+  const storeRate = storeRevenue
+    ? products.reduce((s, p) => s + refundsOf(p), 0) / storeRevenue
+    : 0;
   return products
     .flatMap((p) => [
       ...highVolumeLowMargin(p, unitsP75),
       ...growthWithMarginLoss(p),
       ...conversionDrop(p),
       ...adsPressure(p),
+      ...highReturns(p, storeRate),
       ...missingCost(p),
       ...crossChannel(p),
     ])

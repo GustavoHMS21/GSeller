@@ -310,7 +310,7 @@ const SEEDS: ProductSeed[] = [
           adsSpend: 500,
           adsAttributedRevenue: 2400,
           visits: 4100,
-          refunds: 190,
+          refunds: 990,
         }),
         previous: period(ML, {
           units: 96,
@@ -333,6 +333,7 @@ const SEEDS: ProductSeed[] = [
           adsSpend: 150,
           adsAttributedRevenue: 700,
           visits: 3300,
+          refunds: 530,
         }),
         previous: period(SHOPEE, {
           units: 40,

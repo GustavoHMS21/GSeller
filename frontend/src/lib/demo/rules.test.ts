@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { insights as demoInsights, products as demoProducts } from "@/lib/demo/data";
 import { buildProduct, type Fees, type ListingSeed, period } from "@/lib/demo/product";
 import { generateInsights } from "@/lib/demo/rules";
+import { formatBRL } from "@/lib/format";
 import type { Product, ProductCost } from "@/lib/types";
 
 const ML: Fees = { commissionRate: 0.14, fixedFeePerUnit: 0 };
@@ -213,6 +214,37 @@ describe("R003 — mesmo produto rende diferente entre canais", () => {
   });
 });
 
+describe("R007 — devolução bem acima da média da loja", () => {
+  const withRefunds = (id: string, refunds: number) => {
+    const p = period(ML, { units: 100, avgPrice: 100, refunds });
+    return product(
+      id,
+      [{ marketplace: "mercadolivre", externalId: id, previous: p, current: p }],
+      cost(40),
+    );
+  };
+
+  it("dispara para o produto com devolução acima de 3% e do dobro da média da loja", () => {
+    const result = generateInsights([
+      withRefunds("alta", 800),
+      withRefunds("a", 100),
+      withRefunds("b", 100),
+    ]);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      ruleId: "R007",
+      productId: "alta",
+      title: "Devolução alta: 8% das vendas",
+      detail: `${formatBRL(800)} em devoluções · média da loja 3,3%`,
+    });
+    expect(result[0].impact).toBeCloseTo((0.08 - 1000 / 30_000) * 10_000);
+  });
+
+  it("não dispara quando a loja inteira devolve parecido", () => {
+    expect(ruleIds([withRefunds("a", 400), withRefunds("b", 350)])).toEqual([]);
+  });
+});
+
 describe("priorização da fila", () => {
   it("ordena por gravidade e, dentro dela, por impacto (sem impacto por último)", () => {
     const items = [crossChannel(), withoutCost(), growthWithMarginLoss(), highVolumeLowMargin()];
@@ -238,7 +270,7 @@ describe("cenários do protótipo de discovery", () => {
     ["cap-nb-15", ["R006"]],
     ["cam-ovs-pt", ["R003"]],
     ["org-gav-6", []],
-    ["moc-exe-01", []],
+    ["moc-exe-01", ["R007"]],
   ])("%s dispara %j", (id, expected) => {
     expect(rulesFor(id)).toEqual(expected);
   });
