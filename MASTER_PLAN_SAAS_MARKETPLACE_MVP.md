@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.17 — E-mails com Resend e aviso de fim de trial (issues #46 e #36)  
+> **Versão:** 0.18 — Complemento operacional do UpSeller: CNPJs, lojas, pedido de ponta a ponta, devoluções e atendimento (Bloco 60)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -66,6 +66,8 @@ O problema é:
 ---
 
 ## 1.2 Posicionamento inicial
+
+> **Revisado na v0.18 (Bloco 60):** além da inteligência financeira, entram as operações que mais custam dinheiro ao seller e que o UpSeller já provou: CNPJs e lojas, pedido de ponta a ponta, devoluções e atendimento do Mercado Livre. Continuamos **não** sendo ERP completo. NF-e passa a ser fase 2, via provedor especializado.
 
 ### Não somos
 
@@ -2594,7 +2596,7 @@ Insumos da análise de 2026-10-10, para quando o tema voltar:
 
 ## R01 — Virar ERP
 
-**Mitigação:** toda feature nova precisa provar relação com diagnóstico ou decisão.
+**Mitigação:** toda feature nova precisa provar relação com diagnóstico ou decisão. Revisado na v0.18: cada função operacional mostra o dinheiro envolvido (lucro do pedido, custo da devolução, venda perdida por pergunta sem resposta) e passa pelo filtro do Bloco 60.4.
 
 ## R02 — Dados financeiros incorretos
 
@@ -4097,6 +4099,7 @@ O connector usa uma **allowlist de campos**: só o que está mapeado no modelo i
 | Gravações de entrevistas | Entrevistado | Pesquisa de produto | Consentimento | Pasta privada, fora do repositório | Equipe do projeto | 90 dias; depois só resumo anônimo | Apagar arquivo |
 | Dados de cobrança do SaaS | Stripe (v0.15) | Cobrança da assinatura | Execução de contrato / obrigação legal | Stripe (suboperador). No nosso banco: só os ids de cliente e assinatura, plano e status; **nunca dados de cartão** | Financeiro | Prazo fiscal | Conforme Stripe |
 | E-mail do usuário e conteúdo dos e-mails do sistema | Cadastro / sistema (v0.17) | Autenticação e avisos do serviço (fim do trial, cobrança) | Execução de contrato | Resend (suboperador; envio por São Paulo, **dados da conta guardados nos EUA**: transferência internacional, art. 33, a validar com jurídico). No nosso banco: só quem recebeu qual aviso (`app.email_deliveries`), **sem endereço nem conteúdo** | Backend | Registro: enquanto a conta existir; Resend: conforme retenção do provedor | Exclusão da conta |
+| CNPJ, razão social e regime tributário da empresa do seller | Seller (v0.18) | Separar lojas, notas e lucro por CNPJ | Execução de contrato | Banco | Usuários da conta | Enquanto a conta existir | Remoção do CNPJ ou exclusão da conta. CNPJ de MEI identifica uma pessoa: tratado como dado pessoal |
 | E-mail para comunicação promocional | Opt-in do usuário (#47) | Novidades e ofertas | **Consentimento** (art. 7º, I), revogável a qualquer momento | Resend (Contatos), só de quem consentiu | Marketing | Até a revogação | Descadastro pelo link ou nas configurações |
 
 ## 50.6 Papéis (a confirmar com jurídico e com os termos de cada marketplace)
@@ -4827,6 +4830,67 @@ agendador do deploy (1x/dia) ──► uv run python -m app.jobs.trial_emails
 
 ---
 
+# BLOCO 60 — COMPLEMENTO OPERACIONAL DO UPSELLER
+
+> Decisão do mantenedor em 2026-10-10, depois de conversas com sellers: o UpSeller é a ferramenta mais usada. Copiamos o que já funciona nele, no foco Mercado Livre e Shopee, e cada função mostra o dinheiro envolvido.
+
+## 60.1 Por que complemento e não substituto
+
+- O UpSeller tem plano gratuito vitalício até **600 pedidos por mês e 2 lojas**, e cobre pedidos, NF-e, estoque, SAC e vários CNPJs.
+- Competir ERP contra ERP gratuito, com o time que temos, é perder. O diferencial continua sendo o **lucro real e o que fazer**, agora junto das operações que mais custam dinheiro.
+- Frase guia: **o UpSeller mostra o pedido; o GSeller mostra quanto o pedido deu de lucro ou prejuízo e o que fazer.**
+
+## 60.2 O que entra e quando
+
+| Fase | Função | Issue | Por quê |
+|---|---|---|---|
+| Agora ✅ v0.18 | Empresas (CNPJ) e lojas dentro da conta | #49 | Base de tudo: a conexão do marketplace pertence à loja; regime tributário por CNPJ muda a margem |
+| Agora | Conexão com o Mercado Livre por loja | #10 | Fonte dos dados |
+| Agora | Pedido de ponta a ponta com linha do tempo | #50 | Ver atraso, envio, entrega e devolução sem abrir o marketplace |
+| Agora | Devoluções e reclamações com custo no lucro | #51 | Perda escondida que o seller não mede |
+| Agora | Central de atendimento do Mercado Livre | #52 | Pergunta sem resposta derruba venda e reputação |
+| Depois do piloto | Estoque em leitura: cobertura em dias, reposição, estoque parado | #53 | Dinheiro parado e ruptura, sem risco de escrever nos anúncios |
+| Depois do piloto | Pedidos e devoluções da Shopee | #54 | Segundo canal |
+| Depois do piloto | NF-e: importar XML, depois emitir via provedor (Simples Nacional) | #55 | Imposto real no lucro; emissão tem responsabilidade fiscal |
+| Depois do piloto | Sincronização de estoque entre lojas e kits | #56 | Exige escrita nos anúncios e trava de segurança |
+| Depois | Shein, Amazon e outros | — | Depois de ML e Shopee estáveis |
+| Decisão pendente | Planos e preços frente ao gratuito do UpSeller | #57 | Os planos atuais competem com o gratuito |
+
+## 60.3 Limites das plataformas (pesquisa de 2026-10-10)
+
+- **Chat da Shopee:** a Open Platform não libera a API de chat para aplicativos no Brasil; só caso a caso, pelo gerente de conta do seller. Nem o UpSeller oferece. No GSeller: botão que abre o chat do pedido na Shopee.
+- **Mercado Livre:** perguntas, mensagens pós-venda, reclamações e devoluções têm API e notificações em tempo real.
+- **Telefone e WhatsApp do comprador:** o Mercado Livre não libera o telefone e proíbe contato fora da plataforma; a Shopee proíbe levar o comprador para fora. Usar o dado viola os termos (suspensão da conta do seller e perda do nosso acesso à API) e a LGPD (finalidade). **Decisão: não identificamos nem usamos telefone de comprador do Mercado Livre e da Shopee.** Avisos de pedido saem pela mensagem pós-venda oficial.
+- **Shein (futuro):** não tem chat. Aviso por WhatsApp só será avaliado na integração: apenas aviso do pedido, pela API oficial do WhatsApp Business, depois de análise dos termos da Shein e jurídica.
+
+## 60.4 Filtro para qualquer função nova
+
+Uma função entra se responder "sim" às três:
+
+1. Um seller citou essa dor em entrevista ou o UpSeller já provou que ela é usada?
+2. Ela mostra dinheiro (lucro, perda, venda perdida) ou evita uma perda?
+3. Cabe sem escrever nos anúncios do seller, ou a escrita tem trava de segurança?
+
+Copiamos funções, nunca telas, textos ou marca de terceiros.
+
+## 60.5 Empresas e lojas (implementado na v0.18, issue #49)
+
+```text
+Conta (tenants: assinatura, usuários, trial)
+  └── Empresas (companies: CNPJ, razão social, regime tributário)
+        └── Lojas (stores: marketplace, nome) ── conexão OAuth (#10)
+```
+
+- **CNPJ numérico e alfanumérico:** a Receita Federal emite CNPJ com letras desde 31/07/2026. Validação pelo módulo 11 com o valor ASCII − 48 de cada caractere, guardado sem pontuação e em maiúsculas. Testado com o exemplo oficial do SERPRO (`12.ABC.345/01DE-35`).
+- **Unicidade por conta:** o mesmo CNPJ pode existir em contas diferentes (ex.: contador e seller), mas só uma vez em cada conta.
+- **Isolamento em três camadas:** filtro pelo tenant da sessão, RLS nas duas tabelas e FK composta `(tenant_id, company_id)`, que impede no banco uma loja ligada ao CNPJ de outra conta.
+- **Regras:** ver é para qualquer membro; criar e remover é só para o dono. CNPJ com lojas não pode ser removido.
+- **Tela `/empresas`** (exige conta): CNPJs com o regime e as lojas de cada um. Loja nova fica "Não conectada" até a #10.
+- **Onboarding:** passa a pedir o nome da operação (a conta); os CNPJs são cadastrados depois.
+- **Ainda não:** editar CNPJ, mover loja entre CNPJs, limite de lojas por plano (#57) e filtro por empresa no painel (entra com dados reais, #50).
+
+---
+
 # PRÓXIMO PASSO
 
 O próximo bloco de trabalho não deve ser código de integração.
@@ -4848,6 +4912,16 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.18
+
+- decisão (2026-10-10): GSeller como complemento operacional do UpSeller, com o dinheiro de cada operação (Bloco 60);
+- nova ordem: empresas (CNPJ) e lojas (#49) antes da conexão com o Mercado Livre (#10); depois pedido de ponta a ponta (#50), devoluções (#51) e atendimento do Mercado Livre (#52);
+- fase 2: estoque em leitura (#53), Shopee (#54), NF-e via provedor (#55), sincronização de estoque (#56);
+- decisão: sem uso de telefone ou WhatsApp de comprador do Mercado Livre e da Shopee; chat da Shopee sem API para aplicativos no Brasil;
+- planos e preços em revisão frente ao gratuito do UpSeller (#57);
+- Bloco 1.2 e risco R01 revisados;
+- implementado: empresas (CNPJ numérico e alfanumérico) e lojas dentro da conta, com RLS e FK composta entre loja e empresa; tela `/empresas`; onboarding pede o nome da operação (#49, Bloco 60.5); CNPJ da empresa no Data Map.
 
 ## v0.17
 

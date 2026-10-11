@@ -141,7 +141,8 @@ async def db(migrated_db: None) -> None:
         await conn.execute(
             text(
                 "TRUNCATE app.audit_logs, app.tenant_users, app.tenants, app.users, "
-                "app.subscriptions, app.stripe_events, app.email_deliveries CASCADE"
+                "app.subscriptions, app.stripe_events, app.email_deliveries, app.stores, "
+                "app.companies CASCADE"
             )
         )
     await engine.dispose()

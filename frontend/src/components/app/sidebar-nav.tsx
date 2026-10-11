@@ -9,6 +9,7 @@ const ITEMS = [
   { href: "/produtos", label: "Produtos" },
   { href: "/custos", label: "Custos" },
   { href: "/conexoes", label: "Conexões" },
+  { href: "/empresas", label: "Empresas e lojas" },
 ] as const;
 
 export function SidebarNav() {

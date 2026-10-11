@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { LOGIN_PATH } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
+import type { Marketplace } from "@/lib/types";
 
 export const ONBOARDING_PATH = "/onboarding";
 export const PLANS_PATH = "/planos";
@@ -19,6 +20,16 @@ export type Me = {
     days_left: number;
     plan: "start" | "pro" | "scale" | null;
   };
+};
+
+export type TaxRegime = "mei" | "simples_nacional" | "lucro_presumido" | "lucro_real";
+type Store = { id: string; company_id: string; marketplace: Marketplace; name: string };
+export type Company = {
+  id: string;
+  cnpj: string;
+  legal_name: string;
+  tax_regime: TaxRegime;
+  stores: Store[];
 };
 
 export class ApiError extends Error {
@@ -60,6 +71,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
       "Content-Type": "application/json",
     },
   });
+  if (response.status === 204) return undefined as T;
   if (response.ok) return (await response.json()) as T;
 
   const body = (await response.json().catch(() => ({}))) as { error?: string; message?: string };
