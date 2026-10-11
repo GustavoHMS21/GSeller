@@ -18,10 +18,14 @@ def test_redacts_sensitive_keys_recursively() -> None:
 
 
 def test_redacts_bearer_and_marketplace_tokens_in_text() -> None:
-    text = "Authorization: Bearer abc.def.ghi token APP_USR-1234567890-123456-abcdef"
+    text = (
+        "Authorization: Bearer abc.def.ghi token APP_USR-1234567890-123456-abcdef "
+        "resend re_AbCdEf123456_7890xyzQ"
+    )
     result = redact_text(text)
     assert "abc.def.ghi" not in result
     assert "APP_USR-1234567890" not in result
+    assert "re_AbCdEf123456" not in result
 
 
 def test_redacts_query_string_params() -> None:

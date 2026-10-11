@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.16 — Telas diretas: número e ação, sem textos explicativos (issue #44)  
+> **Versão:** 0.17 — E-mails com Resend e aviso de fim de trial (issues #46 e #36)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4096,12 +4096,14 @@ O connector usa uma **allowlist de campos**: só o que está mapeado no modelo i
 | Logs de acesso (IP, ação, data) | Sistema | Segurança e auditoria | Cumprimento de obrigação legal (Marco Civil, art. 15) e legítimo interesse | Logs | Admin | Mínimo 6 meses; máximo a definir | Rotação automática |
 | Gravações de entrevistas | Entrevistado | Pesquisa de produto | Consentimento | Pasta privada, fora do repositório | Equipe do projeto | 90 dias; depois só resumo anônimo | Apagar arquivo |
 | Dados de cobrança do SaaS | Stripe (v0.15) | Cobrança da assinatura | Execução de contrato / obrigação legal | Stripe (suboperador). No nosso banco: só os ids de cliente e assinatura, plano e status; **nunca dados de cartão** | Financeiro | Prazo fiscal | Conforme Stripe |
+| E-mail do usuário e conteúdo dos e-mails do sistema | Cadastro / sistema (v0.17) | Autenticação e avisos do serviço (fim do trial, cobrança) | Execução de contrato | Resend (suboperador; envio por São Paulo, **dados da conta guardados nos EUA**: transferência internacional, art. 33, a validar com jurídico). No nosso banco: só quem recebeu qual aviso (`app.email_deliveries`), **sem endereço nem conteúdo** | Backend | Registro: enquanto a conta existir; Resend: conforme retenção do provedor | Exclusão da conta |
+| E-mail para comunicação promocional | Opt-in do usuário (#47) | Novidades e ofertas | **Consentimento** (art. 7º, I), revogável a qualquer momento | Resend (Contatos), só de quem consentiu | Marketing | Até a revogação | Descadastro pelo link ou nas configurações |
 
 ## 50.6 Papéis (a confirmar com jurídico e com os termos de cada marketplace)
 
 - **Dados das contas do SaaS** (usuários, logs, cobrança): somos **controladores**.
 - **Dados que vêm do marketplace em nome do seller:** o seller é o controlador da própria operação; nós atuamos como **operador**, processando sob instrução dele para gerar as análises. Os termos de desenvolvedor de cada marketplace podem impor obrigações próprias — mapear no DPA.
-- **Suboperadores previstos:** hospedagem do banco, hospedagem da API, Vercel, provedor de autenticação, gateway de pagamento (futuro).
+- **Suboperadores previstos:** hospedagem do banco, hospedagem da API, Vercel, provedor de autenticação, gateway de pagamento (Stripe, v0.15), provedor de e-mail (Resend, v0.17).
 
 ---
 
@@ -4753,7 +4755,7 @@ Primeiro acesso ──► sessão anônima no Supabase (navegador)
 | Robôs criando contas anônimas em massa | Sessão só é criada no navegador (JS); CAPTCHA Turnstile | #38 |
 | Contas anônimas abandonadas (LGPD) | Limpeza agendada após o trial | #39 |
 | Limpar cookies reinicia o trial da demonstração | Aceito: a demonstração não tem dados reais. Conta com dados reais tem prazo próprio | — |
-| E-mails de autenticação não chegam no piloto | SMTP próprio | #31 |
+| E-mails de autenticação não chegam no piloto | SMTP do Resend no Supabase (Bloco 59) | #31 |
 | Cobrança antes da validação de preço | Planos e preços continuam sendo testados nas entrevistas (Bloco 49.5) | #35 |
 
 ## 58.6 Estado
@@ -4763,9 +4765,67 @@ Primeiro acesso ──► sessão anônima no Supabase (navegador)
 | Modo demonstração e conversão em conta | #33 | ✅ v0.13 |
 | Trial e bloqueio no 8º dia | #34 | ✅ v0.14 |
 | Planos e Stripe | #35 | ✅ v0.15 |
-| E-mail de fim de trial | #36 | Pendente |
+| E-mail de fim de trial | #36 | ✅ v0.17 (envio real depende do domínio no Resend e do agendador do deploy, #22) |
 | CAPTCHA | #38 | Pendente (conta Cloudflare) |
 | Limpeza de anônimos | #39 | Pendente (deploy) |
+
+# BLOCO 59 — E-MAILS (RESEND)
+
+> Decisão do mantenedor em 2026-10-10: o **Resend** é o provedor de **todos** os e-mails do produto (issue #46).
+
+## 59.1 Três canais, um provedor
+
+| Canal | Exemplos | Quem envia | Como |
+|---|---|---|---|
+| **Autenticação** | Confirmação de cadastro, redefinição de senha (#32), troca de e-mail, conversão do modo demonstração | Supabase Auth | SMTP do Resend configurado no Supabase (#31). Templates em português versionados em `infra/supabase/email-templates/` |
+| **Avisos do serviço** | Fim do trial (#36), problemas de cobrança e de sincronização (futuro) | Backend | API REST do Resend, atrás da interface `EmailGateway` |
+| **Promocional** | Novidades, ofertas, conteúdo | Painel / API de Broadcasts do Resend | Só para quem consentiu; descadastro pelos Tópicos do Resend (#47) |
+
+## 59.2 Regras
+
+- **Subdomínios separados:** `avisos.<domínio>` para autenticação e avisos; `novidades.<domínio>` para promoções. Reclamação de spam em promoção não pode atrasar a confirmação de cadastro de ninguém.
+- **Domínio verificado** com SPF, DKIM e DMARC antes do piloto. Região de envio: **São Paulo (`sa-east-1`)**.
+- **Chaves só de envio** (*Sending access*), uma por uso: uma para o SMTP do Supabase, outra para o backend. Chave de administração nunca sai do painel.
+- **Segredo só no backend:** `RESEND_API_KEY` em `backend/.env`; nunca no frontend nem em `NEXT_PUBLIC_*`. Chaves `re_...` são mascaradas nos logs.
+- **Idempotência:** todo envio do backend leva uma chave determinística (`tipo/empresa/pessoa`); o Resend descarta repetições por 24 h, e o banco registra o envio na mesma transação, com unicidade por empresa, pessoa e tipo.
+- **Minimização:** o banco registra quem recebeu qual aviso (`app.email_deliveries`), nunca o endereço nem o conteúdo.
+- **Avisos do serviço não têm descadastro:** são execução de contrato e saem poucas vezes. Promoção sempre tem descadastro em um clique e exige consentimento.
+- **Texto direto** (Bloco 17): o que aconteceu, o que fazer, um botão. Sempre com versão em texto puro. Datas no horário de Brasília.
+
+## 59.3 Aviso de fim de trial (implementado na v0.17)
+
+```text
+agendador do deploy (1x/dia) ──► uv run python -m app.jobs.trial_emails
+                                    │
+         app.trial_email_recipients(tipo, de, até)   ← função SECURITY DEFINER
+                                    │   donos com conta e e-mail, sem o aviso ainda
+                                    ▼
+      por destinatário: contexto da empresa (RLS) → registra o envio → Resend → commit
+```
+
+| Aviso | Quando sai | Texto |
+|---|---|---|
+| `trial_ending` | Primeira execução com menos de 48 h de trial (o "6º dia") | "Seu teste gratuito termina em 12/10 às 10:00." → **Ver planos** |
+| `trial_ended` | Primeira execução depois do fim, até 7 dias depois | "Seu teste gratuito terminou e o painel está bloqueado." → **Escolher plano** |
+
+- Quem tem assinatura ativa (`active`, `trialing`, `past_due`) não recebe nenhum dos dois.
+- Anônimos não recebem: não têm e-mail. Para eles o aviso é a tela de bloqueio (Bloco 58).
+- **Por que uma função SECURITY DEFINER:** o job precisa ver empresas de todos os tenants, e o RLS impede isso, de propósito, para a role da API. Em vez de uma role com `BYPASSRLS`, a função devolve apenas o necessário para o aviso, com `search_path` fixo e `LIMIT`. O registro do envio continua passando pelo RLS.
+- **Falha no envio:** nada é registrado e a próxima execução tenta de novo.
+- **Sem `RESEND_API_KEY`:** o job sai com código 2, para o agendador acusar.
+- Testes: aviso enviado uma vez mesmo rodando o job duas vezes; assinante e trial fora da janela ignorados; falha seguida de nova tentativa; isolamento por tenant no registro; horário de Brasília; cabeçalhos enviados ao Resend.
+
+## 59.4 Pendências do mantenedor
+
+1. Registrar o domínio (Bloco 48) e criar a conta no Resend.
+2. Verificar `avisos.<domínio>` no Resend, região São Paulo, com os registros DNS (SPF, DKIM, DMARC).
+3. Criar duas chaves só de envio: uma no `backend/.env` (`RESEND_API_KEY`, `EMAIL_FROM`) e outra no SMTP do Supabase (#31).
+4. Colar os templates de `infra/supabase/email-templates/` no painel do Supabase.
+5. Conferir: `uv run python -m scripts.email_check voce@exemplo.com`.
+6. Agendar o job diário no deploy (#22).
+7. Validar com o jurídico a transferência internacional (dados da conta do Resend nos EUA).
+
+---
 
 # PRÓXIMO PASSO
 
@@ -4788,6 +4848,14 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.17
+
+- decisão (2026-10-10): Resend como provedor de todos os e-mails: autenticação (SMTP no Supabase), avisos do serviço (API, pelo backend) e promoções (Broadcasts, com consentimento) (issue #46, Bloco 59);
+- aviso de fim de trial por e-mail implementado: job diário idempotente, registro em `app.email_deliveries` com RLS e função SECURITY DEFINER para listar destinatários entre tenants (issue #36);
+- templates em português dos e-mails de autenticação versionados em `infra/supabase/email-templates/`;
+- Resend registrado como suboperador no Data Map, com a transferência internacional a validar; nova linha para comunicação promocional baseada em consentimento (#47);
+- chaves do Resend mascaradas nos logs.
 
 ## v0.16
 

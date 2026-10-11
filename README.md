@@ -61,6 +61,22 @@ O `--events` é obrigatório nas versões atuais do Stripe CLI. A lista acima é
 
 No checkout de teste, use o cartão `4242 4242 4242 4242`, com qualquer data futura e qualquer CVC.
 
+## E-mails (Resend)
+
+Todos os e-mails saem pelo Resend (Bloco 59 do Master Plan): os de autenticação pelo SMTP configurado no Supabase, os do sistema pela API, a partir do backend.
+
+```bash
+# 1. backend/.env: RESEND_API_KEY=re_... e EMAIL_FROM="GSeller <nao-responda@avisos.seudominio.com.br>"
+# 2. Confere chave, remetente e domínio com um e-mail de teste
+cd backend
+uv run python -m scripts.email_check voce@exemplo.com
+
+# 3. Avisos de fim de trial (o deploy agenda uma vez por dia)
+uv run python -m app.jobs.trial_emails
+```
+
+Templates e configuração de SMTP do Supabase: [infra/supabase/email-templates](infra/supabase/email-templates/README.md).
+
 ## Qualidade
 
 ```bash

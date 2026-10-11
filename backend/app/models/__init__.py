@@ -3,11 +3,13 @@
 from app.models.audit import AuditLog
 from app.models.base import Base
 from app.models.billing import StripeEvent, Subscription
+from app.models.email import EmailDelivery
 from app.models.tenancy import Role, Tenant, TenantUser, User
 
 __all__ = [
     "AuditLog",
     "Base",
+    "EmailDelivery",
     "Role",
     "StripeEvent",
     "Subscription",
