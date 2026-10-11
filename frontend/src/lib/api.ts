@@ -1,6 +1,7 @@
 // Chamadas do servidor Next.js para a API (Bloco 52). O navegador nunca fala direto com a API.
 
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { LOGIN_PATH } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 import type { Marketplace } from "@/lib/types";
@@ -82,6 +83,9 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   if (outcome === "paywall") redirect(PLANS_PATH);
   throw new ApiError(response.status, body.error ?? "http_error", body.message ?? "Falha na API.");
 }
+
+/** A conta do usuário, uma vez por requisição: o menu da conta e o card do plano dividem a chamada. */
+export const getMe = cache(() => apiFetch<Me>("/api/me"));
 
 function apiUrl(): string {
   const url = process.env.API_URL;

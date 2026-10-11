@@ -26,5 +26,6 @@ export const PLANS: Plan[] = [
     channels: "Mercado Livre e Shopee, até 2 contas",
     recommended: true,
   },
-  { id: "scale", name: "Scale", monthlyPrice: 297, ordersPerMonth: 5000, channels: "Até 5 contas" },
+  // R$ 497 desde 2026-10-11 (decisão do mantenedor); Start e Pro sem mudança.
+  { id: "scale", name: "Scale", monthlyPrice: 497, ordersPerMonth: 5000, channels: "Até 5 contas" },
 ];

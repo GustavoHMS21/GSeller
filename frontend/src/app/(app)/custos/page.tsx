@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CostsEditor } from "@/components/app/costs-editor";
+import { ModuleLayout, ModuleSidebar, PRODUCTS_NAV } from "@/components/app/module-sidebar";
 import { products } from "@/lib/demo/data";
 
 export const metadata: Metadata = { title: "Custos" };
@@ -9,7 +10,9 @@ export default function CostsPage() {
   const missing = rows.filter((r) => r.cost.unitCost === null).length;
 
   return (
-    <div className="space-y-6">
+    <ModuleLayout
+      sidebar={<ModuleSidebar title="Produtos" sections={PRODUCTS_NAV} activeHref="/custos" />}
+    >
       <h1 className="text-2xl font-semibold">Custos</h1>
 
       {missing > 0 && (
@@ -25,6 +28,6 @@ export default function CostsPage() {
       <p className="text-xs text-fg-muted">
         Protótipo: as alterações ficam apenas nesta tela e não são salvas.
       </p>
-    </div>
+    </ModuleLayout>
   );
 }

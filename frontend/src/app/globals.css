@@ -31,6 +31,12 @@
 
   --ds-brand-ml: #ffe600;
   --ds-brand-shopee: #ee4d2d;
+
+  /* Barra superior de módulos (Bloco 60.9): escura nos dois temas. */
+  --ds-nav: #0b1630;
+  --ds-nav-hover: #1b2a4d;
+  --ds-nav-fg: #f3f5f9;
+  --ds-nav-fg-muted: #b8c1d3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -64,6 +70,11 @@
   --color-fg: var(--ds-fg);
   --color-fg-muted: var(--ds-fg-muted);
   --color-line: var(--ds-line);
+
+  --color-nav: var(--ds-nav);
+  --color-nav-hover: var(--ds-nav-hover);
+  --color-nav-fg: var(--ds-nav-fg);
+  --color-nav-fg-muted: var(--ds-nav-fg-muted);
 
   --color-primary: var(--ds-primary);
   --color-primary-hover: var(--ds-primary-hover);

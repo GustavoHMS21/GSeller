@@ -19,7 +19,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/atendimento/[id]">) {
   const { id } = await params;
   const c = getConversation(id);
-  return { title: c ? `${KIND_LABEL[c.kind]} · ${c.productName}` : "Atendimento" };
+  return { title: c ? `${KIND_LABEL[c.kind]} · ${c.productName}` : "SAC" };
 }
 
 export default function ConversationPage({ params }: PageProps<"/atendimento/[id]">) {
@@ -40,7 +40,7 @@ async function ConversationDetail({ params }: { params: Promise<{ id: string }> 
     <div className="max-w-3xl space-y-6">
       <nav aria-label="Trilha" className="text-sm text-fg-muted">
         <Link href="/atendimento" className="hover:text-fg hover:underline">
-          Atendimento
+          SAC
         </Link>{" "}
         / <span aria-current="page">{KIND_LABEL[c.kind]}</span>
       </nav>

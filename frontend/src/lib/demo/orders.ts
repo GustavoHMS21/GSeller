@@ -16,6 +16,21 @@ const STAGE_LABEL: Record<OrderStage, string> = {
   cancelled: "Cancelado",
 };
 
+// Status atual com o vocabulário que o seller já usa no UpSeller (Bloco 60.9); a linha do
+// tempo continua mostrando os eventos como aconteceram (STAGE_LABEL).
+const STATUS_LABEL: Record<OrderStage, string> = {
+  paid: "Para emitir",
+  invoiced: "Para enviar",
+  ready_to_ship: "Para enviar",
+  shipped: "Enviado",
+  delivered: "Entregue",
+  claim_opened: "Em reclamação",
+  return_shipped: "Devolução a caminho",
+  returned: "Devolvido",
+  refunded: "Reembolsado",
+  cancelled: "Cancelado",
+};
+
 const STAGE_TONE: Record<OrderStage, Tone> = {
   paid: "neutral",
   invoiced: "neutral",
@@ -65,7 +80,7 @@ const currentStage = (order: Order): OrderStage => order.events[order.events.len
 
 export function orderStatus(order: Order): { label: string; tone: Tone } {
   const stage = currentStage(order);
-  return { label: STAGE_LABEL[stage], tone: STAGE_TONE[stage] };
+  return { label: STATUS_LABEL[stage], tone: STAGE_TONE[stage] };
 }
 
 /** O que precisa ser arrumado agora, por ordem de urgência; null quando está tudo certo. */
@@ -133,13 +148,26 @@ export function orderAttention(order: Order, now: Date): Attention | null {
   return null;
 }
 
-export type OrderFilter = "atrasados" | "enviar" | "reclamacao" | "devolvidos";
+export type OrderFilter =
+  | "atrasados"
+  | "emitir"
+  | "enviar"
+  | "enviados"
+  | "entregues"
+  | "reclamacao"
+  | "devolvidos"
+  | "cancelados";
 
+/** Abas na ordem do fluxo do pedido, como no UpSeller; "Atrasados" é o atalho do que vence. */
 export const ORDER_FILTERS: { value: OrderFilter; label: string }[] = [
   { value: "atrasados", label: "Atrasados" },
+  { value: "emitir", label: "Para emitir" },
   { value: "enviar", label: "Para enviar" },
-  { value: "reclamacao", label: "Com reclamação" },
+  { value: "enviados", label: "Enviados" },
+  { value: "entregues", label: "Entregues" },
+  { value: "reclamacao", label: "Reclamações" },
   { value: "devolvidos", label: "Devolvidos" },
+  { value: "cancelados", label: "Cancelados" },
 ];
 
 export function matchesFilter(order: Order, filter: OrderFilter, now: Date): boolean {
@@ -148,8 +176,16 @@ export function matchesFilter(order: Order, filter: OrderFilter, now: Date): boo
   switch (filter) {
     case "atrasados":
       return problem === "late_to_ship" || problem === "late_delivery";
+    case "emitir":
+      return stage === "paid";
     case "enviar":
-      return NOT_SHIPPED.includes(stage);
+      return stage === "invoiced" || stage === "ready_to_ship";
+    case "enviados":
+      return stage === "shipped";
+    case "entregues":
+      return stage === "delivered";
+    case "cancelados":
+      return stage === "cancelled";
     case "reclamacao":
       return problem === "claim";
     case "devolvidos":

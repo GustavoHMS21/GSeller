@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.20 — Central de atendimento do Mercado Livre na demonstração (issue #52)  
+> **Versão:** 0.21 — Menu, Início e pedidos no padrão que o seller já conhece do UpSeller (issue #63)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4710,7 +4710,7 @@ A suíte passou de **140 para 121 testes** (frontend 91 → 75; backend 49 → 4
 | Bloqueio | No **8º dia**, a **API** recusa o uso (`402 trial_expired`) e o frontend mostra a tela de planos. Bloqueio só visual seria contornável |
 | E-mail de fim de trial | Somente para quem criou conta (anônimo não tem e-mail): avisos no 6º e no 8º dia |
 | Cobrança | **Stripe**: Checkout hospedado (o número de cartão nunca passa pelo nosso site) e Customer Portal |
-| Planos | **R$ 97 / R$ 197 / R$ 297 por volume**. Limites propostos na #35, a confirmar |
+| Planos | **R$ 97 / R$ 197 / R$ 497 por volume** (Scale subiu de R$ 297 para R$ 497 em 2026-10-11; foco em pequenos e médios, novos sellers no Start e no Pro). Limites propostos na #35, a confirmar (#57) |
 
 ## 58.2 Como funciona a identidade
 
@@ -4984,6 +4984,29 @@ Tela `/atendimento`, aberta no modo demonstração. Regras em `frontend/src/lib/
 
 Na demonstração, o envio da resposta é simulado na tela.
 
+## 60.9 Familiaridade com o UpSeller (v0.21, issue #63)
+
+> Decisão do mantenedor em 2026-10-11: o painel deve ser parecido com o do UpSeller, para quem migra não se perder. Copiamos **organização e vocabulário**, nunca marca, identidade visual, telas ou textos (60.4).
+
+**Fontes:** Central de Ajuda do UpSeller ("Introdução à página inicial do UpSeller", "Manual de Ajuda: Pedidos de Vendas") e prints do sistema enviados pelo mantenedor em 2026-10-11 (Home, menus de Produtos, Pedidos e Estoque, Pedidos, Notas Fiscais, Compras, Estoque, Análises, Financeiro, Integrações, Configurações e menu da conta).
+
+> **Objetivo (mantenedor):** não é atender a tudo igual ao UpSeller, e sim a tudo que o seller precisa, com bom preço, para pequenos e médios e novos comerciantes.
+
+| Onde | No UpSeller | No GSeller |
+|---|---|---|
+| Barra superior | Escura, com os módulos Home, Produtos, Pedidos, Compras, Estoque, SAC, Análises, Financeiro; cada um abre um menu com grupos titulados | Escura, com **Início, Produtos, Pedidos, SAC, Análises**; menu suspenso com grupos titulados ao passar o mouse ou focar pelo teclado. Compras, Estoque e Financeiro só entram quando existirem (Estoque com a #53) |
+| Direita da barra | Engrenagem (Integrações de Loja, configurações) e menu da conta (plano, Perfil, Faturas, Planos, Sair) | Engrenagem (Integrações de Loja, Empresas e lojas) e menu da conta (plano ou teste, Assinar/Planos, Alterar senha, Empresas e lojas, Sair) |
+| Dentro do módulo | Lateral própria com grupos e contadores (ex.: Processando Pedidos → Para Emitir 0) | Lateral própria com contadores em Pedidos (Processando Pedidos, Concluídos, Pós-venda) e SAC; Produtos e Configurações com a lateral de navegação |
+| Início | Duas colunas. Principal: Tarefas por módulo (número, ponto colorido e rótulo), Avisos, vendas por loja (Hoje / 30 dias). Lateral: plano, treinamento, Ações Rápidas, FAQs | Duas colunas. Principal: **Tarefas** por módulo (Pedidos, SAC, Produtos) → **O que corrigir no lucro** (no lugar dos Avisos; nosso diferencial) → **Vendas · últimos 30 dias** com abas Todas as Lojas / Mercado Livre / Shopee e lucro. Lateral: **card do plano** (teste ou plano) e **Ações Rápidas**. Sem banners de propaganda |
+| Análises | Relatórios de vendas (Vista Geral, ABC, por anúncio, por estado) | Módulo **Análises**: indicadores do período, todos os alertas de lucro, por marketplace, quem mais lucra e maior perda de margem |
+| Pedidos | Filtros no topo (nº do pedido, data, plataforma, loja…), abas por status e tabela Produtos, Valor do Pedido, Destinatário, Nº de Pedido da Plataforma, Tempo, Métodos de Envio, Estado, Ações | Lateral com status e contagens; busca por nº do pedido ou produto e plataforma (funciona sem JavaScript); tabela Produtos, Valor do Pedido, Nº de Pedido da Plataforma, Tempo, Estado, **O que fazer**, **Lucro**, Ações. **Sem Destinatário:** não guardamos dado do comprador (Bloco 50.4) |
+| "Expiram em breve" | Pedido não processado perto do cancelamento automático | "Postar hoje" e "Atrasados" (Bloco 60.6) |
+
+- Cada contador das Tarefas leva à lista já filtrada (testado).
+- Todo pedido cai em exatamente uma aba de status (testado), como num ERP.
+- "Para Reservar" (estoque insuficiente) entra com o estoque (#53/#56).
+- **Inspiração para depois, a priorizar com o filtro do 60.4:** Notas Fiscais com lateral de status (Rascunho, Emitindo, Falha na Emissão, Emitido) para a #55; Compras (Sugestão de Compras, Para Comprar, Em Trânsito) e Estoque (Lista de Estoque com Qtd. Mín., Disponível, Custo Médio; Regras de Reposição) para a #53/#56; Financeiro (Caixa e Bancos, Contas a Pagar/Receber, Relatórios de Lucros); Integrações com lista de marketplaces e contador de lojas por plano.
+
 ---
 
 # PRÓXIMO PASSO
@@ -5007,6 +5030,15 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.21
+
+- decisão (2026-10-11): painel parecido com o do UpSeller para facilitar a migração; copiamos organização e vocabulário, nunca marca nem identidade visual (issue #63, Bloco 60.9);
+- menu: Início, Pedidos, SAC, Produtos, Custos e grupo Configurações (Integrações, Empresas e lojas), com contadores de pendências;
+- Início com Tarefas clicáveis no topo, alertas de lucro, Desempenho dos 30 dias e Ações rápidas;
+- pedidos com abas por status no vocabulário do UpSeller (Para emitir, Para enviar, Enviados, Entregues, Reclamações, Devolvidos, Cancelados) e Atrasados;
+- com os prints do UpSeller: barra superior escura de módulos com menus suspensos, engrenagem e menu da conta; lateral com contadores dentro de cada módulo; Início em duas colunas (Tarefas por módulo, lucro, vendas por loja; plano e Ações Rápidas); novo módulo Análises; Pedidos com busca e tabela no estilo do UpSeller, sem Destinatário;
+- preço do Scale de R$ 297 para R$ 497; `scripts/stripe_setup.py` cria o preço novo, transfere a `lookup_key` e desativa o antigo (assinantes atuais mantêm o valor).
 
 ## v0.20
 

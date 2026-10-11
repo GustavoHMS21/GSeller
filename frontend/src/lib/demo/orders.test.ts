@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { DEMO_NOW, orders } from "@/lib/demo/order-data";
-import { matchesFilter, orderAttention, orderTimeline, returnCost } from "@/lib/demo/orders";
+import {
+  matchesFilter,
+  ORDER_FILTERS,
+  orderAttention,
+  orderTimeline,
+  returnCost,
+} from "@/lib/demo/orders";
 import type { Order, OrderStage } from "@/lib/types";
 
 const NOW = new Date("2026-10-08T14:32:00-03:00");
@@ -132,8 +138,21 @@ describe("orderTimeline", () => {
 
 describe("pedidos de demonstração", () => {
   it("cada filtro tem ao menos um pedido, para a entrevista mostrar todos os casos", () => {
-    for (const filter of ["atrasados", "enviar", "reclamacao", "devolvidos"] as const) {
-      expect(orders.some((o) => matchesFilter(o, filter, DEMO_NOW))).toBe(true);
+    for (const { value } of ORDER_FILTERS) {
+      expect(
+        orders.some((o) => matchesFilter(o, value, DEMO_NOW)),
+        value,
+      ).toBe(true);
+    }
+  });
+
+  it("cada pedido está em exatamente uma aba de status (fora Atrasados, que é atalho)", () => {
+    const statusTabs = ORDER_FILTERS.filter(
+      (f) => f.value !== "atrasados" && f.value !== "devolvidos",
+    );
+    for (const o of orders.filter((o) => !o.returnInfo)) {
+      const tabs = statusTabs.filter((f) => matchesFilter(o, f.value, DEMO_NOW));
+      expect(tabs.length, o.id).toBe(1);
     }
   });
 

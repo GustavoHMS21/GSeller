@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ModuleLayout, ModuleSidebar, PRODUCTS_NAV } from "@/components/app/module-sidebar";
 import { ProductsTable } from "@/components/app/products-table";
 import { products } from "@/lib/demo/data";
 
@@ -6,9 +7,11 @@ export const metadata: Metadata = { title: "Produtos" };
 
 export default function ProductsPage() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Produtos</h1>
+    <ModuleLayout
+      sidebar={<ModuleSidebar title="Produtos" sections={PRODUCTS_NAV} activeHref="/produtos" />}
+    >
+      <h1 className="text-2xl font-semibold">Lista de Produtos</h1>
       <ProductsTable products={products} />
-    </div>
+    </ModuleLayout>
   );
 }

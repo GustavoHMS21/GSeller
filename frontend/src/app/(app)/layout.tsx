@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { AccountBar, DemoNotice } from "@/components/app/account-bar";
-import { ConnectionStatusBadge } from "@/components/app/connection-status";
-import { SidebarNav } from "@/components/app/sidebar-nav";
-import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
+import { AccountBar, DemoNotice, SettingsMenu } from "@/components/app/account-bar";
+import { TopNav } from "@/components/app/top-nav";
 import { Skeleton } from "@/components/ui/states";
-import { connections, DEMO } from "@/lib/demo/data";
-import { formatDateTime } from "@/lib/format";
 
+/** Barra superior de módulos, como no UpSeller (Bloco 60.9); cada módulo tem a lateral própria. */
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-screen flex-col">
@@ -18,49 +15,30 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         Pular para o conteúdo
       </a>
 
+      <header className="sticky top-0 z-30 bg-nav text-nav-fg">
+        <div className="flex items-center gap-2 px-4">
+          <Link href="/dashboard" className="mr-4 shrink-0 text-lg font-bold tracking-tight">
+            GSeller
+          </Link>
+          <TopNav />
+          <div className="ml-auto flex shrink-0 items-center gap-1">
+            <SettingsMenu />
+            <Suspense fallback={<Skeleton className="h-7 w-32 bg-nav-hover" />}>
+              <AccountBar />
+            </Suspense>
+          </div>
+        </div>
+      </header>
+
       <div role="note" className="bg-info-soft px-4 py-2 text-center text-sm text-info">
         <Suspense fallback="Dados de demonstração de uma loja fictícia.">
           <DemoNotice />
         </Suspense>
       </div>
 
-      <div className="flex flex-1 flex-col md:flex-row">
-        <aside className="border-b border-line bg-surface px-4 py-4 md:w-56 md:shrink-0 md:border-b-0 md:border-r">
-          <Link href="/dashboard" className="mb-4 block text-lg font-bold tracking-tight">
-            GSeller
-          </Link>
-          <SidebarNav />
-          <Link href="/design" className="mt-6 hidden text-xs text-fg-muted hover:text-fg md:block">
-            Design System v0.1
-          </Link>
-        </aside>
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-line bg-surface px-6 py-3 text-sm">
-            <Suspense fallback={<Skeleton className="h-5 w-56" />}>
-              <AccountBar />
-            </Suspense>
-            <span className="text-fg-muted">
-              {DEMO.periodLabel} {DEMO.comparisonLabel}
-            </span>
-            <div className="flex flex-wrap items-center gap-3 md:ml-auto">
-              {connections.map((c) => (
-                <span key={c.marketplace} className="inline-flex items-center gap-2">
-                  <MarketplaceBadge marketplace={c.marketplace} />
-                  <ConnectionStatusBadge status={c.status} />
-                </span>
-              ))}
-              <span className="text-fg-muted">
-                Última sincronização: {formatDateTime(DEMO.lastSyncAt)}
-              </span>
-            </div>
-          </header>
-
-          <main id="conteudo" className="flex-1 px-6 py-6">
-            {children}
-          </main>
-        </div>
-      </div>
+      <main id="conteudo" className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 md:px-6">
+        {children}
+      </main>
     </div>
   );
 }

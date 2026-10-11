@@ -15,6 +15,7 @@ const DEMO_PREFIXES = [
   "/produtos",
   "/pedidos",
   "/atendimento",
+  "/analises",
   "/custos",
   "/conexoes",
   "/design",

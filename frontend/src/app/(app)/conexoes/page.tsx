@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ConnectionStatusBadge } from "@/components/app/connection-status";
+import { ModuleLayout, ModuleSidebar, SETTINGS_NAV } from "@/components/app/module-sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
 import { connections, products } from "@/lib/demo/data";
 import { formatDateTime } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Conexões" };
+export const metadata: Metadata = { title: "Integrações de Loja" };
 
 export default function ConnectionsPage() {
   const withCost = products.filter((p) => p.cost.unitCost !== null).length;
@@ -28,9 +29,13 @@ export default function ConnectionsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <ModuleLayout
+      sidebar={
+        <ModuleSidebar title="Configurações" sections={SETTINGS_NAV} activeHref="/conexoes" />
+      }
+    >
       <div>
-        <h1 className="text-2xl font-semibold">Conexões</h1>
+        <h1 className="text-2xl font-semibold">Integrações de Loja</h1>
         <p className="text-sm text-fg-muted">Acesso somente leitura. Nunca pedimos sua senha.</p>
       </div>
 
@@ -82,6 +87,6 @@ export default function ConnectionsPage() {
           ))}
         </ol>
       </Card>
-    </div>
+    </ModuleLayout>
   );
 }
