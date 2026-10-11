@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { CONNECTION_STATUS, ConnectionStatusBadge } from "@/components/app/connection-status";
 import { InsightCard } from "@/components/app/insight-card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Delta } from "@/components/ui/delta";
@@ -112,9 +111,6 @@ export default function DesignPage() {
           <div className="flex flex-wrap gap-4">
             <MarketplaceBadge marketplace="mercadolivre" />
             <MarketplaceBadge marketplace="shopee" />
-            <Badge tone="info">Informado por você</Badge>
-            <Badge tone="warning">Estimado</Badge>
-            <Badge>Dado do marketplace</Badge>
           </div>
           <div className="flex flex-wrap gap-4">
             <Delta value={0.124} />
@@ -127,14 +123,7 @@ export default function DesignPage() {
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <KpiCard
-          title="Margem estimada"
-          value="22,4%"
-          delta={0.021}
-          deltaKind="pp"
-          comparison="vs. período anterior"
-          formula={<p>Resultado estimado ÷ receita elegível.</p>}
-        />
+        <KpiCard title="Margem estimada" value="22,4%" delta={0.021} deltaKind="pp" />
         {insights[0] && <InsightCard insight={insights[0]} />}
       </div>
 

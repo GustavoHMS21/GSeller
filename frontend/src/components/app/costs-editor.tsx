@@ -187,10 +187,7 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
           Histórico de alterações
         </h2>
         {history.length === 0 ? (
-          <p className="mt-1 text-sm text-fg-muted">
-            Nenhuma alteração nesta sessão. Ao alterar um custo, a vigência anterior é encerrada e o
-            resultado dos pedidos antigos continua usando o custo da época.
-          </p>
+          <p className="mt-1 text-sm text-fg-muted">Nenhuma alteração ainda.</p>
         ) : (
           <ul className="mt-2 space-y-2 text-sm">
             {history.map((h) => (
@@ -198,10 +195,7 @@ export function CostsEditor({ rows: initialRows }: { rows: CostRow[] }) {
                 <span className="font-medium">{h.productName}</span>: custo{" "}
                 {h.previous.unitCost === null ? "não informado" : formatBRL(h.previous.unitCost)} →{" "}
                 <strong>{formatBRL(h.next.unitCost ?? 0)}</strong> a partir de{" "}
-                {formatDate(h.next.validFrom)}.{" "}
-                <span className="text-fg-muted">
-                  Vigência anterior preservada para o histórico.
-                </span>
+                {formatDate(h.next.validFrom)}.
               </li>
             ))}
           </ul>

@@ -14,16 +14,14 @@ const INSIGHT: Insight = {
   productId: "kit-cue-3",
   productName: "Kit 3 Cuecas Algodão",
   severity: "critical",
-  title: "Vende muito, mas quase não contribui",
-  evidence: ["1.160 unidades no período."],
-  investigate: ["preço vs. custo", "comissão por canal"],
-  limitation: "Margem mínima configurável.",
+  title: "Vende muito e quase não lucra",
+  detail: "Margem de 8,1% em 1.160 unidades",
+  action: "Aumente o preço ou reduza o custo para passar de 10% de margem.",
   impact: 1286.4,
-  impactLabel: "para atingir a margem mínima de 10%",
 };
 
 describe("InsightCard", () => {
-  it("mostra gravidade, impacto, evidência, investigação e limitação (Bloco 17)", () => {
+  it("mostra gravidade, produto, impacto, problema e ação (Bloco 17, v0.16)", () => {
     render(<InsightCard insight={INSIGHT} />);
     expect(screen.getByText("Crítico")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Kit 3 Cuecas Algodão" })).toHaveAttribute(
@@ -31,9 +29,10 @@ describe("InsightCard", () => {
       "/produtos/kit-cue-3",
     );
     expect(screen.getByText(/1\.286/)).toBeInTheDocument();
-    expect(screen.getByText("1.160 unidades no período.")).toBeInTheDocument();
-    expect(screen.getByText("preço vs. custo · comissão por canal")).toBeInTheDocument();
-    expect(screen.getByText(/Limitação: Margem mínima configurável\./)).toBeInTheDocument();
+    expect(screen.getByRole("heading")).toHaveTextContent(
+      "Vende muito e quase não lucra · Margem de 8,1% em 1.160 unidades",
+    );
+    expect(screen.getByText(INSIGHT.action)).toBeInTheDocument();
   });
 
   it("omite o produto na página do próprio produto e o impacto quando não há", () => {
@@ -44,22 +43,22 @@ describe("InsightCard", () => {
 });
 
 describe("EconomicsBreakdown", () => {
-  it("mostra cada componente com a origem do dado e o resultado", () => {
+  it("mostra a receita, os custos do maior para o menor e o lucro", () => {
     const product = getProduct("gar-trm-1l");
     if (!product) throw new Error("produto de demonstração ausente");
     render(<EconomicsBreakdown economics={product.totals.current} />);
-    expect(screen.getByText("Receita elegível")).toBeInTheDocument();
-    expect(screen.getByText("Custo do produto")).toBeInTheDocument();
-    expect(screen.getAllByText("Informado por você").length).toBeGreaterThan(0);
-    expect(screen.getByText("Estimado")).toBeInTheDocument();
+    const items = screen.getAllByRole("rowheader").map((cell) => cell.textContent);
+    expect(items[0]).toBe("Receita");
+    expect(items[1]).toBe("Custo do produto");
+    expect(items.at(-1)).toBe("Lucro estimado");
     expect(screen.getByText(/margem 22,2%/)).toBeInTheDocument();
   });
 
-  it("não inventa resultado quando falta custo", () => {
+  it("não inventa lucro quando falta custo", () => {
     const product = getProduct("cap-nb-15");
     if (!product) throw new Error("produto de demonstração ausente");
     render(<EconomicsBreakdown economics={product.totals.current} />);
-    const footer = screen.getByText("Resultado estimado").closest("tr");
+    const footer = screen.getByText("Lucro estimado").closest("tr");
     expect(footer).toHaveTextContent("—");
   });
 });

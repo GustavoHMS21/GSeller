@@ -80,13 +80,14 @@ export interface Insight {
   productId: string;
   productName: string;
   severity: Severity;
+  /** O problema, em poucas palavras. */
   title: string;
-  evidence: string[];
-  investigate: string[];
-  limitation: string;
-  /** Impacto estimado em R$ no período, usado para priorizar a fila. */
+  /** O número que comprova o problema, em uma linha. */
+  detail: string;
+  /** O que fazer, em uma frase. */
+  action: string;
+  /** Impacto estimado em R$ no período (30 dias), usado para priorizar a fila. */
   impact: number | null;
-  impactLabel: string | null;
 }
 
 export interface Product {

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MarginFormula, ResultFormula, RevenueFormula } from "@/components/app/formula-text";
 import { InsightCard } from "@/components/app/insight-card";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Delta } from "@/components/ui/delta";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
-import { DEMO, insights, products, storeSummary } from "@/lib/demo/data";
+import { insights, products, storeSummary } from "@/lib/demo/data";
 import { formatBRL, formatBRLRounded, formatInt, formatPct, relativeChange } from "@/lib/format";
 import type { Marketplace } from "@/lib/types";
 
@@ -41,9 +40,6 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">Visão geral</h1>
-        <p className="text-sm text-fg-muted">
-          O que aconteceu na sua operação e o que merece atenção primeiro.
-        </p>
       </div>
 
       <section aria-labelledby="kpis">
@@ -55,29 +51,22 @@ export default function DashboardPage() {
             title="Receita"
             value={formatBRLRounded(cur.revenue)}
             delta={relativeChange(cur.revenue, prev.revenue)}
-            comparison={DEMO.comparisonLabel}
-            formula={<RevenueFormula />}
           />
           <KpiCard
-            title="Resultado estimado"
+            title="Lucro estimado"
             value={res.current.result === null ? "—" : formatBRLRounded(res.current.result)}
             delta={
               res.current.result !== null && res.previous.result !== null
                 ? relativeChange(res.current.result, res.previous.result)
                 : null
             }
-            comparison={DEMO.comparisonLabel}
             note={
               store.productsWithoutCost > 0 && (
-                <>
-                  Cobre {formatPct(store.coverage)} da receita.{" "}
-                  <Link href="/custos" className="text-primary hover:underline">
-                    {store.productsWithoutCost} produto sem custo
-                  </Link>
-                </>
+                <Link href="/custos" className="text-warning hover:underline">
+                  ▲ {store.productsWithoutCost} produto sem custo
+                </Link>
               )
             }
-            formula={<ResultFormula />}
           />
           <KpiCard
             title="Margem estimada"
@@ -88,39 +77,25 @@ export default function DashboardPage() {
                 : null
             }
             deltaKind="pp"
-            comparison={DEMO.comparisonLabel}
-            formula={<MarginFormula />}
           />
           <KpiCard
             title="Pedidos"
             value={formatInt(cur.orders)}
             delta={relativeChange(cur.orders, prev.orders)}
-            comparison={DEMO.comparisonLabel}
-            formula={
-              <p>Pedidos pagos e não cancelados no período, em todos os canais conectados.</p>
-            }
           />
           <KpiCard
             title="Ticket médio"
             value={formatBRL(ticket(cur))}
             delta={relativeChange(ticket(cur), ticket(prev))}
-            comparison={DEMO.comparisonLabel}
-            formula={<p>Ticket médio = receita elegível ÷ número de pedidos.</p>}
           />
         </div>
       </section>
 
       <section aria-labelledby="atencao">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <h2 id="atencao" className="text-lg font-semibold">
-              Precisa da sua atenção
-            </h2>
-            <p className="text-sm text-fg-muted">
-              Ordenado por gravidade e impacto estimado em R$. Cada item mostra a evidência e o que
-              investigar.
-            </p>
-          </div>
+          <h2 id="atencao" className="text-lg font-semibold">
+            O que corrigir primeiro
+          </h2>
           <span className="text-sm text-fg-muted">{insights.length} itens</span>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
@@ -143,19 +118,13 @@ export default function DashboardPage() {
       </section>
 
       <Card>
-        <CardHeader
-          title="Comparação entre marketplaces"
-          description="Receita sozinha não diz qual canal é melhor: compare resultado e margem."
-        />
+        <CardHeader title="Por marketplace" />
         <MarketplaceComparison />
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader
-            title="Quem mais contribui"
-            description="Maior resultado estimado no período"
-          />
+          <CardHeader title="Quem mais lucra" />
           <ol className="space-y-3">
             {topContributors.map((p) => {
               const result = p.totals.current.result ?? 0;
@@ -182,10 +151,7 @@ export default function DashboardPage() {
           </ol>
         </Card>
         <Card>
-          <CardHeader
-            title="Maior perda de margem"
-            description="Queda em pontos percentuais vs. período anterior"
-          />
+          <CardHeader title="Maior perda de margem" />
           {deteriorating.length === 0 ? (
             <p className="text-sm text-fg-muted">Nenhum produto perdeu margem no período.</p>
           ) : (
@@ -236,7 +202,7 @@ function MarketplaceComparison() {
               % do total
             </th>
             <th scope="col" className="py-2 pr-4 text-right font-medium">
-              Resultado est.
+              Lucro est.
             </th>
             <th scope="col" className="py-2 pr-4 text-right font-medium">
               Margem est.
@@ -276,10 +242,6 @@ function MarketplaceComparison() {
           })}
         </tbody>
       </table>
-      <p className="mt-3 text-xs text-fg-muted">
-        Margem por canal considera apenas produtos com custo cadastrado. Produtos diferentes em cada
-        canal afetam a comparação — veja a comparação do mesmo produto na página dele.
-      </p>
     </div>
   );
 }

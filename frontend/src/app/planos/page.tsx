@@ -86,7 +86,7 @@ async function PlansContent() {
             <ul className="mt-4 mb-6 space-y-1 text-sm">
               <li>Até {formatInt(plan.ordersPerMonth)} pedidos por mês</li>
               <li>{plan.channels}</li>
-              <li>Resultado e margem por produto, alertas e comparação entre canais</li>
+              <li>Lucro e margem por produto, alertas e comparação entre canais</li>
             </ul>
             <div className="mt-auto">
               {!hasAccount ? (

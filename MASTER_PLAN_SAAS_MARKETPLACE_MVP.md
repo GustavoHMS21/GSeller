@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.15 — Assinatura com Stripe (issue #35)  
+> **Versão:** 0.16 — Telas diretas: número e ação, sem textos explicativos (issue #44)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -884,13 +884,13 @@ Para cada componente relevante, guardar ou conseguir explicar:
 - regra/fórmula aplicada;
 - se o valor é real, informado pelo usuário ou estimado.
 
-A interface deve permitir “Como calculamos?”.
+~~A interface deve permitir “Como calculamos?”.~~ **Revisado na v0.16 (decisão de 2026-10-10):** o seller quer o número e o que fazer, não a fórmula. A origem de cada valor continua registrada nos dados e na API (data lineage), mas **não é exibida nas telas**. A confiança no cálculo vem dos golden tests e dos testes de mutação.
 
 ## 9.4 Linguagem do produto
 
-Usar:
+Usar (revisado na v0.16):
 
-- **Resultado estimado**;
+- **Lucro estimado** — termo do dia a dia do seller, sempre com "estimado" para não ser confundido com o lucro contábil;
 - **Margem estimada**;
 - **Custos considerados**;
 - **Receita atribuída a Ads** quando for o caso.
@@ -1506,8 +1506,6 @@ Estrutura:
 Título
 Valor principal
 Variação
-Período comparado
-Tooltip da fórmula
 ```
 
 Exemplo:
@@ -1516,9 +1514,9 @@ Exemplo:
 Margem estimada
 22,4%
 ▲ 2,1 p.p.
-vs. período anterior
-ⓘ Como calculamos
 ```
+
+Revisado na v0.16: sem fórmula nem período no card; o período comparado aparece uma vez, no cabeçalho da tela. Nota no card só quando leva a uma ação (ex.: "▲ 1 produto sem custo", com link para Custos).
 
 ## 16.7 Gráficos
 
@@ -1551,6 +1549,34 @@ Meta:
 ---
 
 # BLOCO 17 — UX DE CONFIANÇA
+
+> **Revisado na v0.16 (decisão de 2026-10-10):** o seller quer ver **o que precisa ser arrumado e como arrumar**. O formato abaixo substitui o original, que está preservado mais adiante como histórico.
+
+## 17.1 Formato do alerta (vigente)
+
+No máximo **3 linhas**:
+
+```text
+[Gravidade] Produto                                        ≈ R$ impacto/mês
+Problema em poucas palavras · número que o comprova
+→ Uma ação direta, em uma frase
+```
+
+Exemplo:
+
+> **[Crítico] Kit 3 Cuecas Algodão** — ≈ R$ 1.286/mês
+> **Vende muito e quase não lucra** · Margem de 8,1% em 1.160 unidades
+> → Aumente o preço ou reduza o custo para passar de 10% de margem.
+
+Regras:
+
+- O título descreve o problema (≤ 45 caracteres), não a regra que o detectou.
+- O número que comprova o problema fica na mesma linha.
+- A ação é uma frase imperativa, específica e curta. Um teste garante isso para todos os alertas.
+- Sem evidência detalhada, lista de investigação ou limitação na tela.
+- O impacto em R$ ordena a fila e aparece no canto do card.
+
+## 17.2 Formato original (histórico, substituído na v0.16)
 
 Cada insight deve responder:
 
@@ -2574,7 +2600,7 @@ Insumos da análise de 2026-10-10, para quando o tema voltar:
 
 **Mitigação:**
 
-- fórmula visível;
+- ~~fórmula visível~~ (removida das telas na v0.16; lineage mantido nos dados);
 - dados considerados;
 - testes;
 - “estimado”;
@@ -4102,7 +4128,7 @@ Os tokens semânticos do Bloco 16.4 foram renomeados para gerar utilitários leg
 
 ## 51.2 Componentes entregues
 
-`Button`, `ButtonLink`, `Badge`, `HealthBadge`, `MarketplaceBadge`, `ConnectionStatusBadge`, `Card`, `KpiCard`, `Delta`, `Formula` ("Como calculamos?"), `EmptyState`, `ErrorState`, `Skeleton`, `InsightCard`, `EconomicsBreakdown`, `ProductsTable` (com filtros), `CostsEditor` (com vigência).
+`Button`, `ButtonLink`, `Badge`, `HealthBadge`, `MarketplaceBadge`, `ConnectionStatusBadge`, `Card`, `KpiCard`, `Delta`, `EmptyState`, `ErrorState`, `Skeleton`, `InsightCard`, `EconomicsBreakdown`, `ProductsTable` (com filtros), `CostsEditor` (com vigência).
 
 **Decisão:** componentes de exibição feitos à mão, sem biblioteca. Componentes interativos complexos (Dialog, Select acessível, DateRangePicker, Tooltip, Toast) entram com shadcn/ui (Radix) quando a primeira tela real precisar deles.
 
@@ -4762,6 +4788,15 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.16
+
+- decisão (2026-10-10): telas mostram o número e o que fazer, sem explicar o cálculo (issue #44);
+- removidos os "Como calculamos?" de KPIs, detalhe do produto e saúde do produto; componentes `Formula` e `formula-text` apagados;
+- alerta em 3 linhas: problema com o número, impacto em R$ e uma ação direta; regras R001–R006 reescritas, com teste de contrato do formato;
+- removidos subtítulos e notas explicativas das telas principais; tabela "Para onde foi o dinheiro" ordenada do maior custo para o menor, sem coluna de origem;
+- vocabulário: "Lucro estimado" no lugar de "Resultado estimado" (Bloco 9.4);
+- Blocos 9.3, 9.4, 16.6, 17 e R02 revisados; o formato original do Bloco 17 fica como histórico.
 
 ## v0.15
 

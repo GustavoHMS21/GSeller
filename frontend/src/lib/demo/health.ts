@@ -6,14 +6,6 @@ import type { Health, HealthComponent, HealthLevel, ListingPeriod } from "@/lib/
 
 export const HEALTH_VERSION = "hs-0.1";
 
-export const HEALTH_RULES = [
-  "Margem estimada abaixo de 5%: −60 · abaixo de 10%: −45 · abaixo de 15%: −15",
-  "Margem caiu mais de 5 p.p.: −25 · mais de 2 p.p.: −10",
-  "Receita caiu mais de 15%: −15 · mais de 5%: −5",
-  "Conversão caiu mais de 20%: −15",
-  "Gasto com Ads cresceu mais de 2 p.p. como % da receita: −15",
-] as const;
-
 export function healthLevel(score: number | null): HealthLevel {
   if (score === null) return "unknown";
   if (score >= 80) return "healthy";

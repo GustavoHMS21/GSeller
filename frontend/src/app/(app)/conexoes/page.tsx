@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CONNECTION_STATUS, ConnectionStatusBadge } from "@/components/app/connection-status";
-import { Badge } from "@/components/ui/badge";
+import { ConnectionStatusBadge } from "@/components/app/connection-status";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
@@ -32,11 +31,7 @@ export default function ConnectionsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Conexões</h1>
-        <p className="max-w-2xl text-sm text-fg-muted">
-          Conectamos pela API oficial de cada marketplace, com{" "}
-          <strong>acesso somente leitura</strong>. Nunca pedimos sua senha e não alteramos anúncios,
-          preços ou campanhas.
-        </p>
+        <p className="text-sm text-fg-muted">Acesso somente leitura. Nunca pedimos sua senha.</p>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -64,7 +59,7 @@ export default function ConnectionsPage() {
       </div>
 
       <Card>
-        <CardHeader title="Primeiros passos" description="Do cadastro ao primeiro diagnóstico" />
+        <CardHeader title="Primeiros passos" />
         <ol className="space-y-2">
           {steps.map((step, i) => (
             <li key={step.label} className="flex items-center gap-3 text-sm">
@@ -86,25 +81,6 @@ export default function ConnectionsPage() {
             </li>
           ))}
         </ol>
-      </Card>
-
-      <Card>
-        <CardHeader
-          title="O que cada estado significa"
-          description="Como a conexão aparece quando algo muda"
-        />
-        <dl className="grid gap-3 sm:grid-cols-2">
-          {Object.entries(CONNECTION_STATUS).map(([status, meta]) => (
-            <div key={status} className="flex flex-col gap-1">
-              <dt>
-                <Badge tone={meta.tone} icon={meta.icon}>
-                  {meta.label}
-                </Badge>
-              </dt>
-              <dd className="text-sm text-fg-muted">{meta.help}</dd>
-            </div>
-          ))}
-        </dl>
       </Card>
     </div>
   );
