@@ -24,7 +24,7 @@ export function OnboardingForm() {
           {state.error}
         </p>
       )}
-      <SubmitButton pendingLabel="Criando…">Criar empresa</SubmitButton>
+      <SubmitButton pendingLabel="Criando…">Continuar</SubmitButton>
     </form>
   );
 }
