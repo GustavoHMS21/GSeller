@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.21 — Menu, Início e pedidos no padrão que o seller já conhece do UpSeller (issue #63)  
+> **Versão:** 0.22 — Mapa de funcionalidades do UpSeller por engenharia reversa funcional (issue #66)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4856,6 +4856,7 @@ agendador do deploy (1x/dia) ──► uv run python -m app.jobs.trial_emails
 - O UpSeller tem plano gratuito vitalício até **600 pedidos por mês e 2 lojas**, e cobre pedidos, NF-e, estoque, SAC e vários CNPJs.
 - Competir ERP contra ERP gratuito, com o time que temos, é perder. O diferencial continua sendo o **lucro real e o que fazer**, agora junto das operações que mais custam dinheiro.
 - Frase guia: **o UpSeller mostra o pedido; o GSeller mostra quanto o pedido deu de lucro ou prejuízo e o que fazer.**
+- Ajuste da v0.22: o UpSeller também mostra lucro, em relatório D+1, sem imposto do CNPJ e sem ação. O GSeller mostra o lucro **com imposto, no dia, e o que fazer** (Bloco 61.2).
 
 ## 60.2 O que entra e quando
 
@@ -5009,6 +5010,163 @@ Na demonstração, o envio da resposta é simulado na tela.
 
 ---
 
+# BLOCO 61 — MAPA DE FUNCIONALIDADES DO UPSELLER (ENGENHARIA REVERSA FUNCIONAL, v0.22, ISSUE #66)
+
+> Levantamento de 2026-10-13, com a conta gratuita do mantenedor, sem loja conectada. Completa o 60.9 (organização e vocabulário) com **o que cada função faz, que dado usa e de onde o dado vem**. As decisões abaixo são **propostas pelo filtro do 60.4**; o mantenedor confirma e cada função aprovada vira issue própria.
+
+## 61.1 Método e limites
+
+- **Caixa-preta, só o que chega ao navegador.** Navegador local com perfil separado, sessão aberta pelo mantenedor (login e captcha feitos por ele). Análise passiva com a ferramenta de engenharia reversa REA: estrutura das telas, scripts do frontend e chamadas de rede, **sem valores** (cabeçalhos, cookies, tokens e corpos não são guardados; só o formato dos campos).
+- **Fontes:** (R) rotas do frontend, 514; (E) endpoints chamados pelo frontend, 1.979 distintos; (T) textos de tela em português do pacote de idiomas; (C) captura com a conta logada em 12 telas (Início, Produtos, Anúncios ML e Shopee, Compras, Estoque, SAC, Análises, Financeiro, Configurações, Lojas).
+- **Fora de alcance:** o backend do UpSeller (regras internas, filas, cálculos no servidor). Sem loja conectada, as listas vieram vazias: temos os nomes das chamadas e dos contadores, não o formato de cada item.
+- **Fora do repositório:** capturas brutas e scripts ficam na máquina do mantenedor. Nada de código, texto, imagem ou marca do UpSeller entra no GSeller (60.4).
+- **Stack observada:** Vue 2 + Ant Design + vxe-table; API REST própria em `/api/*`; textos em pt, es, en e zh; integrações com 15 canais (ML, Shopee, Amazon, Shein, TikTok Shop, Shopify, Nuvemshop, Temu, Walmart, Falabella, AliExpress, Magalu, Kwai, Americanas/SkyHub e loja física).
+
+**Peso de cada área no frontend** (endpoints por domínio, maiores primeiro): Mercado Livre 267 · notas fiscais 169 · Shopee 123 · pedidos 87 · TikTok 76 · Shein 60 · SKU/produto do armazém 47 · Temu 45 · compras 31+15+8 · financeiro 28 · lucro 8+6+3 · estatísticas 16. **Leitura:** o UpSeller é, antes de tudo, ERP fiscal e de anúncios multicanal; o lucro é um relatório entre muitos.
+
+## 61.2 O lucro no UpSeller (o que importa para o nosso diferencial)
+
+Fórmulas mostradas na própria tela (T):
+
+```text
+Recebimento = Receita do pedido − Taxa da plataforma − Reembolso
+              (taxa da plataforma = comissão + taxa de transação + taxa de serviço + frete + ADS + outras)
+Lucro       = Recebimento − Custo do produto
+              (custo = custo médio do estoque; se zero, preço de compra cadastrado)
+Margem      = Lucro ÷ Valor total do pedido
+```
+
+- **Atualização diária (D+1)** e só com pedidos enviados ou concluídos **já liquidados** pelo marketplace (ML e Shopee). Há um "lucro estimado" separado para pedidos ainda não liquidados, marcado como só referência (T).
+- **Relatórios:** Lucro por Produto (por SKU, com devolução, frete pago pelo comprador, desconto e subsídio da plataforma) e Lucro da Loja, que aceita **custos da loja lançados à mão ou por planilha** (E `shop-profit-report/shop-cost/*`, `shop-profit-subject/*`). Recalcular e sincronizar faturas da loja têm cota por plano (E `get-recalculate-quota`).
+- **Imposto do seller não entra na conta do lucro.** O regime tributário (Simples Nacional, faixas) aparece só na configuração da NF-e (T). Não há imposto por CNPJ no lucro por produto.
+- **Não há "o que fazer".** Os "alertas" de lucro são dicas de fórmula ao lado das colunas, não avisos de problema (T).
+
+**Conclusão:** confirma o 47.3 (lucro por pedido é commodity) e **reforça o nosso recorte**: lucro **com imposto do regime do CNPJ** (60.5), **antes da liquidação** (estimado e depois conciliado) e **com a ação a tomar** (Blocos 10 e 17). A frase guia do 60.1 continua válida, com o ajuste: o UpSeller mostra o lucro em relatório; o GSeller mostra o lucro **com imposto, no dia, e o que fazer**.
+
+## 61.3 Mapa por módulo
+
+Legenda da proposta (60.4): **Já temos** · **Entra** (com a issue) · **Depois** · **Não entra**.
+API oficial: **ML** = Mercado Livre Developers; **SH** = Shopee Open Platform.
+
+### Início (C, E `home`, `notice`)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Tarefas por módulo | Contadores clicáveis: Para Reservar, Para Emitir, Para Enviar, Expirará em breve, Para Imprimir, Retirada, Falha na Retirada; estoque abaixo do mínimo e sem estoque (inclusive Full); perguntas, mensagens e reclamações pendentes do ML; devoluções pendentes da Shopee | Soma dos demais módulos | Já temos (60.9); estoque com a #53 |
+| Vendas | Valor de vendas válidas e pedidos válidos, hoje ou 30 dias, por loja | ML `orders/search`; SH `get_order_list` | Já temos, com lucro |
+| Ações rápidas | Conectar lojas, gerenciar produtos, copiar anúncios, notas fiscais, sincronizar estoque, impulsionar na Shopee | — | Já temos (atalhos do que existe) |
+
+### Pedidos (R `order/*`, E `order`, `order-bundle`, `pick`, `print`, C)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Abas por status | Recentes e históricos; Para Reservar, Para Emitir, Para Enviar, Para Imprimir, Para Retirada, Enviado, Oculto; subabas de programação de coleta e de rastreio | ML `orders`, `shipments`; SH `get_order_list`, `get_order_detail` | Já temos (60.6/60.9) |
+| Filtros salvos | Condições de busca salvas por usuário (E `query-condition`) | Local | Depois |
+| Etiquetas internas | Marcar pedidos com etiquetas coloridas (E `order-label*`) | Local | Depois |
+| Separação e expedição | Lista de separação, separação por onda, agrupamento de pacotes, conferência e envio por leitor, impressão em alta velocidade, ZPL (R `scan-*`, `order-wave-picking-batch`, `print-*`) | Etiqueta: ML `shipment_labels`; SH `create_shipping_document` | Não entra (operação de galpão; não mostra dinheiro) |
+| Pedido manual e cópia de pedido | Criar, copiar e editar pedido fora do marketplace (R `orders/add`, `orders/copy/:id`) | Local | Não entra |
+| Juntar pedidos | Mesclar pedidos do mesmo comprador (R `order-merge-batch`) | SH/ML conforme envio | Não entra |
+| Alocação de armazém | Regras para escolher de qual armazém sai o pedido (R `warehouse-allocation`) | Local | Não entra (multi-armazém fora do ICP) |
+| Emissão automática de NF-e | Emite a nota ao entrar em "Para Emitir" (R `order/auto-issue-nfe-setting`) | Provedor fiscal | Depois, com a #55 |
+| Lista negra de compradores | Bloqueio de compradores (R `blacklist-manage`, `cloud-blacklist`) | Exige dado de comprador | **Não entra** (Bloco 50.4, LGPD) |
+
+### Produtos e anúncios (R `products/*`, E por canal, `sku`, `product-map-sku`, `selling-price-template`)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Produtos do armazém (SKU mestre) | Produto único, com variações, kit ou aleatório; categorias; mapeamento SKU ↔ anúncio e lista de mapeamentos com problema | ML `items`; SH `get_item_list`, `get_model_list` | Entra: mapeamento é a base do custo por anúncio (Bloco 7, produto mestre). Issue nova |
+| Anúncios por canal | Lista, rascunhos, publicando, com falha, edição em massa de categoria e destaques | ML `items`; SH `product` | Depois (só leitura já existe no lucro) |
+| Copiar anúncios entre canais | Copiar anúncio de uma loja/canal para outra (R `product-moving/*`, 13 origens) | Escrita nos anúncios | Não entra agora (60.4: escrita sem trava) |
+| Modelo de preço de venda | Preço calculado por fórmula e câmbio (E `selling-price-template`) | Local | **Entra como "preço mínimo para não ter prejuízo"**, com imposto e custos (diferencial). Issue nova |
+| Promoções ML | Campanhas do vendedor, descontos, promoções (R `products/mercado/*`) | ML `seller-promotions` | Depois: mostrar quanto a promoção tira do lucro antes de aderir |
+| Marketing Shopee | Desconto, oferta relâmpago da loja, mais vendidos, impulsionar (R `products/shopee/*`) | SH `discount`, `shop_flash_sale`, `top_picks`, `boost_item` | Depois, mesma lógica do lucro na promoção |
+| IA para anúncio e imagem | Criar anúncio e imagem com IA, fundo branco (R `ai-*`, E `ai`, `batch-white-background-img`) | — | Não entra (fora do foco) |
+| Palavras proibidas | Lista de termos barrados no anúncio (R `banned-words`) | Local | Não entra |
+| Oportunidades TikTok, central de fornecedores | Sugestão de produtos e fornecedores (R `product-opportunities`, `sourcing-center`, `alibaba-sourcing`) | — | Não entra |
+
+### Compras (R `purchase`, E `procure*`, `purchase-suggestion`, `suppliers`)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Sugestão de compras | Sugere quantidade a comprar por SKU, com adiar, restaurar, juntar e gerar pedido de compra | Vendas + estoque | Entra com a #53 em leitura: "compre X até dia Y", sem gerar pedido de compra |
+| Pedido de compra e recebimento | Para comprar, em trânsito, recebimento parcial e total | Local | Depois (fase ERP) |
+| NF-e de entrada | Importar XML da nota do fornecedor, nota de devolução | XML da NF-e | Entra com a #55 (custo real do produto) |
+| Fornecedores | Cadastro e relação SKU ↔ fornecedor | Local | Depois |
+
+### Estoque (R `inventory/*`, E `warehouse-sku*`, `inventory-sync-rule`, `full-inventory`, `inventory-count`, C)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Lista de estoque | Qtd. mín./máx., em trânsito, ocupado, disponível, atual, custo médio e subtotal em R$ | Local + ML `user-products/stock`; SH `get_model_list` | Entra com a #53 (leitura), com "dinheiro parado" |
+| Estoque mínimo | Mínimo por SKU e global, alerta de baixo estoque | Local | Entra com a #53 |
+| Estoque Full (ML) | Estoque no Full, sincronizar, mínimo | ML fulfillment `inventories` | Entra com a #53 (leitura) |
+| Sincronização de estoque | Regras por loja, prioridade, estoque adicional, histórico de envios | Escrita: ML `items` (available_quantity); SH `update_stock` | Já previsto na #56, com trava |
+| Contagem, transferência, entrada e saída, endereçamento | Inventário físico, transferência entre armazéns, posições de prateleira, etiquetas | Local | Não entra |
+| Relatório do estoque | Giro: custo das vendas ÷ custo médio do estoque | Local | Entra com a #53 (giro e estoque parado) |
+| Armazém de terceiros (3PL) | Integração com operadores logísticos | Terceiros | Não entra |
+
+### Notas fiscais (R `invoice/*`, `brazil-nf-e/*`, E `invoice*`, 169)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| NF-e de venda | Rascunho, emitindo, falha, emitida; emissão manual; reemissão; numeração inutilizada; importação | SEFAZ via provedor | #55 (já prevista) |
+| Configuração fiscal | Regime tributário, classes de imposto, NCM, CFOP, ICMS, ICMS-ST, FCP, IBPT | Tabelas oficiais | Só o **regime e a alíquota do CNPJ** entram agora, para o lucro (60.5). O resto com a #55 |
+| DC-e, CFDI (México), DTE (Chile) | Documentos de outros países | — | Não entra |
+| Envio da nota ao marketplace | Anexa a nota ao pedido | ML `invoices`; SH `add_invoice_data` | Com a #55 |
+
+### SAC (R `sac/*`, E `claims*`, `mercado/*reply*`, `shopee/reply`, `quick`, C)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Perguntas e mensagens do ML | Caixa de perguntas e pós-venda, histórico | ML `questions`, `messages` | Já temos (60.8, #52) |
+| Reclamações e devoluções | Responder, aceitar, mediação, reembolso parcial, revisão da devolução | ML `claims`, `returns`; SH `returns` | Já temos (60.7, #51); reembolso parcial: Depois |
+| Resposta automática | Regras por palavra-chave e fora do horário | ML `answers` | Depois, com trava de contato (60.8) |
+| Modelos de resposta | Respostas prontas | Local | Já temos |
+| Avaliações da Shopee | Listar e responder avaliações; pendente, respondido, ignorado | SH `get_comment`, `reply_comment` | Entra com a #54 (Shopee) |
+
+### Análises (R `analytics`, E `statistics`, `data-warehouse`, `mercado/shop-reputation`, C)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Vendas | Visão geral, por loja, por hora, por produto, por variação, tendência, por estado | ML/SH pedidos | Já temos parte (Análises, 60.9); por estado: Não entra |
+| Curva ABC | ABC de produto e variação | Pedidos | Entra: ABC **por lucro**, não por faturamento (diferencial). Issue nova |
+| Reputação ML | Reputação por loja: vendas, reclamações, cancelados pelo vendedor, envios com atraso | ML `users/{id}` (seller_reputation) | Entra: cruza com atrasos do 60.6 e mostra o custo da reputação. Issue nova |
+| Desempenho da loja Shopee | Indicadores de cumprimento, cancelamento, atraso, chat e penalidades | SH `account_health` | Entra com a #54 |
+| Concorrentes | Acompanhar anúncios de concorrentes | Dado público | Depois |
+| Produtividade de separadores | Pedidos por separador | Local | Não entra |
+| NCM de compra, venda e estoque | Relatórios fiscais por NCM | Local | Não entra |
+
+### Financeiro (R `finance`, E `finance`, `profit-report`, `shop-profit-*`, C)
+
+| Função | O que faz | Dado / API oficial | Proposta |
+|---|---|---|---|
+| Lucro por produto e da loja | Ver 61.2 | ML `billing`; SH `get_escrow_detail` | Já é o nosso núcleo (Bloco 9); vantagem: imposto, D0 e ação |
+| Custos da loja | Lançar custos fixos e variáveis por loja, por planilha | Local | Entra: custo fixo rateado no lucro da loja (Bloco 9). Issue nova |
+| Caixa e bancos, contas a pagar e a receber, fluxo, DRE | Financeiro de ERP | Local | Depois (só se as entrevistas pedirem; fora do ICP agora) |
+| Acesso do contador | Convidar contador com acesso próprio (E `cpa`) | Local | Depois, junto da #65 (equipe) |
+
+### Lojas e configurações (R `shop`, `settings/*`, C)
+
+| Função | O que faz | Proposta |
+|---|---|---|
+| Integração de lojas | 15 canais, contador de lojas por canal, autorização por OAuth | ML e Shopee: #10 e #54. Demais: Depois (60.2) |
+| Equipe e permissões | Funcionários com permissões por módulo | #65 |
+| Registro de atividades | Quem fez o quê | Entra com a #65 (auditoria, Bloco 18) |
+| Modelos de impressão | Etiqueta de SKU, lista de separação, romaneio | Não entra |
+| API aberta | API para o cliente integrar (E `openapi`) | Depois |
+
+## 61.4 Itens novos propostos (aguardam o mantenedor)
+
+1. Mapeamento SKU mestre ↔ anúncio, com lista de mapeamentos com problema (base do custo correto).
+2. Preço mínimo sem prejuízo por anúncio, com imposto do regime do CNPJ e todos os custos.
+3. Curva ABC por lucro.
+4. Reputação do ML por loja, ligada aos atrasos e reclamações, com o custo para o seller.
+5. Custos fixos da loja rateados no lucro.
+
+Cada um passa pelo 60.4 antes de virar issue. Itens 1 e 5 corrigem o próprio número do lucro; por isso a proposta é que venham antes dos outros.
+
+---
+
 # PRÓXIMO PASSO
 
 O próximo bloco de trabalho não deve ser código de integração.
@@ -5030,6 +5188,13 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.22
+
+- mapa de funcionalidades do UpSeller por engenharia reversa funcional, só com o que chega ao navegador: rotas, endpoints, textos de tela e captura logada, sem valores (issue #66, Bloco 61);
+- achado: o UpSeller já tem lucro por produto e por loja, mas D+1, só de pedidos liquidados, sem imposto do regime do CNPJ e sem ação; reforça o 47.3 e ajusta a frase guia do 60.1 (Bloco 61.2);
+- proposta de cinco itens novos pelo filtro do 60.4, aguardando o mantenedor: mapeamento SKU ↔ anúncio, preço mínimo sem prejuízo, ABC por lucro, reputação do ML com custo e custos fixos da loja (Bloco 61.4);
+- decisão: lista negra de compradores não entra (Bloco 50.4).
 
 ## v0.21
 
