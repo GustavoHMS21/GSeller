@@ -1,7 +1,8 @@
 // Tarefas do Início (Bloco 60.9): o que está pendente, com a mesma lógica das listas, agrupado
 // por módulo como no painel do UpSeller.
 
-import { products } from "@/lib/demo/data";
+import { listingMappings, products } from "@/lib/demo/data";
+import { hasProblem } from "@/lib/demo/mapping";
 import { DEMO_NOW, orders } from "@/lib/demo/order-data";
 import { matchesFilter, type OrderFilter, orderAttention } from "@/lib/demo/orders";
 import { needsReply } from "@/lib/demo/support";
@@ -98,6 +99,12 @@ export function homeTasks(): HomeTaskGroup[] {
           count: products.filter((p) => p.cost.unitCost === null).length,
           href: "/custos",
           tone: "danger",
+        },
+        {
+          label: "Anúncios sem lucro calculado",
+          count: listingMappings.filter(hasProblem).length,
+          href: "/produtos/mapeamento?filtro=problemas",
+          tone: "warning",
         },
       ],
     },

@@ -27,6 +27,7 @@ const MODULES: NavModule[] = [
         items: [
           { href: "/produtos", label: "Lista de Produtos" },
           { href: "/custos", label: "Custos" },
+          { href: "/produtos/mapeamento", label: "Mapeamento de SKU" },
         ],
       },
     ],
