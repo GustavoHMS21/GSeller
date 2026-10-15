@@ -3,10 +3,10 @@ import { Badge, type Tone } from "@/components/ui/badge";
 import { formatBRLRounded } from "@/lib/format";
 import type { Insight, Severity } from "@/lib/types";
 
-const SEVERITY: Record<Severity, { tone: Tone; icon: string; label: string; border: string }> = {
-  critical: { tone: "danger", icon: "■", label: "Crítico", border: "border-l-danger" },
-  warning: { tone: "warning", icon: "▲", label: "Atenção", border: "border-l-warning" },
-  info: { tone: "info", icon: "●", label: "Oportunidade", border: "border-l-info" },
+const SEVERITY: Record<Severity, { tone: Tone; icon: string; label: string }> = {
+  critical: { tone: "danger", icon: "■", label: "Crítico" },
+  warning: { tone: "warning", icon: "▲", label: "Atenção" },
+  info: { tone: "info", icon: "●", label: "Oportunidade" },
 };
 
 /** Alerta direto: o problema, o número que o comprova e o que fazer (Bloco 17, v0.16). */
@@ -19,9 +19,7 @@ export function InsightCard({
 }) {
   const severity = SEVERITY[insight.severity];
   return (
-    <article
-      className={`rounded-lg border border-l-4 border-line ${severity.border} bg-surface p-4`}
-    >
+    <article className="rounded-lg border border-line bg-surface p-4">
       <header className="flex items-center gap-2">
         <Badge tone={severity.tone} icon={severity.icon}>
           {severity.label}
@@ -45,10 +43,7 @@ export function InsightCard({
         {insight.title} <span className="font-normal text-fg-muted">· {insight.detail}</span>
       </h3>
       <p className="mt-1 text-sm">
-        <span aria-hidden="true" className="text-primary">
-          →{" "}
-        </span>
-        {insight.action}
+        <span className="font-medium">O que fazer:</span> {insight.action}
       </p>
     </article>
   );

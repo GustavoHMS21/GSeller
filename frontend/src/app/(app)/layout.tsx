@@ -13,7 +13,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         Pular para o conteúdo
       </a>
 
-      <header className="sticky top-0 z-30 bg-nav text-nav-fg">
+      <header className="sticky top-0 z-30 border-b border-line bg-nav text-nav-fg">
         <div className="flex items-center gap-2 px-4">
           <Link href="/dashboard" className="mr-4 shrink-0 text-lg font-bold tracking-tight">
             GSeller
@@ -26,7 +26,10 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
         </div>
       </header>
 
-      <div role="note" className="bg-info-soft px-4 py-2 text-center text-sm text-info">
+      <div
+        role="note"
+        className="border-b border-line px-4 py-1.5 text-center text-xs text-fg-muted"
+      >
         Protótipo de portfólio com dados fictícios de uma loja. Nada do que você mudar é salvo.{" "}
         <Link href="/sobre" className="font-medium underline">
           Sobre o projeto

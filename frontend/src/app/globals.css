@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 /*
- * Design System v0.1 — tokens semânticos (Master Plan, Bloco 16).
+ * Design System v0.2 — tokens semânticos (Master Plan, Bloco 16; visual simples da v0.27).
+ * Fundo branco, barra clara, uma cor de destaque discreta, cantos pequenos e fonte do sistema.
  *
  * Os valores ficam em variáveis --ds-* (trocam entre claro/escuro) e são
  * expostos ao Tailwind via @theme. Componentes usam só os nomes semânticos
@@ -9,57 +10,62 @@
  */
 
 :root {
-  --ds-canvas: #f6f7f9;
+  --ds-canvas: #ffffff;
   --ds-surface: #ffffff;
-  --ds-surface-muted: #f0f2f5;
-  --ds-fg: #111827;
-  --ds-fg-muted: #555f6d;
-  --ds-line: #e2e5ea;
+  --ds-surface-muted: #f5f5f3;
+  --ds-fg: #1c1c1a;
+  --ds-fg-muted: #5c5c57;
+  --ds-line: #e3e3df;
 
-  --ds-primary: #1f4fd1;
-  --ds-primary-hover: #1a43b3;
+  --ds-primary: #24486c;
+  --ds-primary-hover: #1a3753;
   --ds-primary-fg: #ffffff;
 
-  --ds-success: #12734f;
-  --ds-success-soft: #e6f4ee;
-  --ds-warning: #8f5200;
-  --ds-warning-soft: #fdf1dc;
-  --ds-danger: #b42323;
-  --ds-danger-soft: #fcebeb;
-  --ds-info: #1d5fc4;
-  --ds-info-soft: #e8f0fd;
+  --ds-success: #22673a;
+  --ds-success-soft: #f5f5f3;
+  --ds-warning: #8a5300;
+  --ds-warning-soft: #f5f5f3;
+  --ds-danger: #a92a22;
+  --ds-danger-soft: #f5f5f3;
+  --ds-info: #24486c;
+  --ds-info-soft: #f5f5f3;
 
   --ds-brand-ml: #ffe600;
   --ds-brand-shopee: #ee4d2d;
 
-  /* Barra superior de módulos (Bloco 60.9): escura nos dois temas. */
-  --ds-nav: #0b1630;
-  --ds-nav-hover: #1b2a4d;
-  --ds-nav-fg: #f3f5f9;
-  --ds-nav-fg-muted: #b8c1d3;
+  /* Barra superior de módulos (Bloco 60.9): clara, separada por uma linha. */
+  --ds-nav: #ffffff;
+  --ds-nav-hover: #f5f5f3;
+  --ds-nav-fg: #1c1c1a;
+  --ds-nav-fg-muted: #5c5c57;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ds-canvas: #0d1117;
-    --ds-surface: #151a22;
-    --ds-surface-muted: #1c232d;
-    --ds-fg: #e6e9ee;
-    --ds-fg-muted: #9aa4b2;
-    --ds-line: #2a323d;
+    --ds-canvas: #161615;
+    --ds-surface: #161615;
+    --ds-surface-muted: #21211f;
+    --ds-fg: #e9e9e5;
+    --ds-fg-muted: #a3a39d;
+    --ds-line: #30302d;
 
-    --ds-primary: #7398ff;
-    --ds-primary-hover: #8eabff;
-    --ds-primary-fg: #0d1117;
+    --ds-primary: #9dbbdb;
+    --ds-primary-hover: #b6cde6;
+    --ds-primary-fg: #161615;
 
-    --ds-success: #4cc79a;
-    --ds-success-soft: #12291f;
-    --ds-warning: #f0a83f;
-    --ds-warning-soft: #2e2210;
-    --ds-danger: #f27a77;
-    --ds-danger-soft: #331717;
-    --ds-info: #79abff;
-    --ds-info-soft: #14233b;
+    --ds-success: #7cc191;
+    --ds-success-soft: #21211f;
+    --ds-warning: #e0aa5a;
+    --ds-warning-soft: #21211f;
+    --ds-danger: #ec8a80;
+    --ds-danger-soft: #21211f;
+    --ds-info: #9dbbdb;
+    --ds-info-soft: #21211f;
+
+    --ds-nav: #161615;
+    --ds-nav-hover: #21211f;
+    --ds-nav-fg: #e9e9e5;
+    --ds-nav-fg-muted: #a3a39d;
   }
 }
 
@@ -92,18 +98,18 @@
   --color-brand-ml: var(--ds-brand-ml);
   --color-brand-shopee: var(--ds-brand-shopee);
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
 
   --text-highlight: 2rem;
   --text-highlight--line-height: 2.5rem;
   --text-hero: 2.5rem;
   --text-hero--line-height: 3rem;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
 html {

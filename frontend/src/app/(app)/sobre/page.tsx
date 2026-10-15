@@ -124,6 +124,16 @@ export default function AboutPage() {
           </li>
           <li>Lint, tipos, código morto e testes rodam no CI em todo pull request.</li>
           <li>
+            Código aberto em{" "}
+            <a
+              href="https://github.com/GustavoHMS21/GSeller"
+              className="font-medium text-primary hover:underline"
+            >
+              github.com/GustavoHMS21/GSeller
+            </a>
+            .
+          </li>
+          <li>
             Login e cobrança existem no código, mas ficam fora do protótipo. A integração real com
             os marketplaces não foi feita.
           </li>
