@@ -14,7 +14,7 @@ type NavModule = {
 };
 
 // Módulos na ordem do UpSeller, para quem migra não se perder (Bloco 60.9). Só entram módulos
-// que já funcionam: Estoque chega com a #53.
+// que já funcionam: Estoque chega com a #53. Financeiro chegou com a #68.
 const MODULES: NavModule[] = [
   { label: "Início", href: "/dashboard", match: ["/dashboard"] },
   {
@@ -81,6 +81,17 @@ const MODULES: NavModule[] = [
           { href: "/analises", label: "Lucro e alertas" },
           { href: "/analises#marketplaces", label: "Por marketplace" },
         ],
+      },
+    ],
+  },
+  {
+    label: "Financeiro",
+    href: "/financeiro",
+    match: ["/financeiro"],
+    groups: [
+      {
+        title: "Relatórios de Lucros",
+        items: [{ href: "/financeiro", label: "Lucro da Loja" }],
       },
     ],
   },
