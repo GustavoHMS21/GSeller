@@ -8,6 +8,7 @@ import { HealthBadge } from "@/components/ui/health-badge";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
 import { Skeleton } from "@/components/ui/states";
 import { getProduct, insights, products } from "@/lib/demo/data";
+import { minimumPrice } from "@/lib/demo/min-price";
 import { formatBRL, formatInt, formatPct } from "@/lib/format";
 import type { Economics, Product } from "@/lib/types";
 
@@ -172,7 +173,7 @@ function ChannelComparison({ product }: { product: Product }) {
   const money = (v: number | null) => (v === null ? "—" : formatBRL(v));
   const pct = (v: number | null) => (v === null ? "—" : formatPct(v));
 
-  const metrics: Array<{ label: string; value: (e: Economics) => string }> = [
+  const metrics: Array<{ label: string; value: (e: Economics) => React.ReactNode }> = [
     { label: "Preço médio", value: (e) => formatBRL(e.avgPrice) },
     { label: "Receita", value: (e) => formatBRL(e.revenue) },
     { label: "Unidades", value: (e) => formatInt(e.units) },
@@ -183,6 +184,8 @@ function ChannelComparison({ product }: { product: Product }) {
     { label: "Lucro estimado", value: (e) => money(e.result) },
     { label: "Lucro por unidade", value: (e) => money(unit(e)) },
     { label: "Margem estimada", value: (e) => pct(e.margin) },
+    { label: "Preço mínimo sem prejuízo", value: (e) => money(minimumPrice(e)?.price ?? null) },
+    { label: "Folga até o mínimo", value: (e) => <Headroom economics={e} /> },
   ];
 
   return (
@@ -219,5 +222,17 @@ function ChannelComparison({ product }: { product: Product }) {
         </table>
       </div>
     </div>
+  );
+}
+
+/** Quanto o preço pode cair antes do prejuízo; abaixo do mínimo, cada venda já dá prejuízo. */
+function Headroom({ economics }: { economics: Economics }) {
+  const min = minimumPrice(economics);
+  if (!min) return "—";
+  if (min.headroom < 0) {
+    return <span className="text-danger">▼ {formatPct(-min.headroom)} abaixo: prejuízo</span>;
+  }
+  return (
+    <span className="text-success">pode baixar até {formatPct(1 - 1 / (1 + min.headroom))}</span>
   );
 }

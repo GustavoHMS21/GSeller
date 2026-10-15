@@ -138,7 +138,7 @@ export function StoreProfit({
                 {c.validTo && ` até ${formatDate(c.validTo)}`}
               </span>
               <span className="tabular-nums">{formatBRL(c.monthlyAmount)}/mês</span>
-              <span className="w-36 text-right tabular-nums text-fg-muted">
+              <span className="w-44 text-right tabular-nums text-fg-muted">
                 {formatBRL(fixedCostInPeriod(c, current.period))} no período
               </span>
               {added.has(c.id) && (

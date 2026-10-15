@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { InsightCard } from "@/components/app/insight-card";
-import { PlanCard } from "@/components/app/plan-card";
 import { type SalesTab, SalesTabs } from "@/components/app/sales-tabs";
-import { Skeleton } from "@/components/ui/states";
 import { cx } from "@/lib/cx";
 import { insights, storeSummary } from "@/lib/demo/data";
 import { type HomeTask, homeTasks } from "@/lib/demo/home";
@@ -28,8 +25,6 @@ const QUICK_ACTIONS = [
   { href: "/custos", label: "Cadastrar Custos" },
   { href: "/pedidos?filtro=atrasados", label: "Ver Pedidos Atrasados" },
   { href: "/atendimento?filtro=responder", label: "Responder SAC" },
-  { href: "/empresas", label: "Empresas e Lojas" },
-  { href: "/planos", label: "Planos" },
 ];
 
 /** Início no formato do UpSeller (Bloco 60.9): tarefas, lucro e vendas; plano e atalhos à direita. */
@@ -43,9 +38,19 @@ export default function HomePage() {
         <Sales />
       </div>
       <aside className="space-y-6">
-        <Suspense fallback={<Skeleton className="h-40" />}>
-          <PlanCard />
-        </Suspense>
+        <section className="rounded-lg border border-line bg-surface p-5">
+          <h2 className="text-lg font-semibold">Protótipo de portfólio</h2>
+          <p className="mt-2 text-sm text-fg-muted">
+            Uma loja fictícia, com Mercado Livre e Shopee, para mostrar o lucro de cada venda e o
+            que fazer.
+          </p>
+          <Link
+            href="/sobre"
+            className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+          >
+            Como o projeto foi feito →
+          </Link>
+        </section>
         <section className="rounded-lg border border-line bg-surface p-5">
           <h2 className="mb-3 text-lg font-semibold">Ações Rápidas</h2>
           <ul className="space-y-1">

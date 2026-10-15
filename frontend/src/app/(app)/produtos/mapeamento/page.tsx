@@ -117,7 +117,7 @@ async function MappingList({
                         {m.listing.externalId}
                       </span>
                     </th>
-                    <td className="px-4 py-3 font-mono text-xs">
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">
                       {m.listing.sku?.trim() || <span className="text-fg-muted">—</span>}
                     </td>
                     <td className="px-4 py-3">
