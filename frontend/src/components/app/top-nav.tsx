@@ -115,7 +115,9 @@ export function TopNav() {
                 aria-current={active ? "page" : undefined}
                 className={cx(
                   "block whitespace-nowrap px-4 py-3.5 text-[0.95rem] font-medium",
-                  active ? "bg-nav-hover text-nav-fg" : "text-nav-fg-muted hover:text-nav-fg",
+                  active
+                    ? "text-nav-fg shadow-[inset_0_-2px_0_currentColor]"
+                    : "text-nav-fg-muted hover:text-nav-fg",
                 )}
               >
                 {module.label}
@@ -125,7 +127,7 @@ export function TopNav() {
                   <div className="flex gap-8">
                     {module.groups.map((group) => (
                       <div key={group.title}>
-                        <p className="mb-2 border-l-2 border-primary pl-2 text-sm text-fg-muted">
+                        <p className="mb-2 px-2 text-xs font-medium text-fg-muted uppercase tracking-wide">
                           {group.title}
                         </p>
                         <ul className="space-y-1">

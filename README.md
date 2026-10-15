@@ -4,9 +4,11 @@
 
 Protótipo de portfólio de um painel para quem vende no Mercado Livre e na Shopee. Ele mostra o lucro de cada produto, pedido e anúncio, já descontados comissão, frete, Ads, devolução, imposto e custo, e diz o que corrigir. Todos os dados são fictícios.
 
+**Abra a demonstração:** https://g-seller.vercel.app
+
 ![Início](docs/prints/inicio.png)
 
-## Rodar em dois comandos
+## Rodar localmente
 
 Precisa de Node.js 24.
 

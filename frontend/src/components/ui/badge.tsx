@@ -5,11 +5,11 @@ import type { Tone } from "@/lib/types";
 export type { Tone };
 
 const TONE_CLASS: Record<Tone, string> = {
-  neutral: "bg-surface-muted text-fg-muted",
-  success: "bg-success-soft text-success",
-  warning: "bg-warning-soft text-warning",
-  danger: "bg-danger-soft text-danger",
-  info: "bg-info-soft text-info",
+  neutral: "text-fg-muted",
+  success: "text-success",
+  warning: "text-warning",
+  danger: "text-danger",
+  info: "text-info",
 };
 
 /** Status nunca depende só da cor: sempre ícone + texto (Bloco 16.4). */
@@ -27,7 +27,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        "inline-flex items-center gap-1 whitespace-nowrap rounded-sm px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-xs font-medium ring-1 ring-line ring-inset",
         TONE_CLASS[tone],
         className,
       )}

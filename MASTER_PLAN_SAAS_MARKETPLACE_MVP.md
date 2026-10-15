@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.25 — Protótipo só com demonstração, preço mínimo e página do case  
+> **Versão:** 0.27 — Demonstração pública e visual mais simples (issues #22 e #73)  
 > **Decisão de 2026-10-15:** o GSeller segue como **protótipo e projeto de portfólio**, sem produção e sem venda (Bloco 60.10).  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
@@ -1396,6 +1396,15 @@ Referência conceitual:
 - fintech;
 - dados fáceis de ler;
 - alta densidade apenas onde necessária.
+
+**Visual simples (decisão do mantenedor, 2026-10-15, v0.27):** o painel tinha cara de template gerado por IA (fonte Geist, azul saturado, barra azul-marinho, fundo cinza com cartões muito arredondados, etiquetas pastel, alertas com faixa colorida à esquerda). Ficou assim, só por tokens e componentes-base:
+
+- fonte do sistema (sem fonte baixada), fundo branco e barra superior clara com a aba ativa sublinhada;
+- uma única cor de destaque, azul discreto (`#24486c`), para links e botão principal;
+- cantos de 4 a 8 px;
+- etiquetas só com texto colorido, ícone e contorno neutro, sem fundo pastel;
+- alertas sem faixa colorida; a ação vem rotulada como "O que fazer:";
+- faixa do protótipo em texto pequeno e cinza, no lugar do azul.
 
 ## 16.2 Princípios
 
@@ -5023,6 +5032,8 @@ Na demonstração, o envio da resposta é simulado na tela.
 - A barra superior mostra "Protótipo · dados fictícios" no lugar de conta e plano; o card do plano no Início virou o link para o case.
 - O código de login, cobrança, e-mails e backend **fica no repositório**, fora do caminho. O que só servia à barra de conta (sessão anônima do modo demonstração, card do plano, `getMe`, saída da conta) foi removido, porque ficou sem uso (Knip).
 - Até sábado entram só: página do case (`/sobre`), README com prints (`docs/prints/`) e preço mínimo (61.7).
+- **Demonstração pública (decisão do mantenedor, 2026-10-15):** https://g-seller.vercel.app, na Vercel ligada ao GitHub (pasta `frontend`, sem variáveis de ambiente). Cada PR ganha um link de teste e cada merge na `main` atualiza o site (#22). Não é produção: só dados fictícios, sem conta e sem nada salvo.
+- **Issues (2026-10-15):** fechadas as que só serviam à produção ou à venda, com o motivo em cada uma. Abertas ficam qualidade de código (#14, #15, #16, #17, #20), dependências (#23) e a integração com o Mercado Livre (#10, a decidir).
 
 ---
 
@@ -5265,6 +5276,17 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.27
+
+- decisão (2026-10-15): visual mais simples, sem cara de template de IA: fonte do sistema, fundo branco, barra clara, uma cor de destaque discreta, cantos menores, etiquetas sem fundo pastel e alertas sem faixa colorida (issue #73, Bloco 16.1);
+- prints do README refeitos com o visual novo.
+
+## v0.26
+
+- decisão (2026-10-15): demonstração pública em https://g-seller.vercel.app, na Vercel ligada ao GitHub, com link de teste por PR e atualização a cada merge na `main` (issue #22, Bloco 60.10);
+- link no README e repositório na página do case;
+- issues fora do protótipo fechadas com o motivo (Bloco 60.10).
 
 ## v0.25
 
