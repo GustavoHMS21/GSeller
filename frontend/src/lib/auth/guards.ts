@@ -16,9 +16,11 @@ const DEMO_PREFIXES = [
   "/pedidos",
   "/atendimento",
   "/analises",
+  "/financeiro",
   "/custos",
   "/conexoes",
   "/design",
+  "/sobre",
   "/planos",
 ];
 
@@ -54,6 +56,19 @@ export function authRedirect(
   // Quem já está no modo demonstração vai direto para "Criar conta".
   if (session === "anonymous") params.set("modo", "criar");
   return `${LOGIN_PATH}?${params}`;
+}
+
+// Telas fechadas no protótipo de portfólio: dependem de conta, backend ou cobrança (Bloco 60.10).
+const PORTFOLIO_CLOSED = ["/planos"];
+
+/**
+ * Protótipo de portfólio (Bloco 60.10): só as telas de demonstração abrem; login, conta,
+ * onboarding, planos e empresas levam ao Início. Devolve o destino ou null para seguir.
+ */
+export function portfolioRedirect(pathname: string): string | null {
+  if (pathname === "/") return null;
+  const open = matches(pathname, DEMO_PREFIXES) && !matches(pathname, PORTFOLIO_CLOSED);
+  return open ? null : HOME_PATH;
 }
 
 export const MIN_PASSWORD_LENGTH = 8;

@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { AccountBar, DemoNotice, SettingsMenu } from "@/components/app/account-bar";
+import { PrototypeBadge, SettingsMenu } from "@/components/app/account-bar";
 import { TopNav } from "@/components/app/top-nav";
-import { Skeleton } from "@/components/ui/states";
 
 /** Barra superior de módulos, como no UpSeller (Bloco 60.9); cada módulo tem a lateral própria. */
 export default function AppLayout({ children }: LayoutProps<"/">) {
@@ -23,17 +21,16 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           <TopNav />
           <div className="ml-auto flex shrink-0 items-center gap-1">
             <SettingsMenu />
-            <Suspense fallback={<Skeleton className="h-7 w-32 bg-nav-hover" />}>
-              <AccountBar />
-            </Suspense>
+            <PrototypeBadge />
           </div>
         </div>
       </header>
 
       <div role="note" className="bg-info-soft px-4 py-2 text-center text-sm text-info">
-        <Suspense fallback="Dados de demonstração de uma loja fictícia.">
-          <DemoNotice />
-        </Suspense>
+        Protótipo de portfólio com dados fictícios de uma loja. Nada do que você mudar é salvo.{" "}
+        <Link href="/sobre" className="font-medium underline">
+          Sobre o projeto
+        </Link>
       </div>
 
       <main id="conteudo" className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 md:px-6">

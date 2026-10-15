@@ -3,9 +3,49 @@
 // uma regra do Bloco 10, para testar se o seller entende o diagnóstico.
 
 import { sumEconomics } from "@/lib/demo/economics";
+import type { FixedCost, Period } from "@/lib/demo/fixed-costs";
+import { mapListing, type SyncedListing } from "@/lib/demo/mapping";
 import { buildProduct, type ProductSeed, period } from "@/lib/demo/product";
 import { generateInsights } from "@/lib/demo/rules";
 import type { Connection, Marketplace, Product } from "@/lib/types";
+
+/** Períodos comparados nas telas: 30 dias e os 30 dias anteriores. */
+export const PERIODS: Record<"current" | "previous", Period> = {
+  current: { from: "2026-09-08", to: "2026-10-07" },
+  previous: { from: "2026-08-09", to: "2026-09-07" },
+};
+
+/** Custos fixos da loja. O ajudante começou em 15/09: não pesa no período anterior. */
+export const fixedCosts: FixedCost[] = [
+  {
+    id: "aluguel",
+    description: "Aluguel do depósito",
+    monthlyAmount: 1800,
+    validFrom: "2026-01-01",
+    validTo: null,
+  },
+  {
+    id: "contador",
+    description: "Contador",
+    monthlyAmount: 450,
+    validFrom: "2026-01-01",
+    validTo: null,
+  },
+  {
+    id: "sistemas",
+    description: "Sistemas e ferramentas",
+    monthlyAmount: 290,
+    validFrom: "2026-03-01",
+    validTo: null,
+  },
+  {
+    id: "ajudante",
+    description: "Ajudante de expedição",
+    monthlyAmount: 2200,
+    validFrom: "2026-09-15",
+    validTo: null,
+  },
+];
 
 export const DEMO = {
   storeName: "Loja Exemplo",
@@ -59,6 +99,8 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "shopee",
         externalId: "22870015",
+        // Digitado em minúsculas no anúncio: o vínculo ignora caixa e espaços nas pontas.
+        sku: " cam-ovs-pt",
         current: period(SHOPEE, {
           units: 168,
           orders: 160,
@@ -326,6 +368,8 @@ const SEEDS: ProductSeed[] = [
       {
         marketplace: "shopee",
         externalId: "22870021",
+        // SKU diferente do cadastro; o seller vinculou à mão (MANUAL_LINKS).
+        sku: "MOCEXE01",
         current: period(SHOPEE, {
           units: 52,
           orders: 52,
@@ -351,6 +395,48 @@ const SEEDS: ProductSeed[] = [
 export const products: Product[] = SEEDS.map(buildProduct);
 
 export const insights = generateInsights(products);
+
+/** Vínculos feitos à mão pelo seller: anúncio (marketplace:id) → produto. */
+export const MANUAL_LINKS: Record<string, string> = {
+  "shopee:22870021": "moc-exe-01",
+};
+
+/** Anúncios sincronizados que não pertencem a nenhum produto, com as vendas de 30 dias. */
+const unlinkedListings: SyncedListing[] = [
+  {
+    marketplace: "mercadolivre",
+    externalId: "MLB3810009",
+    title: "Kit 2 Garrafas Térmicas Inox 1L",
+    sku: "KIT-GAR-2",
+    revenue: 3980,
+    orders: 18,
+  },
+  {
+    marketplace: "shopee",
+    externalId: "22870024",
+    title: "Garrafa Térmica Inox 1 Litro",
+    sku: null,
+    revenue: 2150,
+    orders: 21,
+  },
+];
+
+/** Todos os anúncios da loja, como chegam da sincronização. */
+const syncedListings: SyncedListing[] = [
+  ...products.flatMap((p) =>
+    p.listings.map((l) => ({
+      marketplace: l.marketplace,
+      externalId: l.externalId,
+      title: l.title,
+      sku: l.sku,
+      revenue: l.period.current.revenue,
+      orders: l.period.current.orders,
+    })),
+  ),
+  ...unlinkedListings,
+];
+
+export const listingMappings = syncedListings.map((l) => mapListing(l, products, MANUAL_LINKS));
 
 export function getProduct(id: string): Product | undefined {
   return products.find((p) => p.id === id);

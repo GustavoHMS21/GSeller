@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authRedirect, parseCredentials, safeNextPath } from "@/lib/auth/guards";
+import { authRedirect, parseCredentials, portfolioRedirect, safeNextPath } from "@/lib/auth/guards";
 
 describe("authRedirect: negar por padrão, demonstração aberta", () => {
   it.each([
@@ -61,5 +61,24 @@ describe("parseCredentials", () => {
     ["seller@loja.com", "x".repeat(129)],
   ])("rejeita %s / senha de %s caracteres", (email, password) => {
     expect(parseCredentials(form(email, password))).toHaveProperty("error");
+  });
+});
+
+describe("portfolioRedirect (protótipo de portfólio)", () => {
+  it.each([
+    ["/", null],
+    ["/dashboard", null],
+    ["/produtos/mapeamento", null],
+    ["/financeiro", null],
+    ["/sobre", null],
+    ["/login", "/dashboard"],
+    ["/conta/senha", "/dashboard"],
+    ["/onboarding", "/dashboard"],
+    ["/empresas", "/dashboard"],
+    ["/planos", "/dashboard"],
+    ["/assinatura/sucesso", "/dashboard"],
+    ["/dashboard-falso", "/dashboard"],
+  ])("%s → %s", (pathname, expected) => {
+    expect(portfolioRedirect(pathname)).toBe(expected);
   });
 });

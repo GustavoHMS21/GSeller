@@ -49,6 +49,8 @@ export interface Listing {
   marketplace: Marketplace;
   externalId: string;
   title: string;
+  /** SKU preenchido pelo seller no anúncio; null quando o anúncio não tem SKU. */
+  sku: string | null;
   period: ListingPeriod;
 }
 

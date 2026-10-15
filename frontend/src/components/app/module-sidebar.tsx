@@ -73,16 +73,14 @@ export const PRODUCTS_NAV: ModuleSection[] = [
     items: [
       { href: "/produtos", label: "Lista de Produtos" },
       { href: "/custos", label: "Custos" },
+      { href: "/produtos/mapeamento", label: "Mapeamento de SKU" },
     ],
   },
 ];
 
 export const SETTINGS_NAV: ModuleSection[] = [
   {
-    items: [
-      { href: "/conexoes", label: "Integrações de Loja" },
-      { href: "/empresas", label: "Empresas e lojas" },
-    ],
+    items: [{ href: "/conexoes", label: "Integrações de Loja" }],
   },
 ];
 

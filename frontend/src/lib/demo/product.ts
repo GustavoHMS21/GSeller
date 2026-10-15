@@ -10,6 +10,8 @@ export type Fees = { commissionRate: number; fixedFeePerUnit: number };
 export interface ListingSeed {
   marketplace: Marketplace;
   externalId: string;
+  /** SKU no anúncio; sem o campo, vale o SKU do produto. */
+  sku?: string | null;
   current: PeriodInput;
   previous: PeriodInput;
 }
@@ -47,6 +49,7 @@ export function buildProduct(seed: ProductSeed): Product {
     marketplace: l.marketplace,
     externalId: l.externalId,
     title: seed.name,
+    sku: l.sku === undefined ? seed.sku : l.sku,
     period: {
       current: computeEconomics(l.marketplace, l.current, seed.cost),
       previous: computeEconomics(l.marketplace, l.previous, seed.cost),
