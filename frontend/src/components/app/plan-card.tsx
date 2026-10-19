@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { getMe, type Me, PLANS_PATH } from "@/lib/api";
 import { getSessionKind } from "@/lib/auth/session";
-import { formatDateTime, formatInt } from "@/lib/format";
+import { formatBRLRounded, formatDateTime, formatInt } from "@/lib/format";
 import { PLANS } from "@/lib/plans";
 
 /** Card do plano na lateral do Início, como no UpSeller: plano, situação e prazo. */
@@ -22,8 +22,16 @@ export async function PlanCard() {
 
   if (session !== "account" || !me) {
     return (
-      <Shell title="Modo demonstração" badge={<Badge tone="info">Teste</Badge>}>
+      <Shell
+        title="Modo demonstração"
+        badge={<Badge tone="info">Teste</Badge>}
+        link={{ href: PLANS_PATH, label: "Comparar planos" }}
+      >
         <p>7 dias grátis ao criar a conta, sem cartão.</p>
+        <p className="mt-2 text-fg-muted">
+          Planos a partir de {formatBRLRounded(PLANS[0].monthlyPrice)}/mês, com{" "}
+          {formatInt(PLANS[0].ordersPerMonth)} pedidos.
+        </p>
         <ButtonLink href="/login?modo=criar" className="mt-3 w-full">
           Criar conta
         </ButtonLink>
@@ -54,6 +62,9 @@ export async function PlanCard() {
       <p>{formatDateTime(me.access.trial_ends_at)}</p>
       <p className="mt-2 text-fg-muted">Restante</p>
       <p>{me.access.days_left === 1 ? "Último dia" : `${me.access.days_left} dias`}</p>
+      <p className="mt-2 text-fg-muted">
+        Depois, a partir de {formatBRLRounded(PLANS[0].monthlyPrice)}/mês.
+      </p>
     </Shell>
   );
 }

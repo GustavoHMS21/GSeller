@@ -1,12 +1,16 @@
-// Planos de assinatura (Bloco 58). Preços decididos em 2026-10-10; limites são proposta da #35,
-// ainda a confirmar pelo mantenedor. Fonte única para a tela de planos.
+// Planos de assinatura (Blocos 58 e 60.10). Três planos, cada um igual ou melhor em volume que o
+// plano pago equivalente do UpSeller e mais barato. Fonte única para a tela de planos.
 
 export type Plan = {
   id: "start" | "pro" | "scale";
   name: string;
+  tagline: string;
   monthlyPrice: number;
   ordersPerMonth: number;
-  channels: string;
+  /** Contas de marketplace conectadas. */
+  stores: number;
+  /** Empresas (CNPJ) na mesma conta. */
+  companies: number;
   recommended?: boolean;
 };
 
@@ -14,18 +18,38 @@ export const PLANS: Plan[] = [
   {
     id: "start",
     name: "Start",
+    tagline: "Para quem está começando a vender",
     monthlyPrice: 97,
-    ordersPerMonth: 500,
-    channels: "1 conta do Mercado Livre",
+    ordersPerMonth: 2000,
+    stores: 5,
+    companies: 3,
   },
   {
     id: "pro",
     name: "Pro",
+    tagline: "Para crescer em mais de um marketplace",
     monthlyPrice: 197,
-    ordersPerMonth: 2000,
-    channels: "Mercado Livre e Shopee, até 2 contas",
+    ordersPerMonth: 6000,
+    stores: 15,
+    companies: 8,
     recommended: true,
   },
-  // R$ 497 desde 2026-10-11 (decisão do mantenedor); Start e Pro sem mudança.
-  { id: "scale", name: "Scale", monthlyPrice: 497, ordersPerMonth: 5000, channels: "Até 5 contas" },
+  {
+    id: "scale",
+    name: "Scale",
+    tagline: "Para operações com volume",
+    monthlyPrice: 497,
+    ordersPerMonth: 20000,
+    stores: 50,
+    companies: 15,
+  },
+];
+
+/** Incluído em todos os planos: o que muda entre eles é o volume. */
+export const INCLUDED_FEATURES = [
+  "Lucro e margem por pedido e por produto",
+  "Alertas do que corrigir no lucro",
+  "Pedidos de ponta a ponta e devoluções com custo",
+  "SAC do Mercado Livre com prazos",
+  "Vários CNPJs na mesma conta",
 ];

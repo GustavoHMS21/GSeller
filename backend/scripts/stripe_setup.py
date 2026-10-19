@@ -14,9 +14,9 @@ from app.core.config import get_settings
 from app.integrations.stripe_gateway import PLAN_LOOKUP_KEYS
 
 PLANS = {
-    "start": ("GSeller Start", 9700, "Até 500 pedidos por mês, 1 conta do Mercado Livre"),
-    "pro": ("GSeller Pro", 19700, "Até 2.000 pedidos por mês, Mercado Livre e Shopee"),
-    "scale": ("GSeller Scale", 49700, "Até 5.000 pedidos por mês, até 5 contas"),
+    "start": ("GSeller Start", 9700, "Até 2.000 pedidos por mês, 5 lojas, 3 CNPJs"),
+    "pro": ("GSeller Pro", 19700, "Até 6.000 pedidos por mês, 15 lojas, 8 CNPJs"),
+    "scale": ("GSeller Scale", 49700, "Até 20.000 pedidos por mês, 50 lojas, 15 CNPJs"),
 }
 
 

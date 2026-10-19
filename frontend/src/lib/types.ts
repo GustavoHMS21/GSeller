@@ -173,6 +173,14 @@ export interface Conversation {
   messages: { from: "buyer" | "seller"; text: string; at: string }[];
 }
 
+/** Um ponto da série de vendas (dia ou hora). */
+export interface SalesPoint {
+  /** Rótulo do eixo X: "08/09" (dia) ou "14h" (hora). */
+  label: string;
+  revenue: number;
+  orders: number;
+}
+
 export type ConnectionStatus =
   | "connected"
   | "syncing"

@@ -2,7 +2,7 @@
 ## Mercado Livre + Shopee | MVP em 14 dias
 
 > **Status:** Documento mestre vivo  
-> **Versão:** 0.21 — Menu, Início e pedidos no padrão que o seller já conhece do UpSeller (issue #63)  
+> **Versão:** 0.22 — Planos comparáveis ao UpSeller, painel de vendas no Início e Análises em abas (issues #63 e #57)  
 > **Agentes de IA de qualquer modelo:** antes de qualquer tarefa, leia o **Bloco 53** (regras obrigatórias de trabalho).  
 > **Objetivo:** colocar um MVP funcional nas mãos de usuários reais em até 14 dias.  
 > **Princípio central:** não construir “mais um ERP” nem competir com os dashboards nativos dos marketplaces. Construir uma camada de **Financial Intelligence + visão multicanal + priorização de ações**, transformando dados operacionais em decisões econômicas confiáveis.
@@ -4710,7 +4710,7 @@ A suíte passou de **140 para 121 testes** (frontend 91 → 75; backend 49 → 4
 | Bloqueio | No **8º dia**, a **API** recusa o uso (`402 trial_expired`) e o frontend mostra a tela de planos. Bloqueio só visual seria contornável |
 | E-mail de fim de trial | Somente para quem criou conta (anônimo não tem e-mail): avisos no 6º e no 8º dia |
 | Cobrança | **Stripe**: Checkout hospedado (o número de cartão nunca passa pelo nosso site) e Customer Portal |
-| Planos | **R$ 97 / R$ 197 / R$ 497 por volume** (Scale subiu de R$ 297 para R$ 497 em 2026-10-11; foco em pequenos e médios, novos sellers no Start e no Pro). Limites propostos na #35, a confirmar (#57) |
+| Planos | **R$ 97 / R$ 197 / R$ 497 por volume** (Scale subiu de R$ 297 para R$ 497 em 2026-10-11). Limites em 2026-10-11: **2.000 / 6.000 / 20.000 pedidos por mês, 5 / 15 / 50 lojas, 3 / 8 / 15 CNPJs** (Bloco 60.10) |
 
 ## 58.2 Como funciona a identidade
 
@@ -4997,15 +4997,35 @@ Na demonstração, o envio da resposta é simulado na tela.
 | Barra superior | Escura, com os módulos Home, Produtos, Pedidos, Compras, Estoque, SAC, Análises, Financeiro; cada um abre um menu com grupos titulados | Escura, com **Início, Produtos, Pedidos, SAC, Análises**; menu suspenso com grupos titulados ao passar o mouse ou focar pelo teclado. Compras, Estoque e Financeiro só entram quando existirem (Estoque com a #53) |
 | Direita da barra | Engrenagem (Integrações de Loja, configurações) e menu da conta (plano, Perfil, Faturas, Planos, Sair) | Engrenagem (Integrações de Loja, Empresas e lojas) e menu da conta (plano ou teste, Assinar/Planos, Alterar senha, Empresas e lojas, Sair) |
 | Dentro do módulo | Lateral própria com grupos e contadores (ex.: Processando Pedidos → Para Emitir 0) | Lateral própria com contadores em Pedidos (Processando Pedidos, Concluídos, Pós-venda) e SAC; Produtos e Configurações com a lateral de navegação |
-| Início | Duas colunas. Principal: Tarefas por módulo (número, ponto colorido e rótulo), Avisos, vendas por loja (Hoje / 30 dias). Lateral: plano, treinamento, Ações Rápidas, FAQs | Duas colunas. Principal: **Tarefas** por módulo (Pedidos, SAC, Produtos) → **O que corrigir no lucro** (no lugar dos Avisos; nosso diferencial) → **Vendas · últimos 30 dias** com abas Todas as Lojas / Mercado Livre / Shopee e lucro. Lateral: **card do plano** (teste ou plano) e **Ações Rápidas**. Sem banners de propaganda |
-| Análises | Relatórios de vendas (Vista Geral, ABC, por anúncio, por estado) | Módulo **Análises**: indicadores do período, todos os alertas de lucro, por marketplace, quem mais lucra e maior perda de margem |
+| Início | Duas colunas. Principal: Tarefas por módulo (número, ponto colorido e rótulo), Avisos, vendas por loja com Vendas de Hoje / Últimos 30 dias e gráfico. Lateral: plano, treinamento, Ações Rápidas, FAQs | Duas colunas. Principal: **Tarefas** por módulo (Pedidos, SAC, Lucro e produtos com o contador de **Alertas de lucro**) → **Vendas** com abas Todas as Lojas / Mercado Livre / Shopee, **Vendas de Hoje / Últimos 30 dias** e gráfico (v0.22). Lateral: **card do plano** com o preço inicial e **Comparar planos**, e **Ações Rápidas**. A análise de lucro saiu do Início (pedido do mantenedor) e ficou no módulo Análises |
+| Análises | Lateral com Relatórios de Vendas (Vista Geral, Performance, por anúncio, ABC, por estado) e análises por marketplace | Lateral com duas abas (v0.22): **Vista Geral** (indicadores, gráfico dos 30 dias, por marketplace, ranking de produtos) e **Análise de Lucro** (o que corrigir no lucro, quem mais lucra, maior perda de margem) |
 | Pedidos | Filtros no topo (nº do pedido, data, plataforma, loja…), abas por status e tabela Produtos, Valor do Pedido, Destinatário, Nº de Pedido da Plataforma, Tempo, Métodos de Envio, Estado, Ações | Lateral com status e contagens; busca por nº do pedido ou produto e plataforma (funciona sem JavaScript); tabela Produtos, Valor do Pedido, Nº de Pedido da Plataforma, Tempo, Estado, **O que fazer**, **Lucro**, Ações. **Sem Destinatário:** não guardamos dado do comprador (Bloco 50.4) |
 | "Expiram em breve" | Pedido não processado perto do cancelamento automático | "Postar hoje" e "Atrasados" (Bloco 60.6) |
 
 - Cada contador das Tarefas leva à lista já filtrada (testado).
 - Todo pedido cai em exatamente uma aba de status (testado), como num ERP.
 - "Para Reservar" (estoque insuficiente) entra com o estoque (#53/#56).
+- **Gráfico de vendas:** uma série (valor de vendas), área clara com linha de 2px, cruz e tooltip pelo mouse e pelas setas do teclado (controle deslizante acessível), tabela alternativa; pedidos como número ao lado, nunca segundo eixo. Cor validada contra a superfície dos dois temas (`--ds-chart-1`). Na demonstração, a série reparte os totais do período (a soma bate com os indicadores, testado).
 - **Inspiração para depois, a priorizar com o filtro do 60.4:** Notas Fiscais com lateral de status (Rascunho, Emitindo, Falha na Emissão, Emitido) para a #55; Compras (Sugestão de Compras, Para Comprar, Em Trânsito) e Estoque (Lista de Estoque com Qtd. Mín., Disponível, Custo Médio; Regras de Reposição) para a #53/#56; Financeiro (Caixa e Bancos, Contas a Pagar/Receber, Relatórios de Lucros); Integrações com lista de marketplaces e contador de lojas por plano.
+
+## 60.10 Planos frente ao UpSeller (v0.22, issue #57)
+
+> Decisão do mantenedor em 2026-10-11: só 3 planos; o primeiro tem que ser melhor que o primeiro plano pago do UpSeller, mesmo mais barato, e com margem.
+
+| | UpSeller Inicial | **GSeller Start** | UpSeller Avançado | **GSeller Pro** | UpSeller Profissional | **GSeller Scale** |
+|---|---|---|---|---|---|---|
+| Preço | R$ 149/mês | **R$ 97/mês** | R$ 2.299/6 meses (≈ R$ 383/mês) | **R$ 197/mês** | R$ 6.990/ano (≈ R$ 583/mês) | **R$ 497/mês** |
+| Pedidos/mês | 1.800 | **2.000** | 6.000 | **6.000** | 20.000 | **20.000** |
+| Lojas de marketplace | 5 | **5** | 15 | **15** | 50 | **50** |
+| Empresas (CNPJ) | 3 | **3** | 8 | **8** | 15 | **15** |
+| Usuários (subcontas) | 5 | — | 12 | — | 30 | — |
+
+- **Fonte:** tela de planos do UpSeller (print do mantenedor, 2026-10-11). O UpSeller também tem Gratuito (600 pedidos, 2 lojas, 1 CNPJ) e Empresarial (90.000 pedidos).
+- **Em todos os planos GSeller:** lucro e margem por pedido e produto, alertas do que corrigir, pedidos de ponta a ponta e devoluções com custo, SAC do Mercado Livre, vários CNPJs. O que muda é o volume.
+- **Usuários da equipe** não entram nos planos até o convite existir (#65); não vendemos o que não funciona.
+- **Tela de planos:** cards com limites e tabela "Comparar planos"; o card do plano no Início mostra o preço inicial e leva à comparação. Não citamos o UpSeller na tela (marca de terceiro); a comparação com ele fica neste bloco.
+- **Margem (estimativa a medir, Bloco 45.4):** no Start, o custo variável por conta é dominado pela taxa do cartão (~4% + tarifa fixa) e por armazenamento e sincronização de até 2.000 pedidos (centavos por pedido em banco gerenciado). Contribuição estimada acima de 80% antes do suporte. O risco real é suporte e onboarding manual (45.4); medir no piloto.
+- **Risco:** o Gratuito do UpSeller atende quem vende até 600 pedidos. Nosso teste é de 7 dias. Se o novo comerciante for prioridade, avaliar um plano de entrada menor ou trial maior com os dados do piloto.
 
 ---
 
@@ -5030,6 +5050,12 @@ Essa sequência evita começarmos pela API e descobrirmos depois que construímo
 ---
 
 # CHANGELOG
+
+## v0.22
+
+- planos com limites comparáveis ao UpSeller: Start R$ 97 (2.000 pedidos, 5 lojas, 3 CNPJs), Pro R$ 197 (6.000, 15, 8), Scale R$ 497 (20.000, 50, 15); tabela "Comparar planos"; selo "Mais escolhido" trocado por "Recomendado" (Bloco 60.10, #57);
+- Início com painel de vendas: abas por loja, Vendas de Hoje / Últimos 30 dias e gráfico acessível; análise de lucro saiu do Início e virou a aba Análise de Lucro em Análises, ao lado da Vista Geral (Bloco 60.9);
+- issue #65 aberta para convite de usuários da equipe, pré-requisito para limitar usuários por plano.
 
 ## v0.21
 

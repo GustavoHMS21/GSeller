@@ -77,6 +77,11 @@ export const PRODUCTS_NAV: ModuleSection[] = [
   },
 ];
 
+export const ANALYSES_NAV: ModuleSection[] = [
+  { title: "Relatórios de Vendas", items: [{ href: "/analises", label: "Vista Geral" }] },
+  { title: "Lucro", items: [{ href: "/analises/lucro", label: "Análise de Lucro" }] },
+];
+
 export const SETTINGS_NAV: ModuleSection[] = [
   {
     items: [

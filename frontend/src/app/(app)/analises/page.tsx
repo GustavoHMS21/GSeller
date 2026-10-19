@@ -1,70 +1,37 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { InsightCard } from "@/components/app/insight-card";
+import { ANALYSES_NAV, ModuleLayout, ModuleSidebar } from "@/components/app/module-sidebar";
+import { SalesChart } from "@/components/app/sales-chart";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Delta } from "@/components/ui/delta";
 import { KpiCard } from "@/components/ui/kpi-card";
 import { MarketplaceBadge } from "@/components/ui/marketplace-badge";
-import { insights, products, storeSummary } from "@/lib/demo/data";
+import { products, storeSummary } from "@/lib/demo/data";
+import { last30Days } from "@/lib/demo/sales";
 import { formatBRL, formatBRLRounded, formatInt, formatPct, relativeChange } from "@/lib/format";
 import type { Marketplace } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Análises" };
+export const metadata: Metadata = { title: "Vista Geral" };
 
-const VISIBLE_INSIGHTS = 4;
+const RANKING_SIZE = 5;
 
-export default function AnalysesPage() {
+/** Relatório de vendas, como a Vista Geral do UpSeller, com lucro e margem (Bloco 60.9). */
+export default function SalesOverviewPage() {
   const store = storeSummary();
   const cur = store.revenue.current;
   const prev = store.revenue.previous;
   const res = store.result;
   const ticket = (e: { revenue: number; orders: number }) => (e.orders ? e.revenue / e.orders : 0);
 
-  const [topInsights, moreInsights] = [
-    insights.slice(0, VISIBLE_INSIGHTS),
-    insights.slice(VISIBLE_INSIGHTS),
-  ];
-
-  const costed = products.filter((p) => p.totals.current.result !== null);
-  const topContributors = [...costed]
-    .sort((a, b) => (b.totals.current.result ?? 0) - (a.totals.current.result ?? 0))
-    .slice(0, 3);
-  const maxContribution = topContributors[0]?.totals.current.result ?? 1;
-  const deteriorating = costed
-    .map((p) => ({ p, drop: (p.totals.previous.margin ?? 0) - (p.totals.current.margin ?? 0) }))
-    .filter((x) => x.drop > 0.005)
-    .sort((a, b) => b.drop - a.drop)
-    .slice(0, 3);
+  const ranking = [...products]
+    .sort((a, b) => b.totals.current.revenue - a.totals.current.revenue)
+    .slice(0, RANKING_SIZE);
+  const maxRevenue = ranking[0]?.totals.current.revenue || 1;
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">Análises de lucro</h1>
-
-      <section aria-labelledby="atencao">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 id="atencao" className="text-lg font-semibold">
-            O que corrigir no lucro
-          </h2>
-          <span className="text-sm text-fg-muted">{insights.length} itens</span>
-        </div>
-        <div className="grid gap-4 lg:grid-cols-2">
-          {topInsights.map((insight) => (
-            <InsightCard key={insight.id} insight={insight} />
-          ))}
-        </div>
-        {moreInsights.length > 0 && (
-          <details className="mt-4">
-            <summary className="cursor-pointer text-sm font-medium text-primary">
-              Ver mais {moreInsights.length} itens
-            </summary>
-            <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              {moreInsights.map((insight) => (
-                <InsightCard key={insight.id} insight={insight} />
-              ))}
-            </div>
-          </details>
-        )}
-      </section>
+    <ModuleLayout
+      sidebar={<ModuleSidebar title="Análises" sections={ANALYSES_NAV} activeHref="/analises" />}
+    >
+      <h1 className="text-2xl font-semibold">Vista Geral</h1>
 
       <section aria-labelledby="kpis">
         <h2 id="kpis" className="mb-3 text-lg font-semibold">
@@ -115,19 +82,23 @@ export default function AnalysesPage() {
         </div>
       </section>
 
-      <section id="marketplaces" className="scroll-mt-20">
-        <Card>
-          <CardHeader title="Por marketplace" />
-          <MarketplaceComparison />
-        </Card>
-      </section>
+      <Card>
+        <CardHeader title="Valor de vendas · últimos 30 dias" />
+        <SalesChart points={last30Days()} title="Valor de vendas por dia, todas as lojas" />
+      </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="space-y-6">
+        <section id="marketplaces" className="scroll-mt-20">
+          <Card>
+            <CardHeader title="Por marketplace" />
+            <MarketplaceComparison />
+          </Card>
+        </section>
         <Card>
-          <CardHeader title="Quem mais lucra" />
+          <CardHeader title="Ranking de produtos" />
           <ol className="space-y-3">
-            {topContributors.map((p) => {
-              const result = p.totals.current.result ?? 0;
+            {ranking.map((p) => {
+              const revenue = p.totals.current.revenue;
               return (
                 <li key={p.id}>
                   <div className="flex items-baseline justify-between gap-2 text-sm">
@@ -137,12 +108,12 @@ export default function AnalysesPage() {
                     >
                       {p.name}
                     </Link>
-                    <span className="tabular-nums">{formatBRL(result)}</span>
+                    <span className="tabular-nums">{formatBRL(revenue)}</span>
                   </div>
                   <div className="mt-1 h-2 rounded-full bg-surface-muted" aria-hidden="true">
                     <div
-                      className="h-2 rounded-full bg-success"
-                      style={{ width: `${(result / maxContribution) * 100}%` }}
+                      className="h-2 rounded-full bg-chart-1"
+                      style={{ width: `${(revenue / maxRevenue) * 100}%` }}
                     />
                   </div>
                 </li>
@@ -150,34 +121,8 @@ export default function AnalysesPage() {
             })}
           </ol>
         </Card>
-        <Card>
-          <CardHeader title="Maior perda de margem" />
-          {deteriorating.length === 0 ? (
-            <p className="text-sm text-fg-muted">Nenhum produto perdeu margem no período.</p>
-          ) : (
-            <ol className="space-y-3">
-              {deteriorating.map(({ p, drop }) => (
-                <li key={p.id} className="flex items-baseline justify-between gap-2 text-sm">
-                  <Link
-                    href={`/produtos/${p.id}`}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {p.name}
-                  </Link>
-                  <span className="flex items-baseline gap-2">
-                    <span className="tabular-nums text-fg-muted">
-                      {formatPct(p.totals.previous.margin ?? 0)} →{" "}
-                      {formatPct(p.totals.current.margin ?? 0)}
-                    </span>
-                    <Delta value={-drop} kind="pp" />
-                  </span>
-                </li>
-              ))}
-            </ol>
-          )}
-        </Card>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }
 

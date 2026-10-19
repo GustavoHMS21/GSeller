@@ -75,12 +75,13 @@ const MODULES: NavModule[] = [
     match: ["/analises"],
     groups: [
       {
-        title: "Lucro",
+        title: "Relatórios de Vendas",
         items: [
-          { href: "/analises", label: "Lucro e alertas" },
+          { href: "/analises", label: "Vista Geral" },
           { href: "/analises#marketplaces", label: "Por marketplace" },
         ],
       },
+      { title: "Lucro", items: [{ href: "/analises/lucro", label: "Análise de Lucro" }] },
     ],
   },
 ];

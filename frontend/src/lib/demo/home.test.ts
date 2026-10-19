@@ -9,6 +9,7 @@ describe("tarefas do Início", () => {
       ...ORDER_FILTERS.map((f) => `/pedidos?filtro=${f.value}`),
       ...SUPPORT_FILTERS.map((f) => `/atendimento?filtro=${f.value}`),
       "/custos",
+      "/analises/lucro",
     ]);
     for (const task of homeTasks().flatMap((g) => g.tasks)) {
       expect(valid.has(task.href), task.label).toBe(true);

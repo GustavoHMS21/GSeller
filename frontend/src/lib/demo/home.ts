@@ -1,7 +1,7 @@
 // Tarefas do Início (Bloco 60.9): o que está pendente, com a mesma lógica das listas, agrupado
 // por módulo como no painel do UpSeller.
 
-import { products } from "@/lib/demo/data";
+import { insights, products } from "@/lib/demo/data";
 import { DEMO_NOW, orders } from "@/lib/demo/order-data";
 import { matchesFilter, type OrderFilter, orderAttention } from "@/lib/demo/orders";
 import { needsReply } from "@/lib/demo/support";
@@ -91,8 +91,14 @@ export function homeTasks(): HomeTaskGroup[] {
       ],
     },
     {
-      title: "Produtos",
+      title: "Lucro e produtos",
       tasks: [
+        {
+          label: "Alertas de lucro",
+          count: insights.filter((i) => i.severity !== "info").length,
+          href: "/analises/lucro",
+          tone: "danger",
+        },
         {
           label: "Sem custo cadastrado",
           count: products.filter((p) => p.cost.unitCost === null).length,

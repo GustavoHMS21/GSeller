@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { InsightCard } from "@/components/app/insight-card";
 import { PlanCard } from "@/components/app/plan-card";
-import { type SalesTab, SalesTabs } from "@/components/app/sales-tabs";
+import { type SalesTab, SalesTabs, type SalesView } from "@/components/app/sales-tabs";
 import { Skeleton } from "@/components/ui/states";
 import { cx } from "@/lib/cx";
-import { insights, storeSummary } from "@/lib/demo/data";
+import { storeSummary } from "@/lib/demo/data";
 import { type HomeTask, homeTasks } from "@/lib/demo/home";
+import { last30Days, today } from "@/lib/demo/sales";
 import { formatBRLRounded, formatInt, formatPct } from "@/lib/format";
-import type { Marketplace } from "@/lib/types";
+import type { Marketplace, SalesPoint } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Início" };
-
-const TOP_INSIGHTS = 3;
 
 const DOT: Record<HomeTask["tone"], string> = {
   neutral: "bg-fg-muted",
@@ -28,18 +26,20 @@ const QUICK_ACTIONS = [
   { href: "/custos", label: "Cadastrar Custos" },
   { href: "/pedidos?filtro=atrasados", label: "Ver Pedidos Atrasados" },
   { href: "/atendimento?filtro=responder", label: "Responder SAC" },
-  { href: "/empresas", label: "Empresas e Lojas" },
-  { href: "/planos", label: "Planos" },
+  { href: "/analises/lucro", label: "Análise de Lucro" },
+  { href: "/planos", label: "Comparar Planos" },
 ];
 
-/** Início no formato do UpSeller (Bloco 60.9): tarefas, lucro e vendas; plano e atalhos à direita. */
+/**
+ * Início no formato do UpSeller (Bloco 60.9): tarefas e o painel de vendas; plano e atalhos à
+ * direita. A análise de lucro fica no módulo Análises, com um contador nas Tarefas.
+ */
 export default function HomePage() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 space-y-6">
         <h1 className="sr-only">Início</h1>
         <Tasks />
-        <ProfitAlerts />
         <Sales />
       </div>
       <aside className="space-y-6">
@@ -101,25 +101,8 @@ function Tasks() {
   );
 }
 
-function ProfitAlerts() {
-  return (
-    <section className="rounded-lg border border-line bg-surface p-5" aria-labelledby="lucro">
-      <div className="mb-4 flex items-baseline justify-between gap-2">
-        <h2 id="lucro" className="text-lg font-semibold">
-          O que corrigir no lucro
-        </h2>
-        <Link href="/analises" className="text-sm text-primary hover:underline">
-          Mais ({insights.length}) →
-        </Link>
-      </div>
-      <div className="space-y-3">
-        {insights.slice(0, TOP_INSIGHTS).map((insight) => (
-          <InsightCard key={insight.id} insight={insight} />
-        ))}
-      </div>
-    </section>
-  );
-}
+const sum = (points: SalesPoint[], key: "revenue" | "orders") =>
+  points.reduce((a, p) => a + p[key], 0);
 
 function Sales() {
   const channels: { key: string; label: string; m?: Marketplace }[] = [
@@ -128,14 +111,21 @@ function Sales() {
     { key: "shopee", label: "Shopee", m: "shopee" },
   ];
   const tabs: SalesTab[] = channels.map(({ key, label, m }) => {
-    const s = storeSummary(m);
-    const result = s.result.current;
-    return {
-      key,
-      label,
+    const hours = today(m);
+    const days = last30Days(m);
+    const result = storeSummary(m).result.current;
+    const todayView: SalesView = {
+      points: hours,
       stats: [
-        { label: "Valor de Vendas", value: formatBRLRounded(s.revenue.current.revenue) },
-        { label: "Pedidos", value: formatInt(s.revenue.current.orders) },
+        { label: "Valor de Vendas", value: formatBRLRounded(sum(hours, "revenue")) },
+        { label: "Pedidos", value: formatInt(sum(hours, "orders")) },
+      ],
+    };
+    const monthView: SalesView = {
+      points: days,
+      stats: [
+        { label: "Valor de Vendas", value: formatBRLRounded(sum(days, "revenue")) },
+        { label: "Pedidos", value: formatInt(sum(days, "orders")) },
         {
           label: "Lucro estimado",
           value: result.result === null ? "—" : formatBRLRounded(result.result),
@@ -146,12 +136,13 @@ function Sales() {
         },
       ],
     };
+    return { key, label, today: todayView, month: monthView };
   });
   return (
     <section className="rounded-lg border border-line bg-surface p-5" aria-labelledby="vendas">
       <div className="mb-3 flex items-baseline justify-between gap-2">
         <h2 id="vendas" className="text-lg font-semibold">
-          Vendas · últimos 30 dias
+          Vendas
         </h2>
         <Link href="/analises" className="text-sm text-primary hover:underline">
           Mais →

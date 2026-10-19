@@ -37,6 +37,9 @@
   --ds-nav-hover: #1b2a4d;
   --ds-nav-fg: #f3f5f9;
   --ds-nav-fg-muted: #b8c1d3;
+
+  /* Série dos gráficos: validada contra a superfície de cada tema (skill dataviz). */
+  --ds-chart-1: #1f4fd1;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -60,6 +63,8 @@
     --ds-danger-soft: #331717;
     --ds-info: #79abff;
     --ds-info-soft: #14233b;
+
+    --ds-chart-1: #6389f5;
   }
 }
 
@@ -71,6 +76,7 @@
   --color-fg-muted: var(--ds-fg-muted);
   --color-line: var(--ds-line);
 
+  --color-chart-1: var(--ds-chart-1);
   --color-nav: var(--ds-nav);
   --color-nav-hover: var(--ds-nav-hover);
   --color-nav-fg: var(--ds-nav-fg);
